@@ -2061,8 +2061,8 @@ function renderHq() {
   const stat = (k, ic, v, s) => `<div class="card stat"><div class="k"><span class="ms">${ic}</span>${k}</div><div class="v num">${v}<small>원</small></div><div class="s">${s}</div></div>`;
   const st = (done, yes, no) => done ? `<span class="pill in">${yes} ${done}</span>` : `<span class="pill gray">${no}</span>`;
   $('#hqStats').innerHTML =
-    stat('매출 · 허브 → 본사 발행', 'north_east', won(hqSum(S, 'total')), `공급가액 ${won(hqSum(S, 'supply'))} · VAT ${won(hqSum(S, 'vat'))} · ${HQ_STATE.salesIssued ? '발행 완료' : '미발행'}`) +
-    stat('매입 · 본사 → 허브 발행', 'south_west', won(hqSum(B, 'total')), `공급가액 ${won(hqSum(B, 'supply'))} · VAT ${won(hqSum(B, 'vat'))} · 본사가 발행`) +
+    stat(`매출 / 본사에 발행 ${HQ_STATE.salesIssued ? '완료' : '필요'}`, 'north_east', won(hqSum(S, 'total')), `공급가액 ${won(hqSum(S, 'supply'))} · VAT ${won(hqSum(S, 'vat'))}${HQ_STATE.salesIssued ? ` · ${HQ_STATE.salesIssued} 발행` : ''}`) +
+    stat('매입 / 본사에서 허브로 발행', 'south_west', won(hqSum(B, 'total')), `공급가액 ${won(hqSum(B, 'supply'))} · VAT ${won(hqSum(B, 'vat'))}`) +
     stat('매출 − 매입 (공급가액)', 'balance', won(hqSum(S, 'supply') - hqSum(B, 'supply')), '정산서 기준 본사와의 순정산');
   $('#hqSalesState').innerHTML = st(HQ_STATE.salesIssued, '발행 완료', '미발행');
   $('#hqSalesDone').disabled = !!HQ_STATE.salesIssued; $('#hqSalesDone').innerHTML = `<span class="ms">task_alt</span>${HQ_STATE.salesIssued ? '발행 완료됨' : '발행 완료로 표시'}`;
@@ -3086,8 +3086,8 @@ const SPEC = {
       ['1', '조회 조건 (맨 위)', `<ul><li>정산월 (기본 전월). 지사코드 · 정산기간 · 발행 기한 D-day 표시</li>
         <li>「정산서 엑셀 (전체)」 = 첫 시트 정산서 양식 그대로 + 상세 파일마다 시트 1개 (탭 순서와 같음)</li></ul>`],
       ['2', '상단 지표 (모든 탭 공통)', `<table class="sp-tbl"><tr><th>지표</th><th>정의</th></tr>
-        <tr><td>매출 · 허브 → 본사 발행</td><td>매출 합계(공급가액 + VAT). 보조 = 공급가액 · VAT · 발행 상태</td></tr>
-        <tr><td>매입 · 본사 → 허브 발행</td><td>매입 합계. 보조 = 공급가액 · VAT · 「본사가 발행」 (허브 쪽 상태 없음)</td></tr>
+        <tr><td>매출 / 본사에 발행 필요</td><td>매출 합계(공급가액 + VAT). 보조 = 공급가액 · VAT. 「발행 완료로 표시」 후에는 제목이 「매출 / 본사에 발행 완료」, 보조에 발행일</td></tr>
+        <tr><td>매입 / 본사에서 허브로 발행</td><td>매입 합계. 보조 = 공급가액 · VAT (허브 쪽 상태 없음)</td></tr>
         <tr><td>매출 − 매입</td><td>공급가액 기준 순정산 (정산서의 「매출 − 매입」)</td></tr></table>`],
       ['3', '하위 탭 = 본사 파일', `<ul><li>첫 탭 <b>정산서</b>, 그 뒤로 본사가 준 상세 파일마다 탭 1개. 「참고」 표시 탭은 정산서 금액에 안 들어가는 자료</li>
         <li>정산서 표의 행 · 「상세」를 누르면 그 내역의 파일 탭으로 이동 (기타수수료 · 일반 공유망처럼 파일이 없는 내역은 「-」)</li></ul>
