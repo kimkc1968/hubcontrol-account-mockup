@@ -830,7 +830,7 @@
     <div class="filters" data-spec="2">
       <div class="field"><label>귀속월</label>
         <select class="ctl" style="width:130px"><option>2026-09</option><option>2026-08</option><option>2026-07</option></select></div>
-      <div class="notice" id="whtNotice"><span class="ms">info</span>정산일 기준(9/1 06시 ~ 10/1 06시) 라이더 배달료 지급분입니다. 신고·납부 기한 10/10 <span class="pill out" style="margin-left:4px">D-9</span></div>
+      <div class="notice" id="whtNotice"><span class="ms">info</span>정산일 기준(9/1 06시 ~ 10/1 06시) 라이더 배달료 + 허브 자동 지원금 지급분입니다. 신고·납부 기한 10/10 <span class="pill out" style="margin-left:4px">D-9</span></div>
     </div>
 
     <!-- 이행상황 신고 -->
@@ -893,7 +893,7 @@
       </div>
       <div data-spec="8"><div class="tbl-wrap">
         <table class="tbl">
-          <thead><tr><th>#</th><th>라이더명</th><th>주민등록번호</th><th>소득 구분</th><th class="r">배달 건수</th><th class="r">지급액</th>
+          <thead><tr><th>#</th><th>라이더명</th><th>주민등록번호</th><th>소득 구분</th><th class="r">배달 건수</th><th class="r">지급액 <span class="th-sub">배달료 + 지원금</span></th>
             <th class="r">소득세 3%</th><th class="r">지방소득세 0.3%</th><th class="r">원천징수 합계</th><th class="r">실지급액</th><th class="c">정보 상태</th></tr></thead>
           <tbody id="whtBody"></tbody>
           <tfoot id="whtFoot"></tfoot>
@@ -983,11 +983,11 @@
       <div class="card tax-card" data-spec="4">
         <div class="card-h">원천세 보관금 <span class="pill keep">라이더 3.3%</span><span class="pill out" id="whtAutoPill" style="display:none;margin-left:6px">자동 보관 OFF · 10/2 06시부터</span></div>
         <div class="card-b">
-          <div class="tax-amt"><span class="big num">1,412,730<small>원</small></span><span class="plus num" style="font-size:13px">어제 +48,946원</span></div>
+          <div class="tax-amt"><span class="big num" id="whtKeepAmt">0<small>원</small></span><span class="plus num" style="font-size:13px" id="whtKeepDay"></span></div>
           <dl class="kv">
             <dt>집계 기간</dt><dd class="num">2026-09-01 ~ 2026-09-30 (9월 귀속)</dd>
             <dt>신고 기한</dt><dd class="num">2026-10-10 <span class="pill out">D-9</span></dd>
-            <dt>집계 기준</dt><dd>라이더 배달료 지급액 × 3.3% (소득세 3% + 지방소득세 0.3%)</dd>
+            <dt>집계 기준</dt><dd>(라이더 배달료 + 허브 자동 지원금) × 3.3% (소득세 3% + 지방소득세 0.3%)</dd>
             <dt>예치 상태</dt><dd id="whtHoldState"></dd>
           </dl>
           <div class="btn-row">
@@ -1011,12 +1011,12 @@
     </div>
 
     <div class="card" data-spec="6">
-      <div class="card-h">라이더별 원천세 보관 내역 <span class="sub-t">2026년 9월 귀속 · 라이더 배달료 지급 기준</span>
+      <div class="card-h">라이더별 원천세 보관 내역 <span class="sub-t">2026년 9월 귀속 · 배달료 + 허브 자동 지원금 기준</span>
         <div class="right"><button class="btn outline sm" data-goto="wht"><span class="ms">assignment</span>라이더 / 원천세 신고</button></div></div>
-      <div class="notice" style="margin:12px 16px;height:auto"><span class="ms">info</span><span>원천세는 상점이 아니라 <b>라이더</b>에게 지급한 배달료에서 떼는 세금이에요. 라이더별 지급액 기준으로 소득세 3%와 지방소득세 0.3%를 보관합니다.</span></div>
+      <div class="notice" style="margin:12px 16px;height:auto"><span class="ms">info</span><span>원천세는 상점이 아니라 <b>라이더</b>에게 지급한 돈(배달료 + 허브 자동 지원금)에서 떼는 세금이에요. 라이더별 지급액 기준으로 소득세 3%와 지방소득세 0.3%를 보관합니다.</span></div>
       <div style="overflow-x:auto">
         <table class="tbl">
-          <thead><tr><th>라이더명</th><th class="r">배달 건수</th><th class="r">지급액</th><th class="r">소득세 3%</th><th class="r">지방소득세 0.3%</th><th class="r">원천징수 합계</th></tr></thead>
+          <thead><tr><th>라이더명</th><th class="r">배달 건수</th><th class="r">배달료</th><th class="r">허브 자동 지원금</th><th class="r">지급액</th><th class="r">소득세 3%</th><th class="r">지방소득세 0.3%</th><th class="r">원천징수 합계</th></tr></thead>
           <tbody id="taxRiderBody"></tbody>
           <tfoot id="taxRiderFoot"></tfoot>
         </table>
@@ -1037,7 +1037,7 @@
         <div class="card-h">세금</div>
         <div class="opt"><div class="txt"><b>세금 자체신고</b><p>켜면 부가세·원천세를 허브가 직접 신고합니다. 세금만큼 허브캐시에 예치금이 걸려 출금가능금액이 줄어요.</p></div><label class="switch"><input type="checkbox" id="tgSelf" checked><span></span></label></div>
         <div class="opt dep"><div class="txt"><b>부가세 자동 보관</b><p>주문마다 부가세만큼 예치금을 걸어 출금을 막습니다.</p></div><label class="switch"><input type="checkbox" id="tgVat" checked><span></span></label></div>
-        <div class="opt dep"><div class="txt"><b>원천세 자동 보관</b><p>라이더 배달료 지급 시 원천세(3.3%)만큼 예치금을 겁니다.</p></div><label class="switch"><input type="checkbox" id="tgWht" checked><span></span></label></div>
+        <div class="opt dep"><div class="txt"><b>원천세 자동 보관</b><p>라이더 배달료 · 허브 자동 지원금 지급 시 원천세(3.3%)만큼 예치금을 겁니다.</p></div><label class="switch"><input type="checkbox" id="tgWht" checked><span></span></label></div>
       </div>
       <div class="card mb" data-spec="3">
         <div class="card-h">정산 표시 · 알림</div>
@@ -1154,7 +1154,7 @@ const pick = a => a[Math.floor(rnd() * a.length)];
 
 const STORES = ['맛있는치킨 강남점', '버거플러스 역삼', '한솥도시락 논현', '카페온 선릉', '피자명가 삼성', '국밥한그릇 신사', '샐러드데이 청담', '떡볶이연구소 압구정'];
 const RIDERS = ['김라이더', '박배달', '이빠름', '최안전', '정신속', '한바퀴', '오토바', '윤질주'];
-const HUB_BAL = 22791675;   // 허브캐시 잔액 (= 캐시 내역 허브캐시 최신 잔여캐시) = 출금가능 4,895,290 + 세금 예치금
+const HUB_BAL = 22791675;   // 허브캐시 잔액 (= 캐시 내역 허브캐시 최신 잔여캐시) = 출금가능 + 세금 예치금 (부가세 VAT_KEEP + 원천세 WHT_KEEP)
 const NEXT_SETTLE = '10/2 06시부터';   // 오늘(10/1) 바꾼 정산 설정이 적용되는 시점 = 다음 정산일 시작
 let OPT = null;             // 저장된 운영 옵션 (정산 설정 > 운영 옵션에서 채움)
 // 정산 요약 기준일: 시안 데이터 범위 7/1 ~ 오늘(10/1). 기본 = 어제(9/30)
@@ -1206,15 +1206,18 @@ const IN = [
 ];
 /* 나간 돈 = 운영비 (실제로 허브를 떠난 돈)
    허브 자동 지원금 = 허브가 라이더에게 주는 지원금 (원래 배달 건별로 수기 입력 → 자동 지급). 허브 입장에선 지출 */
+const SUP_YDAY = 48000, SUP_TODAY = 19600;   // 9/30 · 오늘 허브 자동 지원금
 const OUT = [
-  { n: '허브 자동 지원금', v: 48000, c: '라이더 지급 · 건별 자동' },
+  { n: '허브 자동 지원금', v: SUP_YDAY, c: '라이더 지급 · 건별 자동' },
   { n: '바로머니 이용료', v: 41200, c: '412건' },
   { n: '프로그램 사용료', v: 30000, c: '일할' },
 ];
 const supOf = cnt => Math.round(cnt * 116 / 10) * 10;   // 허브 자동 지원금 (시안: 건당 평균 116원)
+// 원천세 예치 = (라이더 배달료 + 허브 자동 지원금) × 3.3% — 지원금도 라이더 사업소득
+const whtOf = (rider, sup) => Math.round((rider + sup) * 0.033);
 const KEEP = [  // 보관한 돈 = 세금 예치 (나간 돈 아님. 허브캐시에 그대로 두고 그만큼 출금을 막음)
   { n: '부가세 예치', v: 184200, c: '상점 세금계산서 세액', keep: true, auto: 'autoVat' },
-  { n: '원천세 예치', v: 48946, c: '라이더 배달료 × 3.3%', keep: true, auto: 'autoWht' },
+  { n: '원천세 예치', v: whtOf(RIDER_PAY, SUP_YDAY), c: '(배달료 + 지원금) × 3.3%', keep: true, auto: 'autoWht' },
 ];
 // 운영 옵션에 따라 보관 항목 옆에 붙는 안내 (9/30분은 이미 보관됨 → 다음 정산일 06시부터 바뀜)
 const keepNote = o => !o.keep || !OPT ? '' : !OPT.selfReport ? ` <span class="pill out" style="white-space:nowrap" title="자체신고 OFF · ${NEXT_SETTLE} 본사 신고">본사 신고 전환</span>`
@@ -1222,15 +1225,21 @@ const keepNote = o => !o.keep || !OPT ? '' : !OPT.selfReport ? ` <span class="pi
 // 오늘(10/1)은 정산일이 진행 중 → 지금(NOW_HM)까지 실시간으로 쌓인 금액 (매월 1일이라 월관리비 포함)
 const TODAY = { cnt: 168, live: true, rider: 604800,
   IN: [...feeIn(772240 - 604800, 168), { n: '건당관리비', v: 84000, c: '168건' }, { n: '상점 월관리비', v: 150000, c: '3개 상점 · 매월 1일' }],
-  OUT: [{ n: '허브 자동 지원금', v: 19600, c: '라이더 지급 · 건별 자동' }, { n: '바로머니 이용료', v: 16800, c: '168건' }, { n: '프로그램 사용료', v: 30000, c: '일할' }],
-  KEEP: [{ ...KEEP[0], v: 75264 }, { ...KEEP[1], v: 19958 }] };
+  OUT: [{ n: '허브 자동 지원금', v: SUP_TODAY, c: '라이더 지급 · 건별 자동' }, { n: '바로머니 이용료', v: 16800, c: '168건' }, { n: '프로그램 사용료', v: 30000, c: '일할' }],
+  KEEP: [{ ...KEEP[0], v: 75264 }, { ...KEEP[1], v: whtOf(604800, SUP_TODAY) }] };
+// 그날 허브 자동 지원금 (라이더캐시 적립 · 원천세 대상). 일반 날 = 세금 보관 일별 데이터 (월 합계가 수익 내역 · 원천세 신고와 같게 배분)
+function supDay(k) {
+  if (k === SUM_YDAY) return SUP_YDAY;
+  if (k === SUM_MAX) return SUP_TODAY;
+  const d = taxDays()[k]; return Math.max(0, Math.min(d.sup, d.etc - d.cnt * 100));
+}
 const md = k => `${+k.slice(5, 7)}/${+k.slice(8)}`;
 // 기준일 하루의 들어온 돈 / 나간 돈 / 보관한 돈. 9/30 = 위 고정값, 10/1 = 오늘(집계 중), 나머지 = 세금 보관 일별 데이터에서 항목별로 나눔
 function dayFlow(k) {
   if (k === SUM_YDAY) return { cnt: 412, rider: RIDER_PAY, IN, OUT, KEEP };
   if (k === SUM_MAX) return TODAY;
   const d = taxDays()[k], fee = d.cnt * 500, monthly = +k.slice(8) % 7 === 1 ? 150000 : 0;
-  const bm = d.cnt * 100, sup = Math.max(0, Math.min(supOf(d.cnt), d.etc - bm)), prog = Math.max(0, Math.min(30000, d.etc - bm - sup));
+  const bm = d.cnt * 100, sup = supDay(k), prog = Math.max(0, Math.min(30000, d.etc - bm - sup));
   return { cnt: d.cnt, rider: d.rider,
     IN: [...feeIn(d.inc - fee - monthly - d.rider, d.cnt), { n: '건당관리비', v: fee, c: `${d.cnt}건` },
       { n: '상점 월관리비', v: monthly, c: '3개 상점' }],
@@ -1239,8 +1248,10 @@ function dayFlow(k) {
     KEEP: [{ ...KEEP[0], v: d.vat }, { ...KEEP[1], v: d.wht }] };
 }
 // inc = 배달 매출 전체 (수익 내역 「들어온 돈」과 같음), hubInc = 허브 수수료 · 관리비 (정산 요약 「들어온 돈」)
+// sup = 허브 자동 지원금 (운영비 중 라이더에게 간 돈 → 라이더캐시 적립에도 들어감)
 const flowSum = f => { const s = a => a.reduce((x, b) => x + b.v, 0), hubInc = s(f.IN), etc = s(f.OUT), tax = s(f.KEEP);
-  return { cnt: f.cnt, inc: hubInc + f.rider, hubInc, rider: f.rider, etc, tax, net: hubInc - etc - tax }; };
+  const sup = (f.OUT.find(o => o.n === '허브 자동 지원금') || { v: 0 }).v;
+  return { cnt: f.cnt, inc: hubInc + f.rider, hubInc, rider: f.rider, sup, etc, tax, net: hubInc - etc - tax }; };
 function renderSummary() {
   const f = dayFlow(sumDate), t = flowSum(f), out = t.etc;
   const vis = a => a.filter(o => o.v > 0);   // 0원 사유는 숨김
@@ -1268,8 +1279,10 @@ function renderSummary() {
   $('#riderAvail').innerHTML = won(3218450) + '<small>원</small>';   // = RIDER_AVAIL (실시간)
   $('#riderInLabel').textContent = `${word} 적립`;
   $('#riderOutLabel').textContent = `${word} 차감·출금`;
-  $('#riderIn').textContent = '+' + won(t.rider) + '원';
-  $('#riderOut').textContent = '-' + won(sumDate === SUM_YDAY ? 1322600 : Math.round(t.rider * 0.892 / 100) * 100) + '원';
+  // 적립 = 배달료 + 허브 자동 지원금 (지원금도 라이더 몫)
+  $('#riderIn').textContent = '+' + won(t.rider + t.sup) + '원';
+  $('#riderIn').title = `배달료 ${won(t.rider)}원 + 허브 자동 지원금 ${won(t.sup)}원`;
+  $('#riderOut').textContent = '-' + won(sumDate === SUM_YDAY ? 1322600 : Math.round((t.rider + t.sup) * 0.892 / 100) * 100) + '원';
   return t;
 }
 const YESTERDAY = renderSummary();
@@ -1432,17 +1445,17 @@ for (let d = 30; d >= 17; d--) {
   const inc = cnt * (4470 + Math.floor(rnd() * 400)) + (d % 7 === 1 ? 150000 : 0);
   const rider = Math.round(cnt * 3600 / 10) * 10;
   const etc = cnt * 100 + 30000 + supOf(cnt);   // 운영비 = 바로머니 + 프로그램 사용료 + 허브 자동 지원금
-  const tax = Math.round(inc / 11 * 0.98) + Math.round(rider * 0.033);
+  const tax = Math.round(inc / 11 * 0.98) + whtOf(rider, supOf(cnt));   // 원천세 = (배달료 + 지원금) × 3.3%
   const day = d === 30 ? YESTERDAY : { cnt, inc, rider, etc, tax, net: inc - rider - etc - tax };
   DAILY.push({ d: `2026-09-${String(d).padStart(2, '0')}`, ...day });
 }
 renderTrend();
 // tax · net은 세금 보관함 데이터가 준비된 뒤 채운다 (renderHub 아래). 9월 라이더 지급 = 라이더 / 원천세 신고 총지급액
 const MONTHLY = [
-  // etc(운영비)에 허브 자동 지원금(건당 평균 116원) 포함
-  { d: '2026-09', cnt: 11891, inc: 58120000, rider: 42810000, etc: 3373520 + 1379360, tax: 0, net: 0 },
-  { d: '2026-08', cnt: 12310, inc: 64902100, rider: 48412800, etc: 3512300 + 1427960, tax: 0, net: 0 },
-  { d: '2026-07', cnt: 11095, inc: 58744900, rider: 43610400, etc: 3298700 + 1287020, tax: 0, net: 0 },
+  // sup = 허브 자동 지원금(건당 평균 116원). etc(운영비)에 포함되고, 원천세 대상(rider + sup)에도 들어감
+  { d: '2026-09', cnt: 11891, inc: 58120000, rider: 42810000, sup: 1379360, etc: 3373520 + 1379360, tax: 0, net: 0 },
+  { d: '2026-08', cnt: 12310, inc: 64902100, rider: 48412800, sup: 1427960, etc: 3512300 + 1427960, tax: 0, net: 0 },
+  { d: '2026-07', cnt: 11095, inc: 58744900, rider: 43610400, sup: 1287020, etc: 3298700 + 1287020, tax: 0, net: 0 },
 ];
 function renderProfit(mode) {
   const rows = mode === 'month' ? (profitMonths || MONTHLY) : (profitDays || DAILY);
@@ -1556,11 +1569,14 @@ function renderTax() {
   $('#taxFoot').innerHTML = `<tr><td colspan="2">합계 ${sts.length}개 상점</td><td class="r num">${SS('cnt').toLocaleString()}</td>
       <td class="r num">${won(SS('supply'))}</td><td class="r num">${won(SS('vat'))}</td></tr>`;
   $('#taxRiderBody').innerHTML = WRIDERS.map(r => `<tr><td>${r.n}</td><td class="r num">${r.cnt.toLocaleString()}</td>
+    <td class="r num muted">${won(r.fee)}</td><td class="r num muted">${won(r.sup)}</td>
     <td class="r num">${won(r.pay)}</td><td class="r num">${won(r.it)}</td><td class="r num">${won(r.lt)}</td><td class="r num">${won(r.wsum)}</td></tr>`).join('');
   const RS = k => WRIDERS.reduce((a, b) => a + b[k], 0), rdiff = WHT_KEEP - RS('wsum');
-  $('#taxRiderFoot').innerHTML = `<tr><td>합계 ${WRIDERS.length}명</td><td class="r num">${RS('cnt').toLocaleString()}</td><td class="r num">${won(RS('pay'))}</td>
-      <td class="r num">${won(RS('it'))}</td><td class="r num">${won(RS('lt'))}</td><td class="r num">${won(RS('wsum'))}</td></tr>
-    <tr><td colspan="5" class="muted" style="font-weight:400">원천세 보관금 ${won(WHT_KEEP)}원과 차액 (개인별 10원 미만 절사)</td><td class="r num">${signed(rdiff)}</td></tr>`;
+  $('#taxRiderFoot').innerHTML = `<tr><td>합계 ${WRIDERS.length}명</td><td class="r num">${RS('cnt').toLocaleString()}</td><td class="r num">${won(RS('fee'))}</td><td class="r num">${won(RS('sup'))}</td>
+      <td class="r num">${won(RS('pay'))}</td><td class="r num">${won(RS('it'))}</td><td class="r num">${won(RS('lt'))}</td><td class="r num">${won(RS('wsum'))}</td></tr>
+    <tr><td colspan="7" class="muted" style="font-weight:400">원천세 보관금 ${won(WHT_KEEP)}원과 차액 (개인별 10원 미만 절사)</td><td class="r num">${signed(rdiff)}</td></tr>`;
+  $('#whtKeepAmt').innerHTML = won(WHT_KEEP) + '<small>원</small>';
+  $('#whtKeepDay').textContent = `어제 +${won(KEEP[1].v)}원`;
   renderInvoice();
 }
 
@@ -1800,7 +1816,7 @@ $('#hivDetailDone').addEventListener('click', () => {
 });
 
 /* ═════════ 라이더 기본 데이터 (라이더 / 원천세 신고 · 본사 정산서 기사원천세 공통) ═════════ */
-const WHT_PAY_TOTAL = 42810000;     // 9월 라이더 배달료 지급 총액
+const WHT_PAY_TOTAL = 42810000;     // 9월 라이더 배달료 지급 총액 (허브 자동 지원금 제외)
 const RIDER_NAMES = ['김라이더', '박배달', '이빠름', '최안전', '정신속', '한바퀴', '오토바', '윤질주', '강민수', '조현우', '장서진', '임도윤',
   '신하준', '권지호', '황예린', '안시우', '송유찬', '전다온', '홍지안', '유건우', '고은채', '문태윤', '양하람', '배준서'];
 const floor10 = n => Math.floor(n / 10) * 10;
@@ -1821,6 +1837,16 @@ const WRIDERS = (() => {
       account: `국민 ***-**-***${String(100 + i).slice(-3)}`, hqIncome: '미해당', car: '-', lic: '-', ins: '미가입' };
   });
 })();
+const shareBy = (total, ws) => {   // total을 비율대로 정수로 나눔 (최대 나머지 방식)
+  const sw = ws.reduce((a, b) => a + b, 0), v = ws.map(w => Math.floor(total * w / sw));
+  ws.map((w, i) => [total * w / sw - v[i], i]).sort((a, b) => b[0] - a[0]).slice(0, total - v.reduce((a, b) => a + b, 0)).forEach(([, i]) => { v[i]++; });
+  return v; };
+/* 허브 자동 지원금도 라이더 사업소득 → 라이더캐시 적립 + 원천세 3.3% 대상
+   pay(지급액) = fee(배달료) + sup(허브 자동 지원금). 원천세 · 간이지급명세서 · 영수증은 모두 pay 기준 */
+const WHT_SUP_TOTAL = MONTHLY.find(m => m.d === '2026-09').sup;   // 9월 허브 자동 지원금 합계 (수익 내역 9월 운영비에 포함된 금액)
+shareBy(WHT_SUP_TOTAL / 10, WRIDERS.map(r => r.cnt)).forEach((s, i) => { const r = WRIDERS[i];
+  r.fee = r.pay; r.sup = s * 10; r.pay = r.fee + r.sup;   // 지원금은 배달 건수 비율로 (10원 단위)
+  r.it = floor10(r.pay * 0.03); r.lt = floor10(r.it * 0.1); r.wsum = r.it + r.lt; r.net = r.pay - r.wsum; });
 
 /* ═════════ 본사 / 세금계산서 (신규) ═════════
    본사(바로고)가 매달 허브에 보내는 「정산서」 + 상세 파일 기준. 정산서 구조 그대로:
@@ -1864,10 +1890,6 @@ const HQ_B2B_SUPPLY = 1156800, HQ_FR_FEE = 640, HQ_SHARE_FEE = 900;
   HQ_ME.forEach((o, q) => { o.s = q === HQ_ME.length - 1 ? left : 240 + ((q * 13) % 5 - 2) * 10; left -= o.s; o.fee = o.t === 'B2B(본사귀속)' ? 150 : 100; }); })();
 /* 라이더별 수행 = B2B 수행(B2B 매출 행) + 일반 수행(일반 · 로드샵 콜). 합 = 라이더별 지급명세의 배달 건수
    → 기사원천세 신고참고용 · 지사배달대행수수료(일반)와 같은 숫자를 씀 */
-const shareBy = (total, ws) => {   // total을 비율대로 정수로 나눔 (최대 나머지 방식)
-  const sw = ws.reduce((a, b) => a + b, 0), v = ws.map(w => Math.floor(total * w / sw));
-  ws.map((w, i) => [total * w / sw - v[i], i]).sort((a, b) => b[0] - a[0]).slice(0, total - v.reduce((a, b) => a + b, 0)).forEach(([, i]) => { v[i]++; });
-  return v; };
 const HQ_RIDER_B2B = shareBy(HQ_ME.length, WRIDERS.map(r => r.cnt));
 const HQ_RIDER_GEN = WRIDERS.map((r, i) => r.cnt - HQ_RIDER_B2B[i]);
 const HQ_GEN_TOTAL = HQ_RIDER_GEN.reduce((a, b) => a + b, 0);
@@ -1875,8 +1897,9 @@ const HQ_GEN_TOTAL = HQ_RIDER_GEN.reduce((a, b) => a + b, 0);
   HQ_ME.forEach((o, q) => { let best = 0, bv = -Infinity;
     HQ_RIDER_B2B.forEach((c, i) => { const d = c * (q + 1) / N - got[i]; if (d > bv) { bv = d; best = i; } });
     got[best]++; o.ri = best; }); })();
-// 기사원천세 신고참고용 (본사 정산서 기준): 기사 수익 = 라이더 지급액을 건수 비율로 B2B · 일반에 나눔. 소득세는 본사 자료 구조대로 B2B 0원 · 일반 3.3%
-const WHT_HQ = WRIDERS.map((r, i) => { const bc = HQ_RIDER_B2B[i], gc = HQ_RIDER_GEN[i], bi = r.cnt ? Math.round(r.pay * bc / r.cnt / 10) * 10 : 0, gi = r.pay - bi, gt = floor10(gi * 0.033);
+// 기사원천세 신고참고용 (본사 정산서 기준): 기사 수익 = 라이더 배달료를 건수 비율로 B2B · 일반에 나눔 (허브 자동 지원금은 허브가 주는 돈이라 본사 자료엔 없음)
+// 소득세는 본사 자료 구조대로 B2B 0원 · 일반 3.3%
+const WHT_HQ = WRIDERS.map((r, i) => { const bc = HQ_RIDER_B2B[i], gc = HQ_RIDER_GEN[i], bi = r.cnt ? Math.round(r.fee * bc / r.cnt / 10) * 10 : 0, gi = r.fee - bi, gt = floor10(gi * 0.033);
   const b = { c: bc, inc: bi, tax: 0, cash: bi }, g = { c: gc, inc: gi, tax: gt, cash: gi - gt };
   return { r, code: r.code, n: r.n, b, g, t: { c: bc + gc, inc: bi + gi, tax: gt, cash: bi + gi - gt } }; });
 const HQ_MGMT = splitAmt(1200000, 12, 1000);                      // 본사계약 상점 월 관리비 (가맹관리비 상세내역)
@@ -2054,7 +2077,7 @@ $('#view-hqInvoice').addEventListener('click', e => {
 });
 
 /* ═════════ 라이더 / 원천세 신고 ═════════ */
-const WHT_KEEP = 1412730;           // 세금 보관함 원천세 보관금 (9월 귀속)
+const WHT_KEEP = Math.round((WHT_PAY_TOTAL + WHT_SUP_TOTAL) * 0.033);   // 세금 보관함 원천세 보관금 (9월 귀속) = (배달료 + 허브 자동 지원금) × 3.3%
 const WHT_BIZ_CODE = '940918';      // 라이더 사업소득 업종코드 (신고서 입력값 · 간이지급명세서 · 원천징수영수증 공통)
 let whtFiled = false;
 function whtFiltered() {
@@ -2072,6 +2095,7 @@ function renderWht() {
       <div><span>소득세 (3%)</span><b class="num">${won(it)}원</b></div>
     </div>
     <dl class="kv" style="grid-template-columns:150px 1fr">
+      <dt>총지급금액 구성</dt><dd class="num">배달료 ${won(T('fee'))}원 + 허브 자동 지원금 ${won(T('sup'))}원</dd>
       <dt>지방소득세 포함 시</dt><dd class="num"><b style="font-weight:500">${won(ws)}원</b> <span class="muted">(지방소득세 ${won(lt)}원)</span></dd>
       <dt>실 원천징수액</dt><dd class="num">${won(WHT_KEEP)}원 <span class="muted">= 세금 보관함 원천세 보관금</span></dd>
       <dt>보관금과 차액</dt><dd class="num">${diff === 0 ? '<span class="pill in">일치</span>' : `<span class="pill keep">${signed(diff)}원</span> <span class="muted">개인별 10원 미만 절사 차이</span>`}</dd>
@@ -2084,12 +2108,12 @@ function renderWht() {
   const rows = whtFiltered();
   $('#whtBody').innerHTML = rows.length ? rows.map((r, i) => `<tr class="clickable rider-link" data-ri="${WRIDERS.indexOf(r)}" title="라이더 상세정보로 이동">
       <td class="num">${i + 1}</td><td>${r.n}</td><td class="num">${r.rrn || '<span class="miss">미등록</span>'}</td><td>사업소득</td>
-      <td class="r num">${r.cnt.toLocaleString()}</td><td class="r num">${won(r.pay)}</td><td class="r num minus">-${won(r.it)}</td><td class="r num minus">-${won(r.lt)}</td>
+      <td class="r num">${r.cnt.toLocaleString()}</td><td class="r num"><div class="two" style="align-items:flex-end"><span>${won(r.pay)}</span><small>지원금 ${won(r.sup)} 포함</small></div></td><td class="r num minus">-${won(r.it)}</td><td class="r num minus">-${won(r.lt)}</td>
       <td class="r num">${won(r.wsum)}</td><td class="r num" style="font-weight:500">${won(r.net)}</td>
       <td class="c">${r.rrn ? '<span class="pill in">정상</span>' : '<span class="pill out">정보 누락</span>'}</td></tr>`).join('')
     : '<tr><td class="empty" colspan="11">검색 결과가 없습니다.</td></tr>';
   const S = k => rows.reduce((a, b) => a + b[k], 0);
-  $('#whtFoot').innerHTML = rows.length ? `<tr><td></td><td colspan="3">합계 ${rows.length}명</td><td class="r num">${S('cnt').toLocaleString()}</td><td class="r num">${won(S('pay'))}</td>
+  $('#whtFoot').innerHTML = rows.length ? `<tr><td></td><td colspan="3">합계 ${rows.length}명</td><td class="r num">${S('cnt').toLocaleString()}</td><td class="r num"><div class="two" style="align-items:flex-end"><span>${won(S('pay'))}</span><small>지원금 ${won(S('sup'))} 포함</small></div></td>
     <td class="r num">-${won(S('it'))}</td><td class="r num">-${won(S('lt'))}</td><td class="r num">${won(S('wsum'))}</td><td class="r num">${won(S('net'))}</td><td></td></tr>` : '';
   $('#whtDone').disabled = whtFiled;
   $('#whtDone').innerHTML = whtFiled ? '<span class="ms">task_alt</span>신고 완료됨' : '<span class="ms">task_alt</span>신고 완료 처리';
@@ -2107,9 +2131,10 @@ function renderWhtHq() {
   const k = whtHqK, rows = whtHqRows(), S = (kk, f) => rows.reduce((a, x) => a + x[kk][f], 0), A = (kk, f) => WHT_HQ.reduce((a, x) => a + x[kk][f], 0);
   const stat = (lb, ic, v, unit, s, st = '') => `<div class="card stat" style="${st}"><div class="k"><span class="ms">${ic}</span>${lb}</div><div class="v num">${v}<small>${unit}</small></div><div class="s">${s}</div></div>`;
   const ok = (a, b) => a === b ? '<span class="pill in">일치</span>' : `<span class="pill out">차이 ${won(a - b)}</span>`;
-  const payAll = WRIDERS.reduce((a, r) => a + r.pay, 0), whtAll = WRIDERS.reduce((a, r) => a + r.wsum, 0);
+  // 본사 자료엔 허브 자동 지원금이 없음 → 신고대상금액은 허브 지급 기준의 「배달료」와 비교
+  const RW = k => WRIDERS.reduce((a, r) => a + r[k], 0), payAll = RW('fee'), supAll = RW('sup'), whtAll = RW('wsum');
   const sub = {
-    t: [`B2B ${A('b', 'c').toLocaleString()}건 · 일반 ${A('g', 'c').toLocaleString()}건`, `허브 지급 기준 ${won(payAll)}원 ${ok(A('t', 'inc'), payAll)}`, `B2B 0원 · 일반 ${won(A('g', 'tax'))}원`],
+    t: [`B2B ${A('b', 'c').toLocaleString()}건 · 일반 ${A('g', 'c').toLocaleString()}건`, `허브 지급 기준 배달료 ${won(payAll)}원 ${ok(A('t', 'inc'), payAll)} · 지원금 ${won(supAll)}원은 본사 자료에 없음`, `B2B 0원 · 일반 ${won(A('g', 'tax'))}원`],
     b: [`본사 / 세금계산서 B2B 매출 ${HQ_ME.length.toLocaleString()}행 ${ok(A('b', 'c'), HQ_ME.length)}`, '라이더 지급액을 건수 비율로 나눈 B2B 몫', '<b style="color:var(--minus)">본사 자료 그대로 0원 · 확인 필요</b>'],
     g: [`지사배달대행수수료 일반 ${HQ_GEN_TOTAL.toLocaleString()}건 ${ok(A('g', 'c'), HQ_GEN_TOTAL)}`, '라이더 지급액을 건수 비율로 나눈 일반 몫', '기사 수익 × 3.3% (10원 미만 절사)'],
   }[k];
@@ -2122,7 +2147,7 @@ function renderWhtHq() {
   const hqTax = A('t', 'tax');
   $('#whtHqCmp').innerHTML = k === 't' ? `<div class="callout" style="border-color:#f0d9a8;background:#fffaf0"><span class="ms" style="color:#8a5a00">compare_arrows</span><div>
     원천징수 합계 · 허브 지급 기준 <b class="num">${won(whtAll)}원</b> (이행 상황) / 본사 정산서 기준 <b class="num">${won(hqTax)}원</b> · 차이 <b class="num">${won(whtAll - hqTax)}원</b><br>
-    <span class="muted">신고대상금액은 같고, 본사 자료는 B2B 수행분 소득세가 0원이라 차이가 나요. 어느 기준으로 신고할지 확인 필요.</span></div></div>` : '';
+    <span class="muted">본사 자료는 B2B 수행분 소득세가 0원이고, 허브 자동 지원금(${won(supAll)}원)이 없어서 차이가 나요. 어느 기준으로 신고할지 확인 필요.</span></div></div>` : '';
   const grp = ['건수', '기사 수익<br>(신고대상금액)', '소득세<br>(3.3%)', '기사 캐쉬'];
   const gth = gl => grp.map((h, i) => `<th class="r${gl && i === 0 ? ' gl' : ''}">${h}</th>`).join('');
   const cells = (x, kk, gl) => ['c', 'inc', 'tax', 'cash'].map((f, i) => `<td class="r num${gl && i === 0 ? ' gl' : ''}">${won(x[kk][f])}</td>`).join('');
@@ -2184,9 +2209,9 @@ function renderHub() {
   $('#hubAvail').innerHTML = won(HUB_BAL - keep - hold) + '<small>원</small>';
 }
 renderHub(); renderHold();
-/* 수익 내역 월별: 세금 보관 = 그 달 부가세(상점 세금계산서 세액) + 원천세(라이더 지급 × 3.3%), 순수익 다시 계산 */
+/* 수익 내역 월별: 세금 보관 = 그 달 부가세(상점 세금계산서 세액) + 원천세((배달료 + 허브 자동 지원금) × 3.3%), 순수익 다시 계산 */
 MONTHLY.forEach(r => {
-  r.tax = VAT_MONTHS.find(m => m[0] === r.d)[1] + (r.d === '2026-09' ? WHT_KEEP : Math.round(r.rider * 0.033));
+  r.tax = VAT_MONTHS.find(m => m[0] === r.d)[1] + (r.d === '2026-09' ? WHT_KEEP : whtOf(r.rider, r.sup));
   r.net = r.inc - r.rider - r.etc - r.tax;
 });
 /* 정산 요약 「이번 달 누적」 = 기준일이 속한 달 1일 ~ 기준일 합계 (9/30이면 수익 내역 월별 9월 행과 같음) */
@@ -2427,10 +2452,10 @@ const whtMeta = () => [['원천징수 의무자', `${HUB_INFO.corp} (${HUB_INFO.
   ['사업장 주소', HUB_INFO.addr], ['귀속연월 / 지급연월', '2026-09 / 2026-09'], ['신고·납부 기한', '2026-10-10']];
 const whtListSheet = (rows, name = '라이더별 지급명세') => ({
   name, title: '라이더별 지급명세 (2026-09 귀속 · 사업소득)',
-  meta: [['허브', HUB_INFO.name], ['귀속월', '2026-09'], ['기준', PERIOD_SEP + ' 라이더 배달료 지급분']],
-  head: ['#', '라이더명', '주민등록번호', '소득 구분', '배달 건수', '지급액', '소득세 3%', '지방소득세 0.3%', '원천징수 합계', '실지급액', '정보 상태'],
-  rows: rows.map((r, i) => [i + 1, r.n, r.rrn || '미등록', '사업소득', r.cnt, r.pay, r.it, r.lt, r.wsum, r.net, r.rrn ? '정상' : '정보 누락']),
-  foot: [['', `합계 ${rows.length}명`, '', '', ...['cnt', 'pay', 'it', 'lt', 'wsum', 'net'].map(k => rows.reduce((a, b) => a + b[k], 0)), '']],
+  meta: [['허브', HUB_INFO.name], ['귀속월', '2026-09'], ['기준', PERIOD_SEP + ' 라이더 배달료 + 허브 자동 지원금 지급분']],
+  head: ['#', '라이더명', '주민등록번호', '소득 구분', '배달 건수', '배달료', '허브 자동 지원금', '지급액', '소득세 3%', '지방소득세 0.3%', '원천징수 합계', '실지급액', '정보 상태'],
+  rows: rows.map((r, i) => [i + 1, r.n, r.rrn || '미등록', '사업소득', r.cnt, r.fee, r.sup, r.pay, r.it, r.lt, r.wsum, r.net, r.rrn ? '정상' : '정보 누락']),
+  foot: [['', `합계 ${rows.length}명`, '', '', ...['cnt', 'fee', 'sup', 'pay', 'it', 'lt', 'wsum', 'net'].map(k => rows.reduce((a, b) => a + b[k], 0)), '']],
   notes: ['※ 시안은 주민등록번호 뒤 6자리를 가린 값입니다. 실제 신고용 파일에 원본을 넣을지는 「확인 필요」 항목입니다.'],
 });
 
@@ -2444,11 +2469,11 @@ function taxDays() {
   const hash = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 1000003, 7);
   [[7, 31], [8, 31], [9, 30]].forEach(([mo, last]) => { for (let d = 1; d <= last; d++) {
     const k = `2026-${p2(mo)}-${p2(d)}`, dr = DAILY.find(r => r.d === k);
-    if (k === '2026-09-30') m[k] = { fixed: true, cnt: YESTERDAY.cnt, inc: YESTERDAY.inc, rider: YESTERDAY.rider, etc: YESTERDAY.etc, vat: KEEP[0].v, wht: KEEP[1].v };
-    else if (dr) m[k] = { fixed: true, cnt: dr.cnt, inc: dr.inc, rider: dr.rider, etc: dr.etc, vat: Math.round(dr.inc / 11 * 0.98), wht: Math.round(dr.rider * 0.033) };
+    if (k === '2026-09-30') m[k] = { fixed: true, cnt: YESTERDAY.cnt, inc: YESTERDAY.inc, rider: YESTERDAY.rider, sup: YESTERDAY.sup, etc: YESTERDAY.etc, vat: KEEP[0].v, wht: KEEP[1].v };
+    else if (dr) m[k] = { fixed: true, cnt: dr.cnt, inc: dr.inc, rider: dr.rider, sup: supOf(dr.cnt), etc: dr.etc, vat: Math.round(dr.inc / 11 * 0.98), wht: whtOf(dr.rider, supOf(dr.cnt)) };
     else {
       const h = hash(k), cnt = 330 + h % 140, inc = cnt * (4470 + (h >> 4) % 400), rider = cnt * 3600;
-      m[k] = { cnt, inc, rider, etc: cnt * 100 + 30000 + supOf(cnt), vat: Math.round(inc / 11 * 0.98), wht: 0 };
+      m[k] = { cnt, inc, rider, sup: supOf(cnt), etc: cnt * 100 + 30000 + supOf(cnt), vat: Math.round(inc / 11 * 0.98), wht: 0 };
     }
   } });
   // 고정일을 뺀 나머지 날에 (월 목표 − 고정일 합)을 기존 값 비율로 배분. 마지막 날이 끝수를 흡수
@@ -2461,7 +2486,8 @@ function taxDays() {
   MONTHLY.forEach(r => {
     const vat = VAT_MONTHS.find(v => v[0] === r.d)[1];
     scale(r.d, 'cnt', r.cnt); scale(r.d, 'inc', r.inc, 10); scale(r.d, 'rider', r.rider, 100); scale(r.d, 'etc', r.etc, 10); scale(r.d, 'vat', vat);
-    Object.keys(m).filter(k => k.startsWith(r.d) && !m[k].fixed).forEach(k => { m[k].wht = Math.round(m[k].rider * 0.033); });
+    scale(r.d, 'sup', r.sup, 10);   // 허브 자동 지원금 월 합계 = 원천세 신고 · 수익 내역과 같게
+    Object.keys(m).filter(k => k.startsWith(r.d) && !m[k].fixed).forEach(k => { m[k].wht = whtOf(m[k].rider, m[k].sup); });
     scale(r.d, 'wht', r.tax - vat);
   });
   return taxDaysMemo = m;
@@ -2477,18 +2503,18 @@ function taxLog(kind) {
   const rows = days.map(k => {
     const d = m[k]; acc += vat ? d.vat : d.wht;
     if (vat) return [k, span(k), d.cnt, d.inc, d.vat, acc];
-    const it = Math.round(d.rider * 0.03);
-    return [k, span(k), d.cnt, d.rider, it, d.wht - it, d.wht, acc];
+    const sup = supDay(k), it = Math.round((d.rider + sup) * 0.03);   // 원천세 대상 = 배달료 + 허브 자동 지원금
+    return [k, span(k), d.cnt, d.rider, sup, d.rider + sup, it, d.wht - it, d.wht, acc];
   });
   const S = i => rows.reduce((a, r) => a + r[i], 0);
   saveXlsx(`${vat ? '부가세_보관로그' : '원천징수_로그'}_${ymd(days[0])}-${ymd(days[days.length - 1])}`, [{
     name, title: `${name} · ${days[0]} ~ ${days[days.length - 1]}`,
     meta: [['허브', HUB_INFO.name], ['조회 기간', `${days[0]} ~ ${days[days.length - 1]} (${days.length}일)`], ['기준', '정산일 06:00 ~ 익일 06:00 집계 · 주문마다 실시간 보관'],
-      ...(vat ? [] : [['계산', '라이더 배달료 지급액 × 3.3% (소득세 3% + 지방소득세 0.3%)']])],
+      ...(vat ? [] : [['계산', '(라이더 배달료 + 허브 자동 지원금) × 3.3% (소득세 3% + 지방소득세 0.3%)']])],
     head: vat ? ['정산일', '집계 구간', '배달 건수', '들어온 돈', '부가세 보관액', '기간 누계']
-      : ['정산일', '집계 구간', '배달 건수', '라이더 배달료 지급액', '소득세 3%', '지방소득세 0.3%', '원천세 보관액', '기간 누계'],
+      : ['정산일', '집계 구간', '배달 건수', '라이더 배달료', '허브 자동 지원금', '원천세 대상 지급액', '소득세 3%', '지방소득세 0.3%', '원천세 보관액', '기간 누계'],
     rows,
-    foot: [vat ? ['합계', '', S(2), S(3), S(4), ''] : ['합계', '', S(2), S(3), S(4), S(5), S(6), '']],
+    foot: [vat ? ['합계', '', S(2), S(3), S(4), ''] : ['합계', '', S(2), S(3), S(4), S(5), S(6), S(7), S(8), '']],
     notes: vat ? [`※ 월 합계 = 그 달 상점 세금계산서 세액 (${VAT_MONTHS.map(([mo, v]) => `${+mo.slice(5)}월 ${won(v)}원`).join(', ')})`,
         `※ 07-01 ~ 09-30 합계 = 세금 보관함 부가세 보관금(3분기 누계) ${won(VAT_KEEP)}원`]
       : [`※ 9월 전체(09-01 ~ 09-30)의 원천세 보관액 합계 = 세금 보관함 원천세 보관금 ${won(WHT_KEEP)}원 = 라이더 / 원천세 신고 실 원천징수액`],
@@ -2839,7 +2865,7 @@ const SPEC = {
       ['3', '라이더캐시 카드', `<ul>
         <li><b>허브 수익과 섞지 않는다</b> (PPT 전제: 허브캐시 / 라이더캐시 분리)</li>
         <li>라이더 출금 가능 합계: 소속 라이더 출금가능금액 합. 괄호 안 = 소속 라이더 수</li>
-        <li>「{기준일} 적립 / 차감·출금」: 기준일 라이더캐시 거래 합계. 라벨은 어제 · 오늘 · 9/28처럼 기준일에 따라 바뀜</li>
+        <li>「{기준일} 적립 / 차감·출금」: 기준일 라이더캐시 거래 합계. 라벨은 어제 · 오늘 · 9/28처럼 기준일에 따라 바뀜. <b>적립 = 배달료 + 허브 자동 지원금</b> (마우스오버 시 나눠서 표시)</li>
         <li>마이너스 라이더: 잔여캐시 &lt; 0 인 라이더 수. 클릭 → 라이더캐시 내역</li></ul>`],
       ['4', '들어온 돈 / 나간 돈 / 보관한 돈', `<ul>
         <li>기준일 허브캐시 거래를 <b>거래 사유별로 합산</b>해 <b>세 열</b>로 나눈다. 금액 큰 순, 0원 사유는 숨김
@@ -3050,7 +3076,7 @@ const SPEC = {
       ['1', '탭', `<ul><li><b>이행상황 신고</b>: 기존 화면 내용 그대로 + 신고서 입력값 · 다운로드</li><li><b>라이더별 지급명세</b> (신규): 간이지급명세서 제출용 라이더별 표</li>
         <li><b>본사 정산서 기준</b> (신규): 본사 정산서와 함께 오는 「기사원천세 신고참고용」 금액을 라이더별로 보기 · 허브 지급 기준과 비교 (읽기 전용)</li></ul>`],
       ['2', '조회 조건', `<ul><li><b>귀속월</b> (기본 = 전월). 허브는 헤더의 현재 허브</li>
-        <li>귀속월 범위 = 정산일 1일 ~ 말일 (1일 06시 ~ 익월 1일 06시) 라이더 배달료 지급분</li>
+        <li>귀속월 범위 = 정산일 1일 ~ 말일 (1일 06시 ~ 익월 1일 06시) 라이더 배달료 + 허브 자동 지원금 지급분</li>
         <li>신고·납부 기한 = 다음 달 10일 + D-day. 기존 「정식 서비스 전」 안내 문구는 정식 오픈 때 제거</li></ul>`],
       ['3', '신고 자료 · 신고 완료', `<ul><li><b>조회 조건 바로 아래, 화면 맨 위</b>에 둔다 (자주 쓰는 다운로드 · 신고 완료 처리를 먼저 보이게)</li>
         <li>다운로드 3종: 이행상황신고서 자료, <b>간이지급명세서(사업소득) 홈택스 업로드 양식</b>, 라이더별 원천징수영수증</li>
@@ -3060,7 +3086,7 @@ const SPEC = {
         <li>「정보 수정」 → 허브 관리의 사업자 정보 화면으로 이동</li></ul>`],
       ['5', '이행 상황', `<table class="sp-tbl"><tr><th>항목</th><th>정의</th></tr>
         <tr><td>인원수</td><td>귀속월에 배달료를 받은 라이더 수 (기존)</td></tr>
-        <tr><td>총지급금액</td><td>라이더 배달료 지급 합 (기존)</td></tr>
+        <tr><td>총지급금액</td><td>라이더 배달료 지급 합 (기존) <b>+ 허브 자동 지원금</b>. 아래에 「배달료 n + 허브 자동 지원금 n」 구성 표시</td></tr>
         <tr><td>소득세 (3%)</td><td>라이더별 <code>floor10(지급액 × 3%)</code>의 합 (기존 「소득세」)</td></tr>
         <tr><td>지방소득세 포함 시</td><td>소득세 + 라이더별 <code>floor10(소득세 × 10%)</code>의 합 (기존 문구 유지)</td></tr>
         <tr><td>실 원천징수액</td><td>실제로 예치금을 건 금액 = <b>세금 보관함 원천세 보관금</b> (기존 「실 원천징수액」)</td></tr>
@@ -3073,7 +3099,7 @@ const SPEC = {
         <tr><td>라이더명</td><td></td></tr>
         <tr><td>주민등록번호</td><td><b>뒤 6자리 마스킹</b> (화면). 원본은 다운로드 파일에만, 권한자만</td></tr>
         <tr><td>소득 구분</td><td>사업소득</td></tr>
-        <tr><td>배달 건수 · 지급액</td><td>귀속월 배달료 지급 합</td></tr>
+        <tr><td>배달 건수 · 지급액</td><td>귀속월 배달료 + <b>허브 자동 지원금</b> 지급 합. 지급액 아래 작은 글씨 「지원금 n 포함」. 엑셀은 배달료 · 허브 자동 지원금 · 지급액 칸으로 나눔</td></tr>
         <tr><td>소득세 · 지방소득세</td><td>라이더별 10원 미만 절사</td></tr>
         <tr><td>원천징수 합계 · 실지급액</td><td>실지급액 = 지급액 − 원천징수 합계</td></tr>
         <tr><td>정보 상태</td><td>정상 / 정보 누락</td></tr></table>
@@ -3087,7 +3113,7 @@ const SPEC = {
         <li>엑셀: 시트 3개(전체 · B2B · 일반), 검색어 적용, 합계 행 포함</li></ul>`],
       ['11', '요약 카드 · 비교', `<table class="sp-tbl"><tr><th>카드</th><th>값</th><th>보조 (탭별)</th></tr>
         <tr><td>라이더</td><td>표에 나온 라이더 수</td><td>건수. 전체 = B2B · 일반 건수 / B2B = 본사 / 세금계산서 B2B 매출 행 수와 일치 여부 / 일반 = 지사배달대행수수료 일반 건수와 일치 여부</td></tr>
-        <tr><td>기사 수익 (신고대상금액)</td><td>Σ 기사 수익</td><td>전체 = <b>허브 지급 기준 총지급액(라이더별 지급명세)과 일치 여부</b></td></tr>
+        <tr><td>기사 수익 (신고대상금액)</td><td>Σ 기사 수익</td><td>전체 = <b>허브 지급 기준 배달료(라이더별 지급명세의 지급액 − 허브 자동 지원금)와 일치 여부</b>. 지원금은 허브가 주는 돈이라 본사 자료에 없다는 문구 함께</td></tr>
         <tr><td>소득세 (3.3%)</td><td>Σ 소득세</td><td>B2B = 「본사 자료 그대로 0원 · 확인 필요」 빨간 카드</td></tr>
         <tr><td>기사 캐쉬</td><td>Σ (기사 수익 − 소득세)</td><td>실제로 받는 캐쉬</td></tr></table>
         <ul><li>전체 탭에만 비교 안내: 원천징수 합계 허브 지급 기준(이행 상황 「지방소득세 포함 시」) vs 본사 기준 소득세, 차이 금액 + 「어느 기준으로 신고할지 확인 필요」</li>
@@ -3133,7 +3159,7 @@ const SPEC = {
         <li><b>보관금 = 분기 내 월별 상점 세금계산서 세액 합계.</b> 카드에 「월별 세액」(7월 + 8월 + 9월)으로 보여준다. 9월 값 = 아래 상점별 부가세 집계 합계</li><li>분기 집계 기간과 신고 기한 D-day</li><li>부가세 발주 / 균등 상점 수</li>
         <li>「부가세 신고자료」 다운로드 → 「신고 완료 처리」 → 「예치금 해제」 활성 (신고 완료 전에는 해제 불가)</li>
         <li>예치 상태: 예치 중(출금 불가) → 신고 완료 · 해제 가능 → 해제 완료</li></ul>`],
-      ['4', '원천세 보관금 카드', `<ul><li><b>원천세는 라이더 기준</b>: 라이더에게 지급한 배달료 × 3.3% (소득세 3% + 지방소득세 0.3%). 상점과 무관</li>
+      ['4', '원천세 보관금 카드', `<ul><li><b>원천세는 라이더 기준</b>: 라이더에게 지급한 (배달료 + 허브 자동 지원금) × 3.3% (소득세 3% + 지방소득세 0.3%). 상점과 무관. 허브 자동 지원금도 라이더 사업소득</li>
         <li>월 귀속 누계와 신고 기한(익월 10일) D-day</li><li>「원천세 신고하기」 → 같은 귀속월의 라이더 / 원천세 신고 화면으로 이동</li>
         <li>「예치금 해제」는 라이더 / 원천세 신고에서 신고 완료 처리 후 활성</li></ul>`],
       ['5', '상점별 부가세 집계', `<ul><li>컬럼: 상점명, 부가세 발주/균등, 배달 건수, 공급가액, 부가세 + 합계 행</li>
@@ -3213,7 +3239,7 @@ const COMMON = `
   <div class="sp-h2">용어 (UI 문구 고정)</div>
   <table class="sp-tbl"><tr><th>용어</th><th>뜻</th></tr>
     <tr><td>허브캐시</td><td>허브가 배달·관리비로 번 돈. 라이더 몫 제외</td></tr>
-    <tr><td>라이더캐시</td><td>라이더에게 지급될 배달료. 허브 수익 아님</td></tr>
+    <tr><td>라이더캐시</td><td>라이더에게 지급될 배달료 + 허브 자동 지원금. 허브 수익 아님</td></tr>
     <tr><td>출금가능금액</td><td>허브장이 지금 바로 출금할 수 있는 금액. 라이더 몫은 어떤 표시 설정에서도 포함하지 않음</td></tr>
     <tr><td>세금 보관금 · 예치금</td><td>자체신고할 부가세·원천세만큼 허브캐시에 건 <b>예치금</b>. 잔액은 그대로, 출금가능금액만 줄어듦. 신고 후 「예치금 해제」</td></tr>
     <tr><td>업종코드</td><td>라이더 사업소득 업종코드 <b>940918</b>. 원천징수이행상황신고서 입력값 · 간이지급명세서 · 원천징수영수증에 같은 값</td></tr>
@@ -3225,13 +3251,15 @@ const COMMON = `
   <pre>출금가능금액 = 허브캐시 잔액 − 세금 보관금 − 출금 보류액
 세금 보관금  = 부가세 보관금 + 원천세 보관금 (= 예치금. 허브캐시 잔액에서 빼지 않음)
 부가세 보관금 = 신고 전 분기의 월별 상점 세금계산서 세액 합계 (예: 3분기 = 7월 + 8월 + 9월)
-원천세 보관금 = 신고 전 귀속월의 라이더 배달료 지급액 × 3.3%
+원천세 보관금 = 신고 전 귀속월의 (라이더 배달료 + 허브 자동 지원금) × 3.3%
 순수익(일)   = 들어온 돈 − 운영비 − 세금 보관
 들어온 돈    = 상점 배달대행수수료 + 라이더 배달대행수수료 + 건당관리비 + 상점 월관리비 (= 허브캐시 충전 합)
 운영비       = 허브 자동 지원금 + 바로머니 이용료 + 프로그램 사용료 + 기타 (라이더 배달료 제외)
-원천세 보관  = 라이더 배달료 × 3.3%
+원천세 보관  = (라이더 배달료 + 허브 자동 지원금) × 3.3%   ← 지원금도 라이더 사업소득
+라이더캐시 적립 = 라이더 배달료 + 허브 자동 지원금
 월 세금 보관 (수익 내역 월별) = 그 달 부가세(상점 세금계산서 세액) + 그 달 원천세</pre>
-  <p>시안 숫자 맞춤: 허브캐시 잔액 22,791,675 − 세금 예치금 17,896,385 (부가세 16,483,655 + 원천세 1,412,730) = 출금가능 4,895,290</p>
+  <p>시안 숫자 맞춤: 허브캐시 잔액 ${won(HUB_BAL)} − 세금 예치금 ${won(VAT_KEEP + WHT_KEEP)} (부가세 ${won(VAT_KEEP)} + 원천세 ${won(WHT_KEEP)}) = 출금가능 ${won(HUB_BAL - VAT_KEEP - WHT_KEEP)}<br>
+    원천세 ${won(WHT_KEEP)} = (9월 배달료 ${won(WHT_PAY_TOTAL)} + 허브 자동 지원금 ${won(WHT_SUP_TOTAL)}) × 3.3%</p>
   <div class="sp-h2">표기 규칙</div>
   <ul><li>금액: 천 단위 콤마 + 「원」. 원 미만 처리 규칙은 확인 필요</li>
     <li>차트 라벨처럼 좁은 곳의 금액: <b>억 · 만 단위만 글자</b>로, 만 미만은 콤마 숫자 (예: 1억5400만원, 45만8,000원, 9만6,000원). 0인 단위는 생략</li>
@@ -3279,7 +3307,7 @@ const QUESTIONS = [
   ['본사 / 세금계산서: 기사원천세 자료의 B2B 수행분 소득세가 0원으로 온다. 이 소득은 누가 원천징수 · 신고하나? (본사 / 허브)', '확인 필요 · 시안은 본사 자료 그대로 0원'],
   ['본사 / 세금계산서: 「본사계약 공유망」 = 내 본사계약 상점 주문을 공유망(수행 지사 없음)이 수행한 건으로 봤다. 맞나?', '본사 상세 파일 기준으로 그렇게 표시'],
   ['본사 / 세금계산서: 파일 탭에서 계산한 값과 정산서 금액이 다르면(불일치) 허컨에서 할 일은? (본사 문의 링크 / 발행 막기)', '불일치 알약만 표시'],
-  ['정산 요약: 허브 자동 지원금(허브 → 라이더)도 라이더 사업소득으로 보고 원천세 3.3% 대상에 넣나? 라이더캐시 「적립」에도 합쳐 보여줄까?', '시안은 허브 지출로만 표시 (원천세 · 라이더캐시 적립 숫자는 배달료 기준 그대로)'],
+  ['본사 정산서 「기사원천세 신고참고용」의 기사 수익에 허브 자동 지원금이 들어가나?', '시안은 안 들어간다고 봄 (본사 정산서 기준 탭에 「지원금은 본사 자료에 없음」)'],
   ['로그 다운로드 기간 제한 (딜버는 최대 5일)', '제한 없음'],
   ['발주/균등 변경은 바로 저장인가, 저장 버튼을 둘 것인가?', '바로 저장 + 토스트'],
   ['정산 설정 변경 권한 (총판만? 허브 관리자도?)', '허브 관리자 이상'],
