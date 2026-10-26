@@ -353,6 +353,19 @@
   #hivDetail .tbl th { white-space: normal; line-height: 1.35; vertical-align: bottom; }
   /* 정산 설정 상점별 표: 본사계약 칸 = 본사 확정 값 (읽기 전용) */
   .th-sub { font-size: 11.5px; font-weight: 400; color: var(--text-3); margin-left: 2px; }
+  /* 수익 내역 행 펼침 */
+  .pf-chev { font-size: 18px; color: #999; vertical-align: -4px; margin: 0 2px 0 -4px; transition: transform .15s; }
+  .pf-row.open .pf-chev { transform: rotate(90deg); color: var(--blue-tab); }
+  .pf-row.open td { background: #f5f8fe; border-bottom-color: transparent; }
+  .tbl tbody tr.pf-detail td, .tbl tbody tr.pf-detail:hover td { background: #f8fafe; padding: 0; white-space: normal; }
+  .pf-box { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 28px; padding: 6px 16px 14px 34px; }
+  .pf-h { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; padding: 6px 0; border-bottom: 1px solid #e4e8ef; margin-bottom: 2px; }
+  .pf-it { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: #555; padding: 3px 0; }
+  .pf-it small { color: var(--text-3); font-size: 11.5px; }
+  .pf-it b { font-weight: 400; }
+  .pf-foot { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12.5px; color: #666; margin-top: 6px; padding-top: 8px; border-top: 1px dashed #dde3ec; }
+  .pf-foot .ms { font-size: 16px; color: var(--blue); }
+  .pf-foot .link-btn { margin-left: auto; }
   .ro-val { display: inline-flex; align-items: center; gap: 4px; color: var(--text-3); font-size: 13px; }
   .ro-val .ms { font-size: 14px; color: #aaa; }
   .modal .moved { margin-top: 10px; font-size: 12.5px; color: #8a5a00; background: #fffaf0; border: 1px solid #f0d9a8; border-radius: 3px; padding: 8px 10px; }
@@ -1457,6 +1470,7 @@ const MONTHLY = [
   { d: '2026-08', cnt: 12310, inc: 64902100, rider: 48412800, sup: 1427960, etc: 3512300 + 1427960, tax: 0, net: 0 },
   { d: '2026-07', cnt: 11095, inc: 58744900, rider: 43610400, sup: 1287020, etc: 3298700 + 1287020, tax: 0, net: 0 },
 ];
+const pfOpen = new Set();   // 펼친 행 (탭 + 날짜)
 function renderProfit(mode) {
   const rows = mode === 'month' ? (profitMonths || MONTHLY) : (profitDays || DAILY);
   const tot = { cnt: 0, inc: 0, rider: 0, etc: 0, tax: 0, net: 0 };
@@ -1465,10 +1479,12 @@ function renderProfit(mode) {
   // 돈은 주문마다 실시간으로 허브캐시에 쌓임 → 별도 「반영」 상태 없이 정산일(06시 ~ 익일 06시)별 집계만 보여준다
   // 들어온 돈 = 허브 수수료 · 관리비 (= 배달 매출 − 라이더 배달료, 정산 요약 「들어온 돈」과 같음). 라이더 배달료는 상점 → 라이더 돈이라 칸 없음
   const hin = r => r.inc - r.rider;
-  $('#profitBody').innerHTML = rows.length ? rows.map(r => `<tr class="${mode === 'day' ? 'clickable' : ''}" data-d="${r.d}">
-      <td class="num">${r.d}${r.live ? ` <span class="pill keep">집계 중 · ${NOW_HM}까지</span>` : ''}</td><td class="r num">${r.cnt.toLocaleString()}</td>
+  // 행을 누르면 바로 아래에 간단 내역(항목별)이 펼쳐짐. 다시 누르면 접힘
+  $('#profitBody').innerHTML = rows.length ? rows.map(r => { const open = pfOpen.has(mode + r.d);
+    return `<tr class="clickable pf-row ${open ? 'open' : ''}" data-d="${r.d}" title="${open ? '접기' : '눌러서 간단 내역 보기'}">
+      <td class="num"><span class="ms pf-chev">chevron_right</span>${r.d}${r.live ? ` <span class="pill keep">집계 중 · ${NOW_HM}까지</span>` : ''}</td><td class="r num">${r.cnt.toLocaleString()}</td>
       <td class="r num plus">+${won(hin(r))}</td><td class="r num minus">-${won(r.etc)}</td>
-      <td class="r num" style="color:#8a5a00">-${won(r.tax)}</td><td class="r num" style="font-weight:500">${won(r.net)}</td></tr>`).join('')
+      <td class="r num" style="color:#8a5a00">-${won(r.tax)}</td><td class="r num" style="font-weight:500">${won(r.net)}</td></tr>${open ? profitDetail(r, mode) : ''}`; }).join('')
     : '<tr><td class="empty" colspan="6">조회 기간에 데이터가 없습니다.</td></tr>';
   if (!rows.length) { $('#profitFoot').innerHTML = ''; $('#profitStats').innerHTML = ''; return; }
   $('#profitFoot').innerHTML = `<tr><td>합계</td><td class="r num">${tot.cnt.toLocaleString()}</td><td class="r num plus">+${won(hin(tot))}</td>
@@ -1513,10 +1529,35 @@ $$('#profitTabs .tab').forEach(t => t.addEventListener('click', () => {
 }));
 $('#profitSearch').addEventListener('click', runProfitSearch);
 bindRange('#profitRange', '#profitFrom', '#profitTo', { min: SUM_MIN, max: SUM_MAX, note: '고른 뒤 「조회」를 누르면 적용돼요 · 시안 데이터 7/1 ~ 오늘' });
+/* 수익 내역 행 펼침: 정산 요약과 같은 항목(들어온 돈 · 나간 돈 · 세금 보관) + 라이더캐시 적립
+   월별은 그 달 일별 항목을 합친 값 (이번 달 = 오늘 집계 중) */
+function monthFlow(mo) {
+  if (mo === SUM_MAX.slice(0, 7)) return TODAY;
+  const acc = { cnt: 0, rider: 0, IN: [], OUT: [], KEEP: [] }, add = (list, o) => { const x = list.find(y => y.n === o.n); if (x) x.v += o.v; else list.push({ n: o.n, v: o.v }); };
+  for (let d = mo + '-01'; d.startsWith(mo) && d <= SUM_YDAY; d = nextDay(d)) {
+    const f = dayFlow(d); acc.cnt += f.cnt; acc.rider += f.rider;
+    f.IN.forEach(o => add(acc.IN, o)); f.OUT.forEach(o => add(acc.OUT, o)); f.KEEP.forEach(o => add(acc.KEEP, o));
+  }
+  return acc;
+}
+function profitDetail(r, mode) {
+  const f = mode === 'month' ? monthFlow(r.d) : dayFlow(r.d), t = flowSum(f);
+  const list = (items, cls, sign) => items.filter(o => o.v > 0).map(o => `<div class="pf-it"><span>${o.n}${mode === 'day' && o.c ? ` <small>${o.c}</small>` : ''}</span><b class="num ${cls}">${sign}${won(o.v)}</b></div>`).join('');
+  return `<tr class="pf-detail"><td colspan="6"><div class="pf-box">
+    <div class="pf-col"><div class="pf-h"><span class="plus">들어온 돈</span><b class="num plus">+${won(t.hubInc)}</b></div>${list(f.IN, 'plus', '+')}</div>
+    <div class="pf-col"><div class="pf-h"><span class="minus">나간 돈 (운영비)</span><b class="num minus">-${won(t.etc)}</b></div>${list(f.OUT, 'minus', '-')}</div>
+    <div class="pf-col"><div class="pf-h"><span style="color:#8a5a00">세금 보관</span><b class="num" style="color:#8a5a00">${won(t.tax)}</b></div>${list(f.KEEP, '', '')}</div>
+    <div class="pf-foot"><span class="ms">moped</span>라이더캐시 적립 <b class="num">${won(t.rider + t.sup)}원</b> (배달료 ${won(t.rider)} + 허브 자동 지원금 ${won(t.sup)}) · 허브 수익 아님
+      ${mode === 'day' ? `<button class="link-btn" data-sumgo="${r.d}">이 날짜 정산 요약 보기</button>` : ''}</div>
+  </div></td></tr>`;
+}
 $('#profitBody').addEventListener('click', e => {
-  const tr = e.target.closest('tr.clickable'); if (!tr) return;
-  go('summary'); setSumDate(tr.dataset.d);
-  toast(`기준일 ${tr.dataset.d} 정산 요약으로 이동했어요.`);
+  const g = e.target.closest('[data-sumgo]');
+  if (g) { go('summary'); setSumDate(g.dataset.sumgo); toast(`기준일 ${g.dataset.sumgo} 정산 요약으로 이동했어요.`); return; }
+  const tr = e.target.closest('tr.pf-row'); if (!tr) return;
+  const key = profitMode() + tr.dataset.d;
+  pfOpen.has(key) ? pfOpen.delete(key) : pfOpen.add(key);
+  renderProfit(profitMode());
 });
 
 /* ═════════ 세금 보관함 ═════════ */
@@ -2954,7 +2995,14 @@ const SPEC = {
         <tr><td>순수익</td><td>들어온 돈 − 운영비 − 세금 보관</td></tr></table>
         <p><b>「라이더 지급」 칸은 두지 않는다.</b> 라이더 배달료는 허브 돈이 아님 (라이더캐시에서 확인). 같은 날 행 = 정산 요약의 들어온 돈 · 나간 돈 · 보관한 돈 · 순수익과 같은 값</p>
         <p>「출금가능 반영」 · 「상태(반영 완료 / 정산 대기)」 컬럼은 두지 않는다. 실시간 적립이라 반영 시점이 따로 없음</p>
-        <ul><li>맨 아래 합계 행</li><li>일별 행 클릭 → 그 날짜 기준 정산 요약으로 이동</li></ul>`],
+        <ul><li>맨 아래 합계 행</li>
+          <li><b>행 클릭 → 바로 아래로 펼쳐 간단 내역</b> (다시 누르면 접힘, 여러 행 동시에 펼침 가능, 탭을 바꿔도 펼친 상태 유지). 행 앞 ▸ 아이콘이 펼치면 ▾
+            <table class="sp-tbl"><tr><th>펼친 내용</th><th>값</th></tr>
+            <tr><td>들어온 돈</td><td>항목별: 상점 배달대행수수료 · 라이더 배달대행수수료 · 건당관리비 · 상점 월관리비 (일별은 건수 같은 보조문구)</td></tr>
+            <tr><td>나간 돈 (운영비)</td><td>항목별: 허브 자동 지원금 · 바로머니 이용료 · 프로그램 사용료 · 기타 차감</td></tr>
+            <tr><td>세금 보관</td><td>부가세 예치 · 원천세 예치</td></tr>
+            <tr><td>아래 줄</td><td>라이더캐시 적립 = 배달료 + 허브 자동 지원금 (허브 수익 아님). 일별 행만 「이 날짜 정산 요약 보기」 링크</td></tr></table>
+            일별 = 정산 요약 그 날짜와 같은 항목 · 금액, 월별 = 그 달 일별 항목 합 (이번 달 = 오늘 집계 중). 각 열 합계 = 행의 들어온 돈 · 운영비 · 세금 보관</li></ul>`],
     ],
   },
   invoice: {
