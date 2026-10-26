@@ -1191,14 +1191,16 @@ $$('[data-toast]').forEach(b => b.addEventListener('click', () => toast(b.datase
 $$('[data-dl]').forEach(b => b.addEventListener('click', () => DL[b.dataset.dl]()));   // 엑셀 다운로드 (아래 DL 참고)
 
 /* ═════════ 정산 요약 ═════════ */
+/* 배달대행료는 허브 몫만 들어온 돈으로 본다. 라이더 몫(라이더 배달료)은 라이더캐시로 바로 가므로 나간 돈에 넣지 않음
+   (라이더캐시 카드의 「적립」으로 표시). 순수익은 같음 */
+const RIDER_PAY = 1483200;   // 9/30 라이더 배달료 (라이더캐시 적립)
 const IN = [
-  { n: '상점 배달대행료', v: 1842000, c: '412건' },
+  { n: '배달대행료 (허브 몫)', v: 1842000 - RIDER_PAY, c: '412건 · 라이더 몫 제외' },
   { n: '건당관리비', v: 206000, c: '412건' },
   { n: '상점 월관리비', v: 150000, c: '3개 상점' },
   { n: '허브 자동 지원금', v: 48000, c: '본사 지원' },
 ];
 const OUT = [   // 나간 돈 = 운영비 (실제로 허브를 떠난 돈)
-  { n: '라이더 배달료 지급', v: 1483200, c: '라이더캐시로 이동' },
   { n: '바로머니 이용료', v: 41200, c: '412건' },
   { n: '프로그램 사용료', v: 30000, c: '일할' },
 ];
@@ -1210,28 +1212,28 @@ const KEEP = [  // 보관한 돈 = 세금 예치 (나간 돈 아님. 허브캐�
 const keepNote = o => !o.keep || !OPT ? '' : !OPT.selfReport ? ` <span class="pill out" style="white-space:nowrap" title="자체신고 OFF · ${NEXT_SETTLE} 본사 신고">본사 신고 전환</span>`
   : !OPT[o.auto] ? ` <span class="pill out" style="white-space:nowrap" title="${NEXT_SETTLE} 자동 보관 안 함">자동 보관 OFF</span>` : '';
 // 오늘(10/1)은 정산일이 진행 중 → 지금(NOW_HM)까지 실시간으로 쌓인 금액 (매월 1일이라 월관리비 포함)
-const TODAY = { cnt: 168, live: true,
-  IN: [{ n: '상점 배달대행료', v: 752640, c: '168건' }, { n: '건당관리비', v: 84000, c: '168건' }, { n: '상점 월관리비', v: 150000, c: '3개 상점 · 매월 1일' }, { n: '허브 자동 지원금', v: 19600, c: '본사 지원' }],
-  OUT: [{ n: '라이더 배달료 지급', v: 604800, c: '라이더캐시로 이동' }, { n: '바로머니 이용료', v: 16800, c: '168건' }, { n: '프로그램 사용료', v: 30000, c: '일할' }],
+const TODAY = { cnt: 168, live: true, rider: 604800,
+  IN: [{ n: '배달대행료 (허브 몫)', v: 752640 - 604800, c: '168건 · 라이더 몫 제외' }, { n: '건당관리비', v: 84000, c: '168건' }, { n: '상점 월관리비', v: 150000, c: '3개 상점 · 매월 1일' }, { n: '허브 자동 지원금', v: 19600, c: '본사 지원' }],
+  OUT: [{ n: '바로머니 이용료', v: 16800, c: '168건' }, { n: '프로그램 사용료', v: 30000, c: '일할' }],
   KEEP: [{ ...KEEP[0], v: 75264 }, { ...KEEP[1], v: 19958 }] };
 const md = k => `${+k.slice(5, 7)}/${+k.slice(8)}`;
 // 기준일 하루의 들어온 돈 / 나간 돈 / 보관한 돈. 9/30 = 위 고정값, 10/1 = 오늘(집계 중), 나머지 = 세금 보관 일별 데이터에서 항목별로 나눔
 function dayFlow(k) {
-  if (k === SUM_YDAY) return { cnt: 412, IN, OUT, KEEP };
+  if (k === SUM_YDAY) return { cnt: 412, rider: RIDER_PAY, IN, OUT, KEEP };
   if (k === SUM_MAX) return TODAY;
   const d = taxDays()[k], fee = d.cnt * 500, monthly = +k.slice(8) % 7 === 1 ? 150000 : 0, sup = Math.round(d.cnt * 116 / 10) * 10;
   const bm = d.cnt * 100, prog = Math.min(30000, d.etc - bm);
-  return { cnt: d.cnt,
-    IN: [{ n: '상점 배달대행료', v: d.inc - fee - monthly - sup, c: `${d.cnt}건` }, { n: '건당관리비', v: fee, c: `${d.cnt}건` },
+  return { cnt: d.cnt, rider: d.rider,
+    IN: [{ n: '배달대행료 (허브 몫)', v: d.inc - fee - monthly - sup - d.rider, c: `${d.cnt}건 · 라이더 몫 제외` }, { n: '건당관리비', v: fee, c: `${d.cnt}건` },
       { n: '상점 월관리비', v: monthly, c: '3개 상점' }, { n: '허브 자동 지원금', v: sup, c: '본사 지원' }],
-    OUT: [{ n: '라이더 배달료 지급', v: d.rider, c: '라이더캐시로 이동' }, { n: '바로머니 이용료', v: bm, c: `${d.cnt}건` },
-      { n: '프로그램 사용료', v: prog, c: '일할' }, { n: '기타 차감', v: d.etc - bm - prog, c: '' }],
+    OUT: [{ n: '바로머니 이용료', v: bm, c: `${d.cnt}건` }, { n: '프로그램 사용료', v: prog, c: '일할' }, { n: '기타 차감', v: d.etc - bm - prog, c: '' }],
     KEEP: [{ ...KEEP[0], v: d.vat }, { ...KEEP[1], v: d.wht }] };
 }
-const flowSum = f => { const s = a => a.reduce((x, b) => x + b.v, 0), inc = s(f.IN), out = s(f.OUT), tax = s(f.KEEP);
-  return { cnt: f.cnt, inc, rider: f.OUT[0].v, etc: out - f.OUT[0].v, tax, net: inc - out - tax }; };
+// inc = 허브캐시에 들어온 전체 (수익처리 내역 「들어온 돈」과 같음), hubInc = 라이더 몫을 뺀 허브 몫 (정산 요약 「들어온 돈」)
+const flowSum = f => { const s = a => a.reduce((x, b) => x + b.v, 0), hubInc = s(f.IN), etc = s(f.OUT), tax = s(f.KEEP);
+  return { cnt: f.cnt, inc: hubInc + f.rider, hubInc, rider: f.rider, etc, tax, net: hubInc - etc - tax }; };
 function renderSummary() {
-  const f = dayFlow(sumDate), t = flowSum(f), out = t.rider + t.etc;
+  const f = dayFlow(sumDate), t = flowSum(f), out = t.etc;
   const vis = a => a.filter(o => o.v > 0);   // 0원 사유는 숨김
   const max = Math.max(...[...f.IN, ...f.OUT, ...f.KEEP].map(i => i.v));
   const style = { in: ['plus', '+', '#8fb0ea'], out: ['minus', '-', '#ef9d9d'], keep: ['', '', '#e9c77c'] };
@@ -1243,10 +1245,10 @@ function renderSummary() {
   $('#inList').innerHTML = vis(f.IN).map(o => item(o, 'in')).join('');
   $('#outList').innerHTML = vis(f.OUT).map(o => item(o, 'out')).join('');
   $('#keepList').innerHTML = vis(f.KEEP).map(o => item(o, 'keep')).join('');
-  $('#inTotal').textContent = '+' + won(t.inc) + '원';
+  $('#inTotal').textContent = '+' + won(t.hubInc) + '원';
   $('#outTotal').textContent = '-' + won(out) + '원';
   $('#keepTotal').textContent = won(t.tax) + '원';
-  $('#eq').innerHTML = `들어온 돈 <b class="num">${won(t.inc)}원</b> − 나간 돈 <b class="num">${won(out)}원</b> − 보관한 돈 <b class="num">${won(t.tax)}원</b> =`;
+  $('#eq').innerHTML = `들어온 돈 <b class="num">${won(t.hubInc)}원</b> − 나간 돈 <b class="num">${won(out)}원</b> − 보관한 돈 <b class="num">${won(t.tax)}원</b> =`;
   $('#netTotal').innerHTML = won(t.net) + '<small>원</small>';
   // 카드 제목: 어제 / 오늘(집계 중) / 그 외 날짜
   const word = sumDate === SUM_YDAY ? '어제' : f.live ? '오늘' : md(sumDate);
@@ -2179,7 +2181,7 @@ function renderMonthAcc(k = sumDate) {
   const first = k.slice(0, 8) + '01', acc = { inc: 0, out: 0, tax: 0, net: 0 };
   for (let d = first; d <= k; d = nextDay(d)) {
     const t = d === SUM_YDAY ? YESTERDAY : d === SUM_MAX ? flowSum(TODAY) : (x => ({ inc: x.inc, rider: x.rider, etc: x.etc, tax: x.vat + x.wht }))(taxDays()[d]);
-    acc.inc += t.inc; acc.out += t.rider + t.etc; acc.tax += t.tax;
+    acc.inc += t.inc - t.rider; acc.out += t.etc; acc.tax += t.tax;   // 요약 카드와 같이 들어온 돈 = 허브 몫, 나간 돈 = 운영비 (라이더 배달료 제외)
   }
   acc.net = acc.inc - acc.out - acc.tax;
   $('#monTitle').textContent = `${+k.slice(5, 7)}월 누적`;
@@ -2828,14 +2830,15 @@ const SPEC = {
       ['4', '들어온 돈 / 나간 돈 / 보관한 돈', `<ul>
         <li>기준일 허브캐시 거래를 <b>거래 사유별로 합산</b>해 <b>세 열</b>로 나눈다. 금액 큰 순, 0원 사유는 숨김
           <table class="sp-tbl"><tr><th>열</th><th>포함 사유</th></tr>
-            <tr><td>들어온 돈</td><td>허브캐시 충전 사유 (배달대행료, 관리비, 지원금 등)</td></tr>
-            <tr><td>나간 돈 (운영비)</td><td>실제로 허브를 떠난 돈: 라이더 배달료 지급, 바로머니 이용료, 프로그램 사용료 등</td></tr>
+            <tr><td>들어온 돈</td><td>허브캐시 충전 사유 (배달대행료, 관리비, 지원금 등). <b>배달대행료는 허브 몫만</b> = 상점 배달대행료 − 라이더 배달료 (보조 문구 「라이더 몫 제외」)</td></tr>
+            <tr><td>나간 돈 (운영비)</td><td>실제로 허브를 떠난 돈: 바로머니 이용료, 프로그램 사용료 등. <b>라이더 배달료는 넣지 않는다</b> (라이더 몫이라 라이더캐시 카드의 「적립」으로만 표시)</td></tr>
             <tr><td>보관한 돈 (세금)</td><td>부가세 예치, 원천세 예치. <b>나간 돈이 아니라 허브캐시에 그대로 두고 그만큼 출금을 막은 돈(예치금)</b> → 나간 돈과 섞지 않고 노란색으로 따로 표시</td></tr></table></li>
         <li>각 행: 사유명 · 보조정보(건수, 상점 수 등) · 금액 · 비율 막대(세 열 통틀어 최대값 대비)</li>
         <li>아래 줄에 계산식: 들어온 돈 − 나간 돈 − 보관한 돈 = 최종 순수익</li>
         <li>사유 목록 = 캐시 내역의 거래 사유 코드 (캐시 내역 ⑤ 참조)</li>
         <li>헤더 문구 「어제(9/30)」는 기준일에 따라 바뀜 (오늘이면 「오늘(10/1) · 집계 중」)</li></ul>`],
-      ['5', '최종 순수익', `<pre>순수익 = 들어온 돈 − 나간 돈(운영비) − 보관한 돈(세금 보관)
+      ['5', '최종 순수익', `<pre>순수익 = 들어온 돈(허브 몫) − 나간 돈(운영비) − 보관한 돈(세금 보관)
+       = 수익처리 내역의 들어온 돈 − 라이더 지급 − 운영비 − 세금 (값은 같음)
 보관한 돈 = 부가세 예치 + 원천세 예치 (허브캐시 잔액은 그대로, 출금가능금액만 줄어듦)</pre>
         <p>기준 정산일(06시 ~ 익일 06시)에 실시간으로 허브캐시에 쌓인 금액의 합계. 따로 「반영」되는 시점은 없다. 수익처리 내역의 같은 날 순수익과 같아야 함.</p>`],
       ['6', '최근 7일 순수익', `<ul>
@@ -2843,7 +2846,7 @@ const SPEC = {
         <li>막대를 누르면 그 날짜로 기준일 변경</li>
         <li>막대 위 라벨: 천원 단위 반올림 후 <b>한글 금액 표기</b> (예: 45만8,000원, 1억5400만원). 마우스오버 시 정확한 금액</li>
         <li>값 출처 = 수익처리 내역 일별 순수익</li></ul>`],
-      ['7', '이번 달 누적', `<p>기준일이 속한 달 1일 ~ 기준일 합계: 들어온 돈 / 나간 돈(운영비) / 세금 보관 / 순수익. 제목은 「{월}월 누적」, 기간 표시. 말일이면 수익처리 월별 행과 같은 값</p>`],
+      ['7', '이번 달 누적', `<p>기준일이 속한 달 1일 ~ 기준일 합계: 들어온 돈(허브 몫) / 나간 돈(운영비, 라이더 배달료 제외) / 세금 보관 / 순수익. 제목은 「{월}월 누적」, 기간 표시. 말일이면 순수익 · 세금이 수익처리 월별 행과 같고, 들어온 돈 = 수익처리 들어온 돈 − 라이더 지급</p>`],
       ['8', '정산 용어', `<p>고정 문구. 허브모바일에서도 <b>같은 용어</b>를 쓴다 (PPT 8p 「용어는 쉽고 통일」). 정의는 「공통 규칙」 탭 참조.</p>`],
     ],
   },
@@ -3199,7 +3202,7 @@ const COMMON = `
     <tr><td>세금 보관금 · 예치금</td><td>자체신고할 부가세·원천세만큼 허브캐시에 건 <b>예치금</b>. 잔액은 그대로, 출금가능금액만 줄어듦. 신고 후 「예치금 해제」</td></tr>
     <tr><td>업종코드</td><td>라이더 사업소득 업종코드 <b>940918</b>. 원천징수이행상황신고서 입력값 · 간이지급명세서 · 원천징수영수증에 같은 값</td></tr>
     <tr><td>실시간 적립</td><td>주문이 완료될 때마다 허브캐시 · 라이더캐시 · 세금 보관금에 바로 쌓임. <b>미정산 · 반영 대기 개념 없음</b></td></tr>
-    <tr><td>들어온 돈 / 나간 돈</td><td>허브캐시 충전 합 / 차감 합</td></tr>
+    <tr><td>들어온 돈 / 나간 돈</td><td>허브캐시 충전 합 / 차감 합. 정산 요약에서는 라이더 배달료(라이더 몫)를 양쪽에서 빼고 보여줌 (들어온 돈 = 허브 몫, 나간 돈 = 운영비)</td></tr>
     <tr><td>순수익</td><td>들어온 돈 − 운영비 − 세금 보관</td></tr>
     <tr><td>발주 / 균등</td><td>상점 부가세를 상점 소속(발주) 허브에 모두 쌓기 / 타 허브가 수행한 공유 배달의 배달대행료는 발주 · 수주 허브가 가져간 돈 비율대로, 배달가맹비는 발주 허브 100% (SMS 이용료는 집계 제외)</td></tr></table>
   <div class="sp-h2">계산식</div>
@@ -3207,8 +3210,9 @@ const COMMON = `
 세금 보관금  = 부가세 보관금 + 원천세 보관금 (= 예치금. 허브캐시 잔액에서 빼지 않음)
 부가세 보관금 = 신고 전 분기의 월별 상점 세금계산서 세액 합계 (예: 3분기 = 7월 + 8월 + 9월)
 원천세 보관금 = 신고 전 귀속월의 라이더 배달료 지급액 × 3.3%
-순수익(일)   = 들어온 돈 − 운영비 − 세금 보관
-운영비       = 라이더 배달료 지급 + 바로머니 이용료 + 프로그램 사용료 + 기타
+순수익(일)   = 들어온 돈(허브 몫) − 운영비 − 세금 보관
+들어온 돈(허브 몫) = 허브캐시 충전 합 − 라이더 배달료 (라이더 몫은 라이더캐시로)
+운영비       = 바로머니 이용료 + 프로그램 사용료 + 기타 (라이더 배달료 제외)
 원천세 보관  = 라이더 배달료 × 3.3%
 월 세금 보관 (수익처리 월별) = 그 달 부가세(상점 세금계산서 세액) + 그 달 원천세</pre>
   <p>시안 숫자 맞춤: 허브캐시 잔액 22,791,675 − 세금 예치금 17,896,385 (부가세 16,483,655 + 원천세 1,412,730) = 출금가능 4,895,290</p>
