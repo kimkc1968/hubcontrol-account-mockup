@@ -112,6 +112,18 @@
   .field > label { font-size: 13px; color: #555; }
   .ctl { height: 38px; border: 1px solid #c4c4c4; border-radius: 4px; background: #fff; padding: 0 10px; outline: none; min-width: 0; }
   .ctl:focus { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue) inset; }
+  /* 드롭다운 검색 목록 (select.ctl을 열면 뜸) */
+  .sd-pop { position: fixed; z-index: 1200; background: #fff; border: 1px solid #c4c4c4; border-radius: 4px; box-shadow: 0 6px 18px rgba(0,0,0,.14); display: flex; flex-direction: column; max-height: 320px; max-width: 420px; }
+  .sd-search { position: relative; padding: 8px; border-bottom: 1px solid #eee; flex: none; }
+  .sd-search .ms { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #999; }
+  .sd-search input { width: 100%; height: 32px; border: 1px solid #d0d0d0; border-radius: 3px; padding: 0 8px 0 30px; outline: none; font-size: 13.5px; }
+  .sd-search input:focus { border-color: var(--blue); }
+  .sd-list { overflow-y: auto; padding: 4px 0; min-height: 0; }
+  .sd-opt { padding: 7px 12px; font-size: 13.5px; cursor: pointer; white-space: nowrap; }
+  .sd-opt.hl { background: #f2f6fd; }
+  .sd-opt.on { color: var(--blue-tab); font-weight: 500; }
+  .sd-opt.dis { color: #bbb; cursor: default; }
+  .sd-empty { padding: 10px 12px; color: #999; font-size: 13px; }
   select.ctl { padding-right: 30px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 11px center; }
   .date-range { display: flex; align-items: center; gap: 8px; height: 38px; border: 1px solid #c4c4c4; border-radius: 4px; background: #fff; padding: 0 10px; }
   .date-range .ms { color: #555; font-size: 19px; }
@@ -2833,6 +2845,69 @@ $$('.dim').forEach(d => {
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') $$('.dim').forEach(d => d.classList.remove('show')); });
 
+/* ═════════ 드롭다운 검색 (공통) ═════════
+   select.ctl을 열면 기본 목록 대신 맨 위에 검색칸이 있는 목록을 띄운다.
+   고르면 select 값을 바꾸고 change 이벤트를 보내서 기존 필터 · 저장 동작은 그대로 */
+const SD = { sel: null, pop: null, items: [], hi: -1 };
+function closeSD() { if (SD.pop) SD.pop.remove(); SD.pop = null; SD.sel = null; }
+function pickSD(i) {
+  const sel = SD.sel; if (!sel || sel.options[i].disabled) return;
+  const changed = sel.selectedIndex !== i;
+  sel.selectedIndex = i; closeSD(); sel.focus();
+  if (changed) { sel.dispatchEvent(new Event('input', { bubbles: true })); sel.dispatchEvent(new Event('change', { bubbles: true })); }
+}
+function drawSD() {
+  const sel = SD.sel, q = SD.pop.querySelector('input').value.trim().toLowerCase(), list = SD.pop.querySelector('.sd-list');
+  SD.items = [...sel.options].map((o, i) => ({ o, i })).filter(({ o }) => !q || o.text.toLowerCase().includes(q));
+  if (SD.hi < 0 || SD.hi >= SD.items.length) SD.hi = 0;
+  list.textContent = '';
+  if (!SD.items.length) { const d = document.createElement('div'); d.className = 'sd-empty'; d.textContent = '검색 결과가 없어요'; list.appendChild(d); return; }
+  SD.items.forEach(({ o, i }, k) => {
+    const d = document.createElement('div');
+    d.className = `sd-opt${i === sel.selectedIndex ? ' on' : ''}${k === SD.hi ? ' hl' : ''}${o.disabled ? ' dis' : ''}`;
+    d.dataset.k = k; d.textContent = o.text; list.appendChild(d);
+  });
+  list.querySelector('.hl')?.scrollIntoView({ block: 'nearest' });
+}
+function openSD(sel) {
+  closeSD();
+  const pop = document.createElement('div');
+  pop.className = 'sd-pop';
+  pop.innerHTML = '<div class="sd-search"><span class="ms">search</span><input type="text" placeholder="검색" autocomplete="off"></div><div class="sd-list"></div>';
+  document.body.appendChild(pop);
+  SD.sel = sel; SD.pop = pop; SD.hi = Math.max(0, sel.selectedIndex);
+  drawSD();
+  // 위치: select 바로 아래 (아래 공간이 모자라면 위로)
+  const r = sel.getBoundingClientRect();
+  pop.style.minWidth = Math.max(r.width, 180) + 'px';
+  pop.style.left = Math.max(8, Math.min(r.left, innerWidth - pop.offsetWidth - 8)) + 'px';
+  if (innerHeight - r.bottom < pop.offsetHeight + 8 && r.top > innerHeight - r.bottom) pop.style.top = Math.max(8, r.top - pop.offsetHeight - 4) + 'px';
+  else pop.style.top = (r.bottom + 4) + 'px';
+  const input = pop.querySelector('input');
+  input.addEventListener('input', () => { SD.hi = 0; drawSD(); });
+  pop.querySelector('.sd-list').addEventListener('click', e => { const d = e.target.closest('.sd-opt'); if (d) pickSD(SD.items[+d.dataset.k].i); });
+  pop.querySelector('.sd-list').addEventListener('mousemove', e => { const d = e.target.closest('.sd-opt'); if (d && +d.dataset.k !== SD.hi) { SD.hi = +d.dataset.k; pop.querySelectorAll('.sd-opt').forEach((x, k) => x.classList.toggle('hl', k === SD.hi)); } });
+  input.focus();
+}
+document.addEventListener('mousedown', e => {
+  const sel = e.target.closest('select.ctl');
+  if (sel && !sel.disabled) { e.preventDefault(); if (SD.sel === sel) closeSD(); else openSD(sel); return; }
+  if (SD.pop && !SD.pop.contains(e.target)) closeSD();
+});
+document.addEventListener('keydown', e => {
+  if (!SD.pop) {   // 닫힌 select에서 Enter · Space · Alt+↓ = 열기
+    const sel = e.target.closest?.('select.ctl');
+    if (sel && !sel.disabled && (e.key === 'Enter' || e.key === ' ' || (e.altKey && e.key === 'ArrowDown'))) { e.preventDefault(); openSD(sel); }
+    return;
+  }
+  if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); const s = SD.sel; closeSD(); s.focus(); }   // 팝업(모달)은 그대로 두고 목록만 닫음
+  else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (SD.items.length) { SD.hi = (SD.hi + (e.key === 'ArrowDown' ? 1 : -1) + SD.items.length) % SD.items.length; drawSD(); } }
+  else if (e.key === 'Enter') { e.preventDefault(); if (SD.items[SD.hi]) pickSD(SD.items[SD.hi].i); }
+  else if (e.key === 'Tab') closeSD();
+}, true);
+window.addEventListener('resize', closeSD);
+document.addEventListener('scroll', e => { if (SD.pop && !SD.pop.contains(e.target)) closeSD(); }, true);
+
 /* 상점 일괄 설정 */
 const dim = $('#bulkDim');
 storeCfg.forEach((s, i) => $('#bulkStores').insertAdjacentHTML('beforeend', `<option value="${i}">${s.name} (${s.code})</option>`));
@@ -3334,6 +3409,7 @@ const COMMON = `
   <ul><li>이 파일은 <b>정적 HTML + 더미 데이터</b> 시안. 화면 구성 · 문구 · 동작을 기준으로 봐 주세요</li>
     <li>헤더 · 사이드바 · 셀렉트 · 데이트피커 · 표 · 모달은 <b>기존 허컨 컴포넌트를 그대로</b> 쓴다. 시안 CSS는 참고용</li>
     <li>정산 화면에는 「허브 선택」 칸을 두지 않는다. 모두 <b>헤더의 현재 허브</b> 기준으로 조회</li>
+    <li><b>드롭다운(셀렉트)을 열면 맨 위에 검색칸</b>: 열리자마자 검색칸에 커서. 옵션 이름 부분 일치로 바로 걸러짐, ↑↓ 이동 · Enter 선택 · Esc 닫기 (팝업 안에서도 목록만 닫힘). 결과 없으면 「검색 결과가 없어요」. 모든 화면 · 팝업의 드롭다운 공통</li>
     <li>날짜 칸은 모두 달력(데이트피커)으로 고른다: 정산 요약 기준일, 캐시 내역 거래일, 수익 내역 조회 기간, 세금 보관함 로그 기간. 오늘 이후 비활성, 기간은 시작 ≤ 끝</li>
     <li>새로 필요한 것: 금액 카드, 들어온 돈/나간 돈 목록(비율 막대), 7일 막대, 토글, 발주/균등 세그먼트</li>
     <li>엑셀 다운로드: 시안의 다운로드 버튼은 화면 데이터로 <b>실제 xlsx 파일</b>을 만든다(브라우저 SheetJS). 실제 구현은 서버에서 <b>현재 조회 조건의 전체 건</b>(페이지 무관)으로 생성
