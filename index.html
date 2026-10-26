@@ -1362,7 +1362,19 @@ function genRows(kind) {
   if (kind === 'rider') { rows[3].warn = true; rows[3].memo = '차감 후 마이너스'; }
   return rows;
 }
-const DATA = { hub: genRows('hub'), store: genRows('store'), rider: genRows('rider') };
+/* 라이더캐시: 배달료 적립마다 허브 자동 지원금 적립이 같이 들어옴 (허브캐시 「허브 자동 지원금」 차감과 짝, 원천세 대상)
+   난수 순서는 건드리지 않고 행만 끼워 넣은 뒤 잔여캐시 · 번호를 다시 계산 */
+function addRiderSup(rows) {
+  const out = [];
+  rows.forEach(r => {
+    if (r.reason === '배달료') out.push({ ...r, reason: '허브 자동 지원금', amt: 100 + (+r.order.slice(-3) % 3) * 20, memo: '건별 자동 지급', warn: false });
+    out.push(r);
+  });
+  let bal = 57900;
+  out.forEach((r, i) => { r.bal = bal; if (r.dir !== 'hold') bal -= r.amt; r.no = out.length - i; });
+  return out;
+}
+const DATA = { hub: genRows('hub'), store: genRows('store'), rider: addRiderSup(genRows('rider')) };
 STORES.forEach(s => $('#fStore').insertAdjacentHTML('beforeend', `<option>${s}</option>`));
 RIDERS.forEach(s => $('#fRider').insertAdjacentHTML('beforeend', `<option>${s}</option>`));
 
@@ -2966,7 +2978,7 @@ const SPEC = {
         <tr><td>예치 (신규)</td><td>부가세 예치, 원천세 예치. <b>잔여캐시는 그대로</b>, 출금가능금액만 줄어듦. 「예치」 배지 + 노란색 금액(부호 없음), 합계(잔액 변동)에서 제외. 해제 시 「예치 해제」 행</td></tr>
         <tr><td rowspan="2">상점</td><td>차감</td><td>대행접수, 건당관리비, 세금계산서용</td></tr>
         <tr><td>충전</td><td>상점 캐시충전</td></tr>
-        <tr><td rowspan="3">라이더</td><td>적립</td><td>배달료, 기타</td></tr>
+        <tr><td rowspan="3">라이더</td><td>적립</td><td>배달료, <b>허브 자동 지원금</b>(배달 건별, 같은 주문번호 · 상점으로 배달료 바로 옆에 한 줄. 허브캐시 「허브 자동 지원금」 차감과 짝, 원천세 대상), 기타</td></tr>
         <tr><td>차감</td><td>원천세 3.3%, 출근비, 프로그램 사용료</td></tr>
         <tr><td>출금</td><td>바로머니 출금</td></tr></table>`],
       ['6', '페이지', `<p>페이지당 건수는 기존 허컨 목록 기본값을 따른다 (시안 15건).</p>`],
