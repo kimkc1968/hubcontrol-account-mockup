@@ -352,6 +352,7 @@
   #hivDetail .tbl th, #hivDetail .tbl td { padding: 9px 10px; }
   #hivDetail .tbl th { white-space: normal; line-height: 1.35; vertical-align: bottom; }
   /* 정산 설정 상점별 표: 본사계약 칸 = 본사 확정 값 (읽기 전용) */
+  .th-sub { font-size: 11.5px; font-weight: 400; color: var(--text-3); margin-left: 2px; }
   .ro-val { display: inline-flex; align-items: center; gap: 4px; color: var(--text-3); font-size: 13px; }
   .ro-val .ms { font-size: 14px; color: #aaa; }
   .modal .moved { margin-top: 10px; font-size: 12.5px; color: #8a5a00; background: #fffaf0; border: 1px solid #f0d9a8; border-radius: 3px; padding: 8px 10px; }
@@ -674,7 +675,7 @@
     <div data-spec="4"><div class="tbl-wrap">
       <table class="tbl">
         <thead><tr>
-          <th id="profitDateH">일자</th><th class="r">배달 건수</th><th class="r">들어온 돈</th><th class="r">라이더 지급</th><th class="r">기타 운영비</th>
+          <th id="profitDateH">일자</th><th class="r">배달 건수</th><th class="r">들어온 돈 <span class="th-sub">수수료 · 관리비</span></th><th class="r">운영비</th>
           <th class="r">세금 보관</th><th class="r">순수익</th>
         </tr></thead>
         <tbody id="profitBody"></tbody>
@@ -1449,21 +1450,23 @@ function renderProfit(mode) {
   rows.forEach(r => Object.keys(tot).forEach(k => tot[k] += r[k]));
   $('#profitDateH').textContent = mode === 'month' ? '월' : '일자';
   // 돈은 주문마다 실시간으로 허브캐시에 쌓임 → 별도 「반영」 상태 없이 정산일(06시 ~ 익일 06시)별 집계만 보여준다
+  // 들어온 돈 = 허브 수수료 · 관리비 (= 배달 매출 − 라이더 배달료, 정산 요약 「들어온 돈」과 같음). 라이더 배달료는 상점 → 라이더 돈이라 칸 없음
+  const hin = r => r.inc - r.rider;
   $('#profitBody').innerHTML = rows.length ? rows.map(r => `<tr class="${mode === 'day' ? 'clickable' : ''}" data-d="${r.d}">
       <td class="num">${r.d}${r.live ? ` <span class="pill keep">집계 중 · ${NOW_HM}까지</span>` : ''}</td><td class="r num">${r.cnt.toLocaleString()}</td>
-      <td class="r num plus">+${won(r.inc)}</td><td class="r num minus">-${won(r.rider)}</td><td class="r num minus">-${won(r.etc)}</td>
+      <td class="r num plus">+${won(hin(r))}</td><td class="r num minus">-${won(r.etc)}</td>
       <td class="r num" style="color:#8a5a00">-${won(r.tax)}</td><td class="r num" style="font-weight:500">${won(r.net)}</td></tr>`).join('')
-    : '<tr><td class="empty" colspan="7">조회 기간에 데이터가 없습니다.</td></tr>';
+    : '<tr><td class="empty" colspan="6">조회 기간에 데이터가 없습니다.</td></tr>';
   if (!rows.length) { $('#profitFoot').innerHTML = ''; $('#profitStats').innerHTML = ''; return; }
-  $('#profitFoot').innerHTML = `<tr><td>합계</td><td class="r num">${tot.cnt.toLocaleString()}</td><td class="r num plus">+${won(tot.inc)}</td>
-      <td class="r num minus">-${won(tot.rider)}</td><td class="r num minus">-${won(tot.etc)}</td><td class="r num" style="color:#8a5a00">-${won(tot.tax)}</td>
+  $('#profitFoot').innerHTML = `<tr><td>합계</td><td class="r num">${tot.cnt.toLocaleString()}</td><td class="r num plus">+${won(hin(tot))}</td>
+      <td class="r num minus">-${won(tot.etc)}</td><td class="r num" style="color:#8a5a00">-${won(tot.tax)}</td>
       <td class="r num">${won(tot.net)}</td></tr>`;
   const stat = (k, ic, v, s) => `<div class="card stat"><div class="k"><span class="ms">${ic}</span>${k}</div><div class="v num">${v}<small>원</small></div><div class="s">${s}</div></div>`;
   const unit = mode === 'month' ? '월' : '일';
   $('#profitStats').innerHTML =
     stat('기간 순수익', 'savings', won(tot.net), `${rows.length}${mode === 'month' ? '개월' : '일'} · 정산일 기준`) +
     stat(`${unit}평균 순수익`, 'trending_up', won(tot.net / rows.length), `배달 1건당 ${won(tot.net / tot.cnt)}원`) +
-    stat('라이더 지급', 'moped', won(tot.rider), '라이더캐시로 이동 (허브 수익 아님)') +
+    stat('들어온 돈', 'add_circle', won(hin(tot)), '수수료 · 관리비 (배달대행료 제외)') +
     stat('세금 보관', 'inventory_2', won(tot.tax), '예치금으로 출금 제한 (허브캐시엔 그대로)');
 }
 /* 조회 기간: 달력으로 고르고 「조회」를 눌러 적용. 일별 · 월별 탭은 기간을 따로 기억 (일별 기본 최근 14일, 월별 기본 7 ~ 9월) */
@@ -2533,9 +2536,10 @@ const DL = {
     saveXlsx(`수익내역_${unit}_${ymd(from)}-${ymd(to)}`, [{
       name: unit, title: `수익 내역 · ${unit}`,
       meta: [['허브', HUB_INFO.name], ['조회 기간', `${from} ~ ${to}`], ['기준', '정산일 06:00 ~ 익일 06:00 집계 · 돈은 주문마다 실시간 적립']],
-      head: [month ? '월' : '일자', '배달 건수', '들어온 돈', '라이더 지급', '기타 운영비', '세금 보관', '순수익'],
-      rows: rows.map(r => [r.live ? `${r.d} (집계 중 · ${NOW_HM}까지)` : r.d, r.cnt, r.inc, -r.rider, -r.etc, -r.tax, r.net]),
-      foot: [['합계', tot.cnt, tot.inc, -tot.rider, -tot.etc, -tot.tax, tot.net]],
+      head: [month ? '월' : '일자', '배달 건수', '들어온 돈 (수수료 · 관리비)', '운영비', '세금 보관', '순수익'],
+      rows: rows.map(r => [r.live ? `${r.d} (집계 중 · ${NOW_HM}까지)` : r.d, r.cnt, r.inc - r.rider, -r.etc, -r.tax, r.net]),
+      foot: [['합계', tot.cnt, tot.inc - tot.rider, -tot.etc, -tot.tax, tot.net]],
+      notes: ['※ 들어온 돈 = 상점 배달대행수수료 + 라이더 배달대행수수료 + 건당관리비 + 상점 월관리비. 배달대행료(상점 → 라이더)는 넣지 않음'],
     }]);
   },
   invoice() {   // 상점 세금계산서: 현재 필터 결과 (기존 /store-adjustment 엑셀 컬럼 + 공급가액 · 세액 · 발행 상태)
@@ -2850,7 +2854,7 @@ const SPEC = {
         <li>사유 목록 = 캐시 내역의 거래 사유 코드 (캐시 내역 ⑤ 참조)</li>
         <li>헤더 문구 「어제(9/30)」는 기준일에 따라 바뀜 (오늘이면 「오늘(10/1) · 집계 중」)</li></ul>`],
       ['5', '최종 순수익', `<pre>순수익 = 들어온 돈(허브 수수료 · 관리비) − 나간 돈(운영비) − 보관한 돈(세금 보관)
-       = 수익 내역의 들어온 돈 − 라이더 지급 − 운영비 − 세금 (값은 같음)
+       = 수익 내역 같은 날 행의 들어온 돈 − 운영비 − 세금 보관 (네 값 모두 같음)
 보관한 돈 = 부가세 예치 + 원천세 예치 (허브캐시 잔액은 그대로, 출금가능금액만 줄어듦)</pre>
         <p>기준 정산일(06시 ~ 익일 06시)에 실시간으로 허브캐시에 쌓인 금액의 합계. 따로 「반영」되는 시점은 없다. 수익 내역의 같은 날 순수익과 같아야 함.</p>`],
       ['6', '최근 7일 순수익', `<ul>
@@ -2858,7 +2862,7 @@ const SPEC = {
         <li>막대를 누르면 그 날짜로 기준일 변경</li>
         <li>막대 위 라벨: 천원 단위 반올림 후 <b>한글 금액 표기</b> (예: 45만8,000원, 1억5400만원). 마우스오버 시 정확한 금액</li>
         <li>값 출처 = 수익 내역 일별 순수익</li></ul>`],
-      ['7', '이번 달 누적', `<p>기준일이 속한 달 1일 ~ 기준일 합계: 들어온 돈(허브 수수료 · 관리비) / 나간 돈(운영비, 라이더 배달료 제외) / 세금 보관 / 순수익. 제목은 「{월}월 누적」, 기간 표시. 말일이면 순수익 · 세금이 수익 내역 월별 행과 같고, 들어온 돈 = 수익 내역 들어온 돈 − 라이더 지급</p>`],
+      ['7', '이번 달 누적', `<p>기준일이 속한 달 1일 ~ 기준일 합계: 들어온 돈(허브 수수료 · 관리비) / 나간 돈(운영비, 라이더 배달료 제외) / 세금 보관 / 순수익. 제목은 「{월}월 누적」, 기간 표시. 말일이면 수익 내역 월별 행과 같은 값 (들어온 돈 · 운영비 · 세금 · 순수익)</p>`],
       ['8', '정산 용어', `<p>고정 문구. 허브모바일에서도 <b>같은 용어</b>를 쓴다 (PPT 8p 「용어는 쉽고 통일」). 정의는 「공통 규칙」 탭 참조.</p>`],
     ],
   },
@@ -2914,15 +2918,15 @@ const SPEC = {
       ['3', '상단 지표 4개', `<table class="sp-tbl"><tr><th>지표</th><th>정의</th></tr>
         <tr><td>기간 순수익</td><td>표 순수익 합계</td></tr>
         <tr><td>일(월)평균 순수익</td><td>기간 순수익 ÷ 행 수. 보조문구 = 배달 1건당 순수익</td></tr>
-        <tr><td>라이더 지급</td><td>라이더캐시로 넘어간 금액. 「허브 수익 아님」 문구 고정</td></tr>
+        <tr><td>들어온 돈</td><td>표 들어온 돈 합계. 보조문구 「수수료 · 관리비 (배달대행료 제외)」</td></tr>
         <tr><td>세금 보관</td><td>세금 보관함으로 넘어간 금액</td></tr></table>`],
       ['4', '수익 표', `<table class="sp-tbl"><tr><th>컬럼</th><th>정의</th></tr>
         <tr><td>배달 건수</td><td>완료 배달 수</td></tr>
-        <tr><td>들어온 돈</td><td>허브캐시 충전 사유 합</td></tr>
-        <tr><td>라이더 지급</td><td>라이더 배달료 지급 합</td></tr>
-        <tr><td>기타 운영비</td><td>바로머니 이용료 + 프로그램 사용료 + 기타 차감</td></tr>
+        <tr><td>들어온 돈 (수수료 · 관리비)</td><td>허브캐시 충전 사유 합 = 상점 배달대행수수료 + 라이더 배달대행수수료 + 건당관리비 + 상점 월관리비. <b>배달대행료(상점 → 라이더)는 넣지 않음</b></td></tr>
+        <tr><td>운영비</td><td>허브 자동 지원금 + 바로머니 이용료 + 프로그램 사용료 + 기타 차감 (정산 요약 「나간 돈」과 같음)</td></tr>
         <tr><td>세금 보관</td><td>부가세 보관 + 원천세 보관</td></tr>
-        <tr><td>순수익</td><td>들어온 돈 − 라이더 지급 − 기타 운영비 − 세금 보관</td></tr></table>
+        <tr><td>순수익</td><td>들어온 돈 − 운영비 − 세금 보관</td></tr></table>
+        <p><b>「라이더 지급」 칸은 두지 않는다.</b> 라이더 배달료는 허브 돈이 아님 (라이더캐시에서 확인). 같은 날 행 = 정산 요약의 들어온 돈 · 나간 돈 · 보관한 돈 · 순수익과 같은 값</p>
         <p>「출금가능 반영」 · 「상태(반영 완료 / 정산 대기)」 컬럼은 두지 않는다. 실시간 적립이라 반영 시점이 따로 없음</p>
         <ul><li>맨 아래 합계 행</li><li>일별 행 클릭 → 그 날짜 기준 정산 요약으로 이동</li></ul>`],
     ],
