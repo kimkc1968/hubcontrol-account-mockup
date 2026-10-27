@@ -339,7 +339,12 @@
   .hq-iv th:first-child, .hq-iv td:first-child { padding-left: 16px; }
   .hq-iv th:last-child, .hq-iv td:last-child { padding-right: 16px; }
   .hq-iv tfoot tr.grand td { background: #fff; font-weight: 600; font-size: 14.5px; padding-top: 14px; padding-bottom: 14px; }
-  .hq-iv-h { font-weight: 500; font-size: 14px; color: #333; margin: 14px 0 8px; }
+  .hq-iv-party { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid var(--border); }
+  .hq-iv-party > div { padding: 12px 16px 14px; }
+  .hq-iv-party > div + div { border-left: 1px solid var(--line); }
+  .hq-iv-party .pt { font-weight: 500; font-size: 14px; margin-bottom: 10px; }
+  .hq-iv-party .pt .muted { font-weight: 400; font-size: 12.5px; color: var(--text-3); margin-left: 4px; }
+  .hq-iv-party .kv { font-size: 13px; gap: 6px 10px; }
   .hq-tbl { width: 100%; table-layout: fixed; }   /* 매출 · 매입 표 컬럼 폭을 맞춤 */
   .hq-tbl th:nth-child(1) { width: 170px; } .hq-tbl th:nth-child(2) { width: 220px; } .hq-tbl th:nth-child(3) { width: 80px; }
   .hq-tbl th:nth-child(4), .hq-tbl th:nth-child(6) { width: 120px; } .hq-tbl th:nth-child(5) { width: 100px; } .hq-tbl th:nth-child(8) { width: 80px; }
@@ -829,13 +834,12 @@
         <div class="card-h"><span class="ms">receipt_long</span>본사에 발행할 세금계산서 <span class="sub-t" id="hqIvSub"></span> <span id="hqSalesState"></span>
           <div class="right"><button class="btn outline sm" data-dl="hqHometax"><span class="ms">download</span>홈택스 발행 양식</button>
             <button class="btn primary sm" id="hqSalesDone"><span class="ms">task_alt</span>발행 완료로 표시</button></div></div>
+        <div class="hq-iv-party" id="hqIvParty"></div>   <!-- 공급자 / 공급받는 자 (세금계산서처럼 품목 위) -->
         <table class="tbl hq-iv">
           <thead><tr><th>품목</th><th class="r">수량</th><th class="r">단가</th><th class="r">공급가액</th><th class="r">세액 (부가세 10%)</th></tr></thead>
           <tbody id="hqIvBody"></tbody><tfoot id="hqIvFoot"></tfoot>
         </table>
       </div>
-      <div class="hq-iv-h">공급자 / 공급받는 자</div>
-      <div class="grid g2" id="hqIvParty"></div>
       <div id="hqIvNote"></div>
     </div>
 
@@ -2121,12 +2125,12 @@ function renderHqInvoice() {
       <td class="r num">${won(l.supply)}</td><td class="r num">${won(l.vat)}</td></tr>`).join('');
   $('#hqIvFoot').innerHTML = `<tr><td>합계</td><td></td><td></td><td class="r num">${won(sup)}</td><td class="r num">${won(vat)}</td></tr>
     <tr class="grand"><td colspan="4">세금계산서 합계금액 (공급가액 + 세액)</td><td class="r num">${won(sup + vat)}원</td></tr>`;
-  const party = (title, p) => `<div class="card"><div class="card-h">${title}</div><div class="card-b" style="padding:12px 16px">
-      <dl class="kv" style="grid-template-columns:84px 1fr;margin:0">
+  const party = (title, who, p) => `<div><div class="pt">${title} <span class="muted">${who}</span></div>
+      <dl class="kv" style="grid-template-columns:76px 1fr;margin:0">
         <dt>등록번호</dt><dd class="num">${p.bizno}</dd><dt>상호</dt><dd>${p.corp}</dd><dt>성명</dt><dd>${p.rep}</dd>
         <dt>주소</dt><dd>${p.addr}</dd><dt>업태/종목</dt><dd>${p.biztype} / ${p.item}</dd>
-        <dt>이메일</dt><dd>${p.email || '<span class="miss">미등록</span>'}</dd></dl></div></div>`;
-  $('#hqIvParty').innerHTML = party('공급자, 내 허브', HUB_INFO) + party('공급받는 자, 본사', HQ_INFO);
+        <dt>이메일</dt><dd>${p.email || '<span class="miss">미등록</span>'}</dd></dl></div>`;
+  $('#hqIvParty').innerHTML = party('공급자', '내 허브', HUB_INFO) + party('공급받는 자', '본사', HQ_INFO);
   const buy = HQ_LINES.buy, miss = !HUB_INFO.email;
   $('#hqIvNote').innerHTML = `${miss ? `<div class="callout" style="border-color:#f3c4c4;background:#fff5f5;margin:10px 0 0"><span class="ms" style="color:var(--minus)">error</span>
       <div>공급자(내 허브) <b>이메일</b>이 비어 있어요. 허브 관리 &gt; 사업자 정보에서 채운 뒤 발행해 주세요.</div></div>` : ''}
@@ -3243,7 +3247,7 @@ const SPEC = {
         <tr><td>품목 표</td><td>품목 · 수량 · 단가 · 공급가액 · 세액(10%). 품목 = 매출 내역 중 <b>금액이 있는 줄</b> (전자세금계산서 품목 <b>최대 4줄</b>). 품목명 뒤에 「(9월)」<br>
           수량: 배달대행료 = 수행 건수, 가맹관리비 = 본사계약 상점 수, 가맹 수수료 = 본사계약 상점 주문 수, 공유망 = 건수. 단가 = 공급가액 ÷ 수량</td></tr>
         <tr><td>합계</td><td>공급가액 · 세액 합계 → 「세금계산서 합계금액 (공급가액 + 세액)」. 위쪽 지표 「매출 / 본사에 발행 필요」 금액과 같음</td></tr>
-        <tr><td>공급자 / 공급받는 자</td><td>공급자 = 내 허브 (허브 관리 사업자 정보), 공급받는 자 = 본사. 등록번호 · 상호 · 성명 · 주소 · 업태/종목 · 이메일. 빈 항목은 빨간 「미등록」 + 발행 전에 채우라는 안내</td></tr>
+        <tr><td>공급자 / 공급받는 자</td><td><b>카드 안 품목 표 바로 위</b>에 좌우 두 칸 (실제 세금계산서처럼). 공급자 = 내 허브 (허브 관리 사업자 정보), 공급받는 자 = 본사. 등록번호 · 상호 · 성명 · 주소 · 업태/종목 · 이메일. 빈 항목은 빨간 「미등록」 + 발행 전에 채우라는 안내</td></tr>
         <tr><td>안내</td><td>매입은 본사가 따로 발행해서 <b>상계하지 않음</b></td></tr></table>`],
       ['6', '매출 표', `<ul><li>위 세금계산서의 근거 내역. 컬럼: 분류(묶음) · 내역 · 건수 · 공급가액 · VAT · 합계 · 비고 · 상세 + 소계. 0원 내역은 흐리게</li>
         <li>발행 버튼은 위 세금계산서 카드로 옮김</li></ul>`],
