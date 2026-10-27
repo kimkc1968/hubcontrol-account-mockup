@@ -387,6 +387,14 @@
   .txnts .b1 { font-size: 12.5px; font-weight: 700; color: #c0392b; }
   .txnts .b1.ok { color: #1b7f3b; }
   .txnts .b2 { font-size: 11.5px; color: #555; margin-top: 3px; }
+  .txnts.fail { background: #fff5f5; border-color: #f3c4c4; }
+  .pbinfo .stt.fail { background: #c0392b; }
+  .pb-bar.fail { background: #fff5f5; border-bottom-color: #f3c4c4; }
+  .pb-bar.fail .ms { color: var(--minus); }
+  .pb-bar.fail b.st { color: var(--minus); }
+  .pb-fail-why { color: var(--minus); font-size: 12.5px; }
+  .pb-bar .btn { margin-left: auto; }
+  .pb-failnext { display: inline-flex; align-items: center; gap: 5px; margin-left: 10px; cursor: pointer; }
   .cert-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: #555; cursor: pointer; white-space: nowrap; }
   .cert-chip .ms { font-size: 16px; }
   .cert-chip.ok .ms { color: #2e8b57; } .cert-chip.soon .ms { color: #c88a00; } .cert-chip.bad { color: var(--minus); } .cert-chip.bad .ms { color: var(--minus); }
@@ -825,7 +833,7 @@
       <div class="field"><label>정산월</label>
         <select class="ctl" style="width:130px"><option>2026-09</option><option>2026-08</option><option>2026-07</option></select></div>
       <div class="field"><label>발행 상태</label>
-        <select class="ctl" id="ivStatus" style="width:130px"><option value="">전체</option><option>미발행</option><option>발행 완료</option><option>정보 누락</option></select></div>
+        <select class="ctl" id="ivStatus" style="width:130px"><option value="">전체</option><option>미발행</option><option>발행 완료</option><option>전송실패</option><option>정보 누락</option></select></div>
       <div class="field"><label>검색어</label>
         <input class="ctl" id="ivKeyword" placeholder="상점명, 상점코드, 사업자번호" style="width:210px"></div>
       <button class="btn primary" id="ivSearch"><span class="ms">search</span>검색</button>
@@ -872,7 +880,7 @@
       <div class="field"><label>정산월</label>
         <select class="ctl" style="width:130px"><option>2026-09</option><option>2026-08</option><option>2026-07</option></select></div>
       <div class="field"><label>발행 상태</label>
-        <select class="ctl" id="hivStatus" style="width:130px"><option value="">전체</option><option>미발행</option><option>발행 완료</option><option>정보 누락</option></select></div>
+        <select class="ctl" id="hivStatus" style="width:130px"><option value="">전체</option><option>미발행</option><option>발행 완료</option><option>전송실패</option><option>정보 누락</option></select></div>
       <div class="field"><label>검색어</label>
         <input class="ctl" id="hivKeyword" placeholder="허브명, 허브코드, 사업자번호" style="width:210px"></div>
       <button class="btn primary" id="hivSearch"><span class="ms">search</span>검색</button>
@@ -1224,15 +1232,16 @@
     </div>
 
     <div class="card" data-spec="5">
-      <div class="card-h">발행 내역 <span class="sub-t">팝빌로 발행한 세금계산서 · 최신순</span></div>
+      <div class="card-h">발행 내역 <span class="sub-t">팝빌로 발행한 세금계산서 · 최신순</span> <span id="pbLogFail"></span></div>
       <div style="overflow-x:auto"><table class="tbl">
         <thead><tr><th>발행 일시</th><th>구분</th><th>공급받는 자</th><th>문서번호</th><th>국세청 승인번호</th><th class="r">합계금액</th><th class="c">상태</th><th class="r">수수료</th><th class="c">문서</th></tr></thead>
         <tbody id="pbLogBody"></tbody>
       </table></div>
     </div>
 
-    <div class="pb-demo" data-spec="6"><span class="ms">science</span>시안 전용 · 인증서 상태 바꿔 보기
+    <div class="pb-demo" data-spec="6"><span class="ms">science</span>시안 전용 · 상태 바꿔 보기
       <div class="seg" id="certDemo"><button data-c="ok">정상</button><button data-c="soon">만료 임박</button><button data-c="expired">만료</button><button data-c="none">미등록</button></div>
+      <label class="pb-failnext"><input type="checkbox" id="pbFailNext"> 다음 발행을 국세청 전송실패로</label>
     </div>
   </section>
 </main>
@@ -1864,9 +1873,10 @@ const BIZ = [
 ];
 const IV = storeCfg.map((s, i) => ({ i, rep: BIZ[i][0], bizno: BIZ[i][1], addr: BIZ[i][2], biztype: '음식점업', item: BIZ[i][3], email: BIZ[i][4],
   issued: i === 0 || i === 4 ? '2026-10-01' : '' }));
-IV.forEach(v => { if (v.issued) pbAssign(v, ivDoc(v), '2026-10-01 12:3' + v.i); });   // 1일 12시 집계 뒤 발행   // 이미 팝빌로 발행된 상점 (전송완료)
+IV.forEach(v => { if (v.issued) pbAssign(v, ivDoc(v), '2026-10-01 12:3' + v.i); });   // 1일 12시 집계 뒤 발행
+Object.assign(IV[4], { pbState: '전송실패', pbFail: '국세청 시스템 일시 오류' });   // 시안: 국세청 전송실패 예시 1건 (재전송 대상)   // 이미 팝빌로 발행된 상점 (전송완료)
 const ivMissing = v => [!v.bizno && '사업자 등록번호', !v.email && '이메일'].filter(Boolean);
-const ivState = v => v.issued ? '발행 완료' : ivMissing(v).length ? '정보 누락' : '미발행';
+const ivState = v => v.issued ? (v.pbState === '전송실패' ? '전송실패' : '발행 완료') : ivMissing(v).length ? '정보 누락' : '미발행';
 const ivSel = new Set();
 function ivFiltered() {
   const st = $('#ivStatus').value, kw = $('#ivKeyword').value.trim();
@@ -1880,13 +1890,13 @@ function renderInvoice() {
   const cntBy = s => IV.filter(v => ivState(v) === s).length;
   const stat = (k, ic, v, s, unit = '원') => `<div class="card stat"><div class="k"><span class="ms">${ic}</span>${k}</div><div class="v num">${v}<small>${unit}</small></div><div class="s">${s}</div></div>`;
   $('#ivStats').innerHTML =
-    stat('발행 대상 상점', 'storefront', IV.length, `발행 완료 ${cntBy('발행 완료')} · 미발행 ${cntBy('미발행')} · <span class="miss">정보 누락 ${cntBy('정보 누락')}</span>`, '곳') +
+    stat('발행 대상 상점', 'storefront', IV.length, `발행 완료 ${cntBy('발행 완료')}${cntBy('전송실패') ? ` · <span class="miss">전송실패 ${cntBy('전송실패')}</span>` : ''} · 미발행 ${cntBy('미발행')} · <span class="miss">정보 누락 ${cntBy('정보 누락')}</span>`, '곳') +
     stat('공급가액 합계', 'request_quote', won(sum('supply')), '9월 완료 건 기준') +
     stat('세액 합계', 'percent', won(sum('vat')), '= 상점캐시 「세금계산서용」 차감 합계') +
     stat('합계(총액)', 'functions', won(sum('total')), '공급가액 + 세액');
   $('#ivBody').innerHTML = rows.length ? rows.map(v => {
     const s = storeCfg[v.i], t = storeSettle(s), state = ivState(v), miss = ivMissing(v), lock = miss.length || v.issued;
-    const pill = { '발행 완료': pbPill(v), '미발행': '<span class="pill gray">미발행</span>', '정보 누락': '<span class="pill out">정보 누락</span>' }[state];
+    const pill = { '발행 완료': pbPill(v), '전송실패': pbPill(v), '미발행': '<span class="pill gray">미발행</span>', '정보 누락': '<span class="pill out">정보 누락</span>' }[state];
     return `<tr class="${lock ? 'nosel' : 'clickable'} ${ivSel.has(v.i) ? 'sel' : ''}" data-row="${v.i}" ${v.issued ? 'data-lockmsg="이미 팝빌로 발행한 상점이에요."' : ''}>
       <td class="c"><input type="checkbox" data-iv="${v.i}" ${lock ? 'disabled' : ''} ${ivSel.has(v.i) ? 'checked' : ''}></td>
       <td><div class="two"><span>${s.name}</span><small class="num">${s.code}</small></div></td>
@@ -2004,7 +2014,7 @@ const HIV_HQ_OUT = HIV.flatMap(h => h.hqOut.map(s => ({ ...s, hub: h.name }))); 
 const vatSetTag = r => `<span class="pill ${r.vatSet === '균등' ? 'in' : 'out'}">${r.vatSet}</span>`;
 const vatRule = r => r.vatSet === '균등' ? '균등 (들어옴)' : '발주 (안 들어옴)';
 const hivMissing = h => [!h.bizno && '사업자 등록번호', !h.email && '이메일'].filter(Boolean);
-const hivState = h => h.issued ? '발행 완료' : hivMissing(h).length ? '정보 누락' : '미발행';
+const hivState = h => h.issued ? (h.pbState === '전송실패' ? '전송실패' : '발행 완료') : hivMissing(h).length ? '정보 누락' : '미발행';
 const hivSel = new Set();
 function hivFiltered() {
   const st = $('#hivStatus').value, kw = $('#hivKeyword').value.trim();
@@ -2016,13 +2026,13 @@ function renderHubInvoice() {
   const dueHubs = HIV.filter(h => h.due > 0), dueStoreCnt = HIV.reduce((a, b) => a + b.dueStores, 0);
   $('#hivHqNote').textContent = HIV_HQ_OUT.length ? `(이번 달 제외: ${HIV_HQ_OUT.map(s => `${s.hub} ${s.n} ${s.cnt.toLocaleString()}건`).join(', ')})` : '';
   $('#hivStats').innerHTML =
-    stat('발행 대상 허브', 'hub', HIV.length, `발행 완료 ${cntBy('발행 완료')} · 미발행 ${cntBy('미발행')} · <span class="miss">정보 누락 ${cntBy('정보 누락')}</span>`, '곳') +
+    stat('발행 대상 허브', 'hub', HIV.length, `발행 완료 ${cntBy('발행 완료')}${cntBy('전송실패') ? ` · <span class="miss">전송실패 ${cntBy('전송실패')}</span>` : ''} · 미발행 ${cntBy('미발행')} · <span class="miss">정보 누락 ${cntBy('정보 누락')}</span>`, '곳') +
     stat('공급가액 합계', 'request_quote', won(sum('supply')), `공유 배달 ${sum('cnt').toLocaleString()}건 · 세액(10%) ${won(sum('vat'))}원`) +
     stat('받은 부가세', 'check_circle', won(sum('recv')), '') +
     stat('받아야 할 부가세', 'error', won(sum('due')), `<b>상대 허브 「발주」 상점 ${dueStoreCnt}곳</b> · 허브 ${dueHubs.length}곳에서 안 들어옴`, '원',
       sum('due') ? 'border-color:#f0b4b4;background:#fff5f5;color:var(--minus)' : '');
   // ★ 부가세가 안 들어온 허브 경고 (상대 허브가 상점을 「발주」로 설정)
-  const pill = h => ({ '발행 완료': pbPill(h), '미발행': '<span class="pill gray">미발행</span>', '정보 누락': '<span class="pill out">정보 누락</span>' })[hivState(h)];
+  const pill = h => ({ '발행 완료': pbPill(h), '전송실패': pbPill(h), '미발행': '<span class="pill gray">미발행</span>', '정보 누락': '<span class="pill out">정보 누락</span>' })[hivState(h)];
   const lock = h => hivMissing(h).length || h.issued;   // 정보 누락 · 이미 발행 = 선택 불가
   $('#hivBody').innerHTML = rows.length ? rows.map(h => `<tr class="${h.due > 0 ? 'warn' : ''} ${lock(h) ? 'nosel' : 'clickable'} ${hivSel.has(h.i) ? 'sel' : ''}" data-row="${h.i}" ${h.issued ? 'data-lockmsg="이미 팝빌로 발행한 허브예요."' : ''}>
       <td class="c"><input type="checkbox" data-hiv="${h.i}" ${lock(h) ? 'disabled' : ''} ${hivSel.has(h.i) ? 'checked' : ''}></td>
@@ -2118,13 +2128,36 @@ function pbAssign(ref, d, time, state = '전송완료') {
   POPBILL.log.unshift({ time, kind: d.kind, name: d.name, mgt: d.mgt, ref, total: d.supply + d.vat, fee: POPBILL.fee });
 }
 function pbPill(r, inline) {
-  const sub = `${r.issued} · <span style="color:${r.pbState === '전송완료' ? 'inherit' : '#c88a00'}">${r.pbState}</span>`;
-  return `<span class="pill in" title="국세청 승인번호 ${r.nts}">발행 완료</span>${inline ? ` <span class="muted" style="font-size:12px">${sub}</span>` : `<div class="muted" style="font-size:11.5px;margin-top:2px">${sub}</div>`}`;
+  const fail = r.pbState === '전송실패';
+  const sub = fail ? `${r.issued} 발행 · <span style="color:var(--minus)">재전송 필요</span>` : `${r.issued} · <span style="color:${r.pbState === '전송완료' ? 'inherit' : '#c88a00'}">${r.pbState}</span>`;
+  const pill = fail ? `<span class="pill out" title="${r.pbFail}">전송실패</span>` : `<span class="pill in" title="국세청 승인번호 ${r.nts}">발행 완료</span>`;
+  return `${pill}${inline ? ` <span class="muted" style="font-size:12px">${sub}</span>` : `<div class="muted" style="font-size:11.5px;margin-top:2px">${sub}</div>`}`;
 }
 function pbBar(r) {
   if (!r.issued) return '';
-  return `<div class="pb-bar"><span class="ms">verified</span><span>문서번호 <b class="num">${r.mgt}</b></span><span>국세청 승인번호 <b class="num">${r.nts}</b></span>
-    <span>문서 상태 <b>${r.pbState === '전송중' ? '<span class="pb-spin"></span>' : ''}${r.pbState}</b></span><span class="muted">팝빌 정발행 · ${r.issued}</span></div>`;
+  const fail = r.pbState === '전송실패';
+  return `<div class="pb-bar${fail ? ' fail' : ''}"><span class="ms">${fail ? 'error' : 'verified'}</span><span>문서번호 <b class="num">${r.mgt}</b></span><span>국세청 승인번호 <b class="num">${r.nts}</b></span>
+    <span>문서 상태 <b class="st">${r.pbState === '전송중' ? '<span class="pb-spin"></span>' : ''}${r.pbState}</b>${fail ? ` <span class="pb-fail-why">· ${r.pbFail}</span>` : ''}</span>
+    ${fail ? `<button class="btn primary sm" data-pbresend="${r.mgt}"><span class="ms">refresh</span>재전송</button>` : `<span class="muted">팝빌 정발행 · ${r.issued}${r.pbResent ? ` · 재전송 ${r.pbResent}회` : ''}</span>`}</div>`;
+}
+/* 국세청 전송실패 → 「재전송」 (팝빌 SendToNTS). 같은 문서 · 같은 승인번호로 다시 보냄, 추가 수수료 없음 */
+function pbResend(r) {
+  if (!r || r.pbState !== '전송실패') return;
+  r.pbState = '전송중'; r.pbResent = (r.pbResent || 0) + 1;
+  pbRerenderAll(); toast(`국세청 재전송 요청 (팝빌 SendToNTS) · ${r.mgt} · 추가 수수료 없음`);
+  setTimeout(() => { r.pbState = '전송완료'; delete r.pbFail; pbRerenderAll(); toast(`국세청 재전송 완료 · 승인번호 ${r.nts}`); }, 2600);
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-pbresend]'); if (!b) return;
+  pbResend((POPBILL.log.find(l => l.mgt === b.dataset.pbresend) || {}).ref);
+});
+// 발행 상태가 바뀌면 세금계산서 화면 · 열린 팝업 · 인증서 관리를 모두 다시 그림
+function pbRerenderAll() {
+  renderInvoice(); renderHubInvoice(); renderHq();
+  if ($('#ivDim').classList.contains('show') && ivCur) openIvDetail(ivCur.i);
+  if ($('#hivDim').classList.contains('show') && hivCur) openHivDetail(hivCur.i);
+  if ($('#txDim').classList.contains('show') && pbViewCur) pbView(pbViewCur);
+  renderCert();
 }
 function pbButton(btn, r, miss, sm) {
   btn.disabled = !r.issued && miss.length > 0;
@@ -2150,13 +2183,13 @@ let pbViewCur = null;
 function pbView(r) {
   pbViewCur = r;
   const d = pbDocData(r), S = HUB_INFO, B = d.buyer, total = d.supply + d.vat, n = x => x === '' ? '' : won(x);
-  const done = r.pbState === '전송완료';
+  const done = r.pbState === '전송완료', fail = r.pbState === '전송실패';
   $('#txTitle').textContent = `세금계산서 보기 · ${r.pbKind === '본사' ? B.corp : r.pbKind === '상점' ? storeCfg[r.i].name : r.name}`;
   $('#txNote').textContent = `팝빌 getPopUpURL 원본 · 승인번호 ${r.nts}`;
   $('#txChrome').innerHTML = `<div class="pbhd"><b>세금계산서 보기</b><span class="brand">POPBiLL</span></div>
     <div class="pbinfo"><span class="tag">API</span><span class="k">문서번호</span><span class="v">${r.mgt}</span><span class="bar"></span>
       <span class="k">국세청승인번호</span><span class="v">${r.nts}</span>
-      <span class="right"><span class="k">문서상태</span><span class="stt${done ? '' : ' wait'}">${done ? '전송완료' : '발행완료 · 전송중'}</span><span class="tm">${r.pbTime}:12</span></span></div>`;
+      <span class="right"><span class="k">문서상태</span><span class="stt${done ? '' : fail ? ' fail' : ' wait'}">${done ? '전송완료' : fail ? '전송실패' : '발행완료 · 전송중'}</span><span class="tm">${r.pbTime}:12</span></span></div>`;
   const rows = [...d.items, ...Array(Math.max(0, 4 - d.items.length)).fill(null)];
   $('#txDoc').innerHTML = `<table class="tx">
     <tr><td class="doch" colspan="10"><span class="t">전자세금계산서</span><span class="no">책 번호 : &nbsp; 권 &nbsp; 호<br>일련번호 :</span></td></tr>
@@ -2177,7 +2210,10 @@ function pbView(r) {
     <tr><td class="r" colspan="2">${won(total)}</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td></tr>
   </table>
   <div class="txfoot">※ 본 전자세금계산서는 국세청고시에 따라 전자서명하여 팝빌에서 발행 되었습니다. (발행일자 : ${r.issued})</div>
-  <div class="txnts"><span class="ico">국세청<br>홈택스</span><div>${done
+  <div class="txnts${fail ? ' fail' : ''}"><span class="ico">국세청<br>홈택스</span><div>${fail
+    ? `<div class="b1">국세청 전송에 실패했습니다. · ${r.pbFail}</div><div class="b2">발행은 됐지만 국세청에 전송되지 않았어요. 「재전송」을 누르면 같은 문서 · 같은 승인번호로 다시 보내요 (팝빌 SendToNTS · 추가 수수료 없음).</div>
+       <button class="btn primary sm" style="margin-top:8px" data-pbresend="${r.mgt}"><span class="ms">refresh</span>재전송</button>`
+    : done
     ? `<div class="b1 ok">국세청 전송이 완료되었습니다.</div><div class="b2">승인번호 ${r.nts} · 홈택스에서 조회할 수 있어요.</div>`
     : '<div class="b1">국세청으로 즉시 전송 요청되었습니다. (sendToNTS)</div><div class="b2">발행 직후 전송을 요청하며 최대 30분 이내 처리됩니다. 결과는 웹훅으로 받아 전송완료 / 전송실패로 바뀝니다.</div>'}</div></div>`;
   $('#txDim').classList.add('show');
@@ -2226,8 +2262,13 @@ function pbRun() {
     $('#pbDim').classList.remove('show');
     rerender(); pbRefresh();
     toast(`${n}건 발행 완료 · 국세청 승인번호 할당 · 허브캐시에서 수수료 ${won(n * POPBILL.fee)}원 차감`);
-    setTimeout(() => { docs.forEach(d => { d.ref.pbState = '전송완료'; }); rerender(); pbRefresh(); toast(`국세청 전송완료 · ${n}건`);
-      if ($('#txDim').classList.contains('show') && docs.some(d => d.ref === pbViewCur)) pbView(pbViewCur); }, 2600);   // 보고 있던 세금계산서도 전송완료로
+    // 국세청 전송 결과 (실연동: 팝빌 웹훅 / GetInfo). 시안은 「다음 발행을 전송실패로」를 켜면 실패로 만듦
+    setTimeout(() => {
+      const fail = POPBILL.failNext; POPBILL.failNext = false; if ($('#pbFailNext')) $('#pbFailNext').checked = false;
+      docs.forEach(d => { d.ref.pbState = fail ? '전송실패' : '전송완료'; if (fail) d.ref.pbFail = '국세청 시스템 일시 오류'; });
+      rerender(); pbRefresh(); pbRerenderAll();
+      toast(fail ? `국세청 전송실패 · ${n}건 · 「재전송」을 눌러 다시 보내 주세요` : `국세청 전송완료 · ${n}건`);
+    }, 2600);
   }, 1300);
 }
 // 수수료 차감: 허브캐시 잔액 ↓ (출금가능 ↓), 캐시 내역 허브캐시에 건마다 차감 한 줄, 오늘 정산 「나간 돈」에 반영
@@ -2271,10 +2312,12 @@ function renderCert() {
       <div><span>세금계산서 합계</span><b class="num">${won(mon.reduce((a, l) => a + l.total, 0))}원</b></div></div>
     <div class="muted" style="font-size:12.5px;margin-top:10px">상점 ${by('상점')}건 · 허브 ${by('허브')}건 · 본사 ${by('본사')}건 · 수수료는 캐시 내역(허브캐시)에 「세금계산서 발행 수수료」로 남아요</div>`;
   $('#pbLogBody').innerHTML = POPBILL.log.length ? POPBILL.log.map((l, i) => `<tr><td class="num">${l.time}</td><td>${l.kind}</td><td>${l.name}</td><td class="num">${l.mgt}</td><td class="num">${l.ref.nts}</td>
-      <td class="r num">${won(l.total)}</td><td class="c"><span class="pill ${l.ref.pbState === '전송완료' ? 'in' : 'keep'}">${l.ref.pbState}</span></td><td class="r num minus">-${won(l.fee)}</td>
-      <td class="c"><button class="btn outline sm" data-pbv="${i}">세금계산서 보기</button></td></tr>`).join('')
+      <td class="r num">${won(l.total)}</td><td class="c"><span class="pill ${{ 전송완료: 'in', 전송실패: 'out' }[l.ref.pbState] || 'keep'}" title="${l.ref.pbFail || ''}">${l.ref.pbState}</span>${l.ref.pbResent ? `<div class="muted" style="font-size:11px">재전송 ${l.ref.pbResent}회</div>` : ''}</td><td class="r num minus">-${won(l.fee)}</td>
+      <td class="c" style="white-space:nowrap">${l.ref.pbState === '전송실패' ? `<button class="btn primary sm" data-pbresend="${l.mgt}"><span class="ms">refresh</span>재전송</button> ` : ''}<button class="btn outline sm" data-pbv="${i}">세금계산서 보기</button></td></tr>`).join('')
     : '<tr><td class="empty" colspan="9">아직 발행한 세금계산서가 없어요.</td></tr>';
   $$('#certDemo button').forEach(b => b.classList.toggle('on', b.dataset.c === st));
+  const fails = POPBILL.log.filter(l => l.ref.pbState === '전송실패').length;
+  $('#pbLogFail').innerHTML = fails ? `<span class="pill out">국세청 전송실패 ${fails}건 · 재전송 필요</span>` : '';
 }
 $('#view-cert').addEventListener('click', e => {
   if (e.target.closest('[data-cert="open"]')) { $('#certHi').textContent = `${HUB_INFO.corp} 님,`; $('#certDim').classList.add('show'); }
@@ -2283,6 +2326,7 @@ $('#view-cert').addEventListener('click', e => {
   if (dm) { POPBILL.cert = { ok: { reg: true, type: '전자세금용 공동인증서', exp: '2027-04-30' }, soon: { reg: true, type: '전자세금용 공동인증서', exp: '2026-10-20' },
       expired: { reg: true, type: '전자세금용 공동인증서', exp: '2026-09-20' }, none: { reg: false } }[dm.dataset.c]; renderCert(); renderCertChips(); }
 });
+$('#pbFailNext').addEventListener('change', e => { POPBILL.failNext = e.target.checked; if (e.target.checked) toast('시안: 다음 팝빌 발행은 국세청 전송실패로 끝나요.'); });
 // 인증서 등록 팝업 (실연동: GetTaxCertURL 결과를 1,000 × 630 팝업으로 연다 → 등록 후 CheckCertValidation으로 확인)
 $('#certOk').addEventListener('click', () => {
   POPBILL.cert = { reg: true, type: '전자세금용 공동인증서', exp: '2029-10-01' };
@@ -3855,9 +3899,10 @@ const SPEC = {
         <li><b>발행 수수료 건당 200원 · 허브캐시에서 차감</b> (발행 성공 건만)</li>
         <li>팝빌 호출 키(링크아이디 · 비밀키)는 서버에만 둔다. 프론트에서 직접 호출 금지</li></ul>`],
       ['4', '이번 달 발행', `<p>이번 달 팝빌로 발행한 건수 · 수수료 합계 · 세금계산서 합계금액, 구분별(상점 / 허브 / 본사) 건수</p>`],
-      ['5', '발행 내역', `<ul><li>컬럼: 발행 일시 · 구분 · 공급받는 자 · 문서번호(MgtKey) · 국세청 승인번호 · 합계금액 · 상태(전송중 / 전송완료 / 전송실패) · 수수료 · 「세금계산서 보기」</li>
+      ['5', '발행 내역', `<ul><li>컬럼: 발행 일시 · 구분 · 공급받는 자 · 문서번호(MgtKey) · 국세청 승인번호 · 합계금액 · 상태(전송중 / 전송완료 / 전송실패 + 재전송 횟수) · 수수료 · 「세금계산서 보기」 (전송실패면 앞에 「재전송」)</li>
+        <li>전송실패가 있으면 표 머리에 「국세청 전송실패 n건 · 재전송 필요」</li>
         <li>문서 보기 = 팝빌 <code>getPopUpURL</code> 새 창, PDF = <code>getPDFURL</code> (URL 30초 유효). 우리가 PDF를 만들지 않음</li></ul>`],
-      ['6', '시안 전용', `<p>「인증서 상태 바꿔 보기」는 시안 확인용. 실제 화면에는 없음 (정상 / 만료 임박 / 만료 / 미등록일 때 각 세금계산서 화면의 발행 차단 동작 확인)</p>`],
+      ['6', '시안 전용', `<p>「상태 바꿔 보기」는 시안 확인용. 실제 화면에는 없음. 인증서 정상 / 만료 임박 / 만료 / 미등록일 때 발행 차단 동작, 「다음 발행을 국세청 전송실패로」를 켜면 다음 발행이 전송실패로 끝나 재전송을 확인할 수 있음 (피자명가 삼성은 처음부터 전송실패 예시)</p>`],
     ],
   },
 };
@@ -3887,7 +3932,9 @@ const COMMON = `
   <ul><li><b>수기 기능(「발행 완료로 표시」 · 홈택스 양식) 대신 팝빌 API 정발행</b>. 버튼: 단건 「팝빌로 발행」, 목록 「선택 발행 (n건)」</li>
     <li>누르면 확인 팝업: 건수 · 세금계산서 합계금액 · <b>발행 수수료(건당 200원, 허브캐시 차감)</b> · 문서별 공급받는 자 · 문서번호 · 금액. 「n건 발행」을 눌러야 호출</li>
     <li>호출: 1건 <code>registIssue</code>, 여러 건 <code>BulkSubmit</code>. 응답 전까지 <b>발행중</b>, 같은 문서번호(MgtKey)로 중복 발행 차단</li>
-    <li>성공: 국세청 승인번호(<code>ntsConfirmNum</code>) 팝빌이 자동 할당 → 문서 상태 <b>전송중</b> → 국세청 결과(웹훅) 오면 <b>전송완료</b> / 전송실패</li>
+    <li>성공: 국세청 승인번호(<code>ntsConfirmNum</code>) 팝빌이 자동 할당 → 문서 상태 <b>전송중</b> → 국세청 결과(웹훅) 오면 <b>전송완료</b> / <b>전송실패</b></li>
+    <li><b>전송실패</b>: 발행은 됐지만 국세청에 안 들어간 상태. 목록 「전송실패」 빨간 알약 + 「재전송 필요」, 발행 상태 필터에 「전송실패」, 상단 지표에 건수. 상세 · 카드 상태 줄과 「세금계산서 보기」에 실패 사유(팝빌 문서 정보의 국세청 전송 결과 메시지) + <b>「재전송」</b>. 인증서 관리 발행 내역에도 「재전송」 + 「전송실패 n건 · 재전송 필요」</li>
+    <li><b>「재전송」</b> = 팝빌 <code>SendToNTS</code> (같은 문서번호 · 같은 승인번호로 다시 전송). <b>추가 수수료 없음</b>. 전송중 → 전송완료/전송실패, 재전송 횟수 표시</li>
     <li><b>수수료 차감</b>: 성공 건마다 허브캐시 −200원 → 캐시 내역(허브캐시)에 「세금계산서 발행 수수료」 차감 한 줄 (메모 = 팝빌 · 문서번호), 정산 요약 그날 「나간 돈」에 「세금계산서 발행 수수료」, 출금가능금액도 그만큼 줄어듦</li>
     <li>차단 (확인 팝업에서 빨간 안내, 「n건 발행」 버튼 없음): <b>공동인증서 미등록 · 만료</b>(「인증서 관리로 이동」) &gt; 출금 가능 금액 &lt; 수수료. 공급받는 자 정보 누락 · 이미 발행한 건은 처음부터 선택 · 발행 불가</li>
     <li>발행 후: 목록 「발행 완료」 + 발행일 · 전송 상태, 상세에는 문서번호 · 국세청 승인번호 · 문서 상태 줄, 버튼은 「세금계산서 보기」 → 팝빌 「세금계산서 보기」 화면 모양 (실연동 <code>getPopUpURL</code>)</li>
@@ -3960,7 +4007,7 @@ const QUESTIONS = [
   ['상점 / 세금계산서: 월 집계 시점(현재 매달 1일 12시)도 06시 기준으로 맞추나?', '기존 1일 12시 유지'],
   ['세금계산서 발행: 팝빌 연동회원 체계 (허브마다 팝빌 연동회원 가입 vs 본사 파트너 계정 아래 허브 연동회원)', '허브별 연동회원 (CorpNum = 허브 사업자번호)으로 가정'],
   ['세금계산서 발행: 수수료 200원 차감 시점 · 실패 처리 (발행 실패 · 국세청 전송실패 시 환불? 재발행 수수료?)', '발행 성공 건만 차감, 전송실패는 재전송(추가 수수료 없음)으로 가정'],
-  ['세금계산서 발행: 국세청 전송실패(웹훅) 때 허컨 표시 · 알림은?', '시안은 전송중 → 전송완료만'],
+  ['세금계산서 발행: 국세청 전송실패 사유가 데이터 오류(공급받는 자 휴 · 폐업 등)면 재전송해도 실패한다. 이때 수정세금계산서 발행으로 안내할까? 전송실패 알림(허모 푸시 · 문자)은?', '시안은 「재전송」(SendToNTS)만, 알림 없음'],
   ['인증서 관리 메뉴 위치: 정산 하위 / 허브 관리 하위 / 별도 1depth 카테고리', '시안은 정산 하위 맨 아래 「인증서 관리」'],
   ['홈택스 일괄발행 양식 다운로드를 팝빌 장애 대비용으로 남길까?', '시안은 화면에서 뺌 (수기 발행 기능 제거)'],
   ['허브 / 세금계산서: 공급가액 기준이 「내 허브가 가져간 배달대행료 몫」이 맞나? 가맹비 · 관리비 등 다른 항목도 넣나?', '배달대행료 내 몫만'],
