@@ -668,12 +668,12 @@
   <div class="group open new" id="taxGroup">
     <div class="cat"><span class="ms ic">receipt_long</span><span class="label">세금</span><span class="badge-new">NEW</span><span class="ms chev">expand_more</span></div>
     <div class="subs">
+      <div class="sub" data-view="cert">인증서 관리</div>
       <div class="sub" data-view="invoice">상점 / 세금계산서</div>
       <div class="sub" data-view="hubInvoice">허브 / 세금계산서</div>
       <div class="sub" data-view="hqInvoice">본사 / 세금계산서</div>
       <div class="sub" data-view="wht">라이더 / 원천세 신고</div>
       <div class="sub" data-view="tax">세금 보관함</div>
-      <div class="sub" data-view="cert">인증서 관리</div>
       <div class="sub" data-view="taxSetting">세금 설정</div>
     </div>
   </div>
@@ -3964,9 +3964,9 @@ const SPEC = {
 const MENU_SPEC = ['M', '정산 · 세금 메뉴 (사이드바)', `<ul>
   <li>사이드바 1depth <b>「정산」</b> · <b>「세금」</b> 2개 신설. 위치 = 「허브」 아래 정산, 그 바로 아래 세금, 그다음 「정책관리」. 오픈 초기에는 둘 다 NEW 배지</li>
   <li><b>정산</b> 하위 4개 (돈의 흐름): 정산 요약 · 캐시 내역 · 수익 내역(기존 이름 「수익처리 내역」) · 정산 설정</li>
-  <li><b>세금</b> 하위 7개 (신고 · 발행): 상점 / 세금계산서 · <b>허브 / 세금계산서(신규)</b> · <b>본사 / 세금계산서(신규)</b> · 라이더 / 원천세 신고 · 세금 보관함 · <b>인증서 관리(신규)</b> · <b>세금 설정(신규)</b></li>
+  <li><b>세금</b> 하위 7개 (신고 · 발행): <b>인증서 관리(신규)</b> · 상점 / 세금계산서 · <b>허브 / 세금계산서(신규)</b> · <b>본사 / 세금계산서(신규)</b> · 라이더 / 원천세 신고 · 세금 보관함 · <b>세금 설정(신규)</b></li>
   <li><b>「세금 설정」(신규)</b>: 기존 「정산 설정 &gt; 운영 옵션」의 세금 옵션 3개(세금 자체신고 · 부가세 자동 보관 · 원천세 자동 보관)를 옮긴 화면. 정산 설정에는 표시 · 알림 옵션과 상점별 부가세만 남김</li>
-  <li><b>「인증서 관리」(신규)</b>: 팝빌 세금계산서 발행용 공동인증서 등록 · 갱신 + 팝빌 연동 정보 · 발행 내역</li>
+  <li><b>「인증서 관리」(신규)</b>: 팝빌 세금계산서 발행용 공동인증서 등록 · 갱신 + 팝빌 연동 정보 · 발행 내역. 세금계산서 발행의 선행 조건이라 세금 맨 위</li>
   <li><b>「본사 / 세금계산서」(신규)</b>: 본사 정산서 기준. 매출 = 허브 → 본사 발행, 매입 = 본사 → 허브 발행. 하위 탭 = 정산서 + 본사 상세 파일 8개. 위치 = 허브 / 세금계산서 아래</li>
   <li><b>기존 메뉴 이동</b> (기존 메뉴·URL로 들어오면 새 화면으로 리다이렉트, 시안에서는 이동 안내 표시)
     <ul><li>「상점 &gt; 정산」(/store-adjustment) → 「세금 &gt; 상점 / 세금계산서」</li>
@@ -3979,12 +3979,12 @@ const COMMON = `
     <tr><td>캐시 내역</td><td><code>/settlement/cash?type=hub|store|rider</code></td></tr>
     <tr><td>수익 내역</td><td><code>/settlement/profit</code></td></tr>
     <tr><td>정산 설정</td><td><code>/settlement/settings</code></td></tr>
-    <tr><td rowspan="7">세금</td><td>상점 / 세금계산서</td><td><code>/tax/store-invoice</code> (기존 <code>/store-adjustment</code> 리다이렉트)</td></tr>
+    <tr><td rowspan="7">세금</td><td>인증서 관리</td><td><code>/tax/certificate</code> (신규)</td></tr>
+    <tr><td>상점 / 세금계산서</td><td><code>/tax/store-invoice</code> (기존 <code>/store-adjustment</code> 리다이렉트)</td></tr>
     <tr><td>허브 / 세금계산서</td><td><code>/tax/hub-invoice</code> (신규)</td></tr>
     <tr><td>본사 / 세금계산서</td><td><code>/tax/hq-invoice</code> (신규)</td></tr>
     <tr><td>라이더 / 원천세 신고</td><td><code>/tax/rider-withholding</code> (기존 <code>/worker-adjustment/withhold-tax-report</code> 리다이렉트)</td></tr>
     <tr><td>세금 보관함</td><td><code>/tax/reserve</code></td></tr>
-    <tr><td>인증서 관리</td><td><code>/tax/certificate</code> (신규)</td></tr>
     <tr><td>세금 설정</td><td><code>/tax/settings</code> (신규)</td></tr></table>
   <div class="sp-h2">팝빌 세금계산서 발행 (상점 · 허브 · 본사 공통)</div>
   <ul><li><b>수기 기능(「발행 완료로 표시」 · 홈택스 양식) 대신 팝빌 API 정발행</b>. 버튼: 단건 「팝빌로 발행」, 목록 「세금계산서 발행하기 (n건)」</li>
@@ -4066,7 +4066,7 @@ const QUESTIONS = [
   ['세금계산서 발행: 팝빌 연동회원 체계 (허브마다 팝빌 연동회원 가입 vs 본사 파트너 계정 아래 허브 연동회원)', '허브별 연동회원 (CorpNum = 허브 사업자번호)으로 가정'],
   ['세금계산서 발행: 수수료 200원 차감 시점 · 실패 처리 (발행 실패 · 국세청 전송실패 시 환불? 재발행 수수료?)', '발행 성공 건만 차감, 전송실패는 재전송(추가 수수료 없음)으로 가정'],
   ['세금계산서 발행: 국세청 전송실패 사유가 데이터 오류(공급받는 자 휴 · 폐업 등)면 재전송해도 실패한다. 이때 수정세금계산서 발행으로 안내할까? 전송실패 알림(허모 푸시 · 문자)은?', '시안은 「재전송」(SendToNTS)만, 알림 없음'],
-  ['세금 카테고리 구성: 정산(4) · 세금(7)으로 나눈 메뉴 배치와 순서, 1depth 위치(정산 바로 아래)', '시안은 세금 = 세금계산서 3개 · 원천세 신고 · 세금 보관함 · 인증서 관리 · 세금 설정 순'],
+  ['세금 카테고리 구성: 정산(4) · 세금(7)으로 나눈 메뉴 배치와 순서, 1depth 위치(정산 바로 아래)', '시안은 세금 = 인증서 관리 · 세금계산서 3개 · 원천세 신고 · 세금 보관함 · 세금 설정 순'],
   ['홈택스 일괄발행 양식 다운로드를 팝빌 장애 대비용으로 남길까?', '시안은 화면에서 뺌 (수기 발행 기능 제거)'],
   ['허브 / 세금계산서: 공급가액 기준이 「내 허브가 가져간 배달대행료 몫」이 맞나? 가맹비 · 관리비 등 다른 항목도 넣나?', '배달대행료 내 몫만'],
   ['허브 / 세금계산서: 받아야 할 부가세(상대 허브 「발주」 상점분)는 어떻게 받나? (바로머니 정산에서 자동 정산 / 발주 허브에 청구 후 이체)', '표시만, 받는 방법 미정'],
