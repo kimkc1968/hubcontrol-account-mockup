@@ -2306,12 +2306,10 @@ function renderCert() {
     <span class="cert-big ${bc}"><span class="ms">${bi}</span>${lb}</span>
     ${c.reg ? `<div class="cexp"><span>만료일</span><b class="num">${c.exp}</b><span>${d >= 0 ? `D-${d}` : `${-d}일 지남`}</span></div>` : ''}
     <button class="btn ${st === 'ok' ? 'outline' : 'primary'}" data-cert="open"><span class="ms">${c.reg ? 'autorenew' : 'add'}</span>${c.reg ? '인증서 갱신' : '인증서 등록'}</button>`;
-  $('#pbInfo').innerHTML = `<dl class="kv" style="grid-template-columns:96px 1fr">
-    <dt>연동 사업자</dt><dd>${HUB_INFO.corp} · <span class="num">${HUB_INFO.bizno}</span> <span class="muted">(팝빌 연동회원 CorpNum)</span></dd>
+  $('#pbInfo').innerHTML = `<dl class="kv" style="grid-template-columns:96px 1fr;margin:0">
+    <dt>연동 사업자</dt><dd>${HUB_INFO.corp} · <span class="num">${HUB_INFO.bizno}</span></dd>
     <dt>발행 방식</dt><dd>정발행 · 국세청 즉시전송</dd>
-    <dt>발행 API</dt><dd>1건 <code>registIssue</code> · 여러 건 <code>BulkSubmit</code> (최대 100건)</dd>
-    <dt>발행 수수료</dt><dd><b>건당 ${won(POPBILL.fee)}원</b> · 허브캐시에서 차감 (발행에 성공한 건만)</dd>
-    <dt>문서 보기</dt><dd><code>getPopUpURL</code> · PDF <code>getPDFURL</code> (URL 30초 유효)</dd></dl>`;
+    <dt>발행 수수료</dt><dd><b>건당 ${won(POPBILL.fee)}원</b> · 허브캐시에서 차감 (발행에 성공한 건만)</dd></dl>`;
   const mon = POPBILL.log.filter(l => l.time.startsWith('2026-10')), by = k => mon.filter(l => l.kind === k).length;
   $('#pbMonth').innerHTML = `<div class="cash-rows" style="border-top:0;padding-top:0;grid-template-columns:repeat(3,minmax(0,1fr))">
       <div><span>발행 건수</span><b class="num">${mon.length}건</b></div><div><span>발행 수수료</span><b class="num minus">-${won(mon.reduce((a, l) => a + l.fee, 0))}원</b></div>
@@ -3901,7 +3899,8 @@ const SPEC = {
         <li>각 세금계산서 화면(상점 · 허브 · 본사)에도 같은 상태를 작게 표시 (누르면 이 화면)</li>
         <li>「인증서 등록 / 갱신」 = 팝빌 <code>GetTaxCertURL</code> 결과 URL을 팝업(권장 1,000 × 630, URL 30초 유효)으로 연다. 시안은 팝빌 화면 모양을 흉내 낸 팝업</li>
         <li>등록 가능한 인증서: 전자세금용 · 사업자 범용 (개인용 · 은행거래용 불가). 발급 비용은 허브 부담, 발행만 하면 전자세금용 3년형 권장</li></ul>`],
-      ['3', '팝빌 연동', `<ul><li>연동 사업자 = 내 허브 (팝빌 연동회원 <code>CorpNum</code> = 허브 사업자번호, 하이픈 제외)</li>
+      ['3', '팝빌 연동', `<p>화면에는 <b>연동 사업자 · 발행 방식 · 발행 수수료</b> 3줄만 보여준다. 아래 API · 키 내용은 개발 참고용</p>
+        <ul><li>연동 사업자 = 내 허브 상호 · 사업자번호 (팝빌 연동회원 <code>CorpNum</code> = 허브 사업자번호, 하이픈 제외)</li>
         <li>발행 방식: 정발행 · 국세청 <b>즉시전송</b>. 1건 <code>registIssue</code>, 여러 건 <code>BulkSubmit</code> (최대 100건)</li>
         <li><b>발행 수수료 건당 200원 · 허브캐시에서 차감</b> (발행 성공 건만)</li>
         <li>팝빌 호출 키(링크아이디 · 비밀키)는 서버에만 둔다. 프론트에서 직접 호출 금지</li></ul>`],
