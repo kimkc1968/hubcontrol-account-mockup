@@ -334,6 +334,12 @@
   #hivDetail .tbl-wrap { overflow: visible; }
   #hivDetail .tbl thead th { position: sticky; top: -6px; z-index: 1; background: #fff; box-shadow: inset 0 -1px 0 var(--border); }
   /* 본사 / 세금계산서: 정산서처럼 분류 칸을 묶어서 표시 */
+  /* 본사에 발행할 세금계산서 (실제 모양) */
+  .hq-iv th { color: #555; font-size: 13px; }
+  .hq-iv th:first-child, .hq-iv td:first-child { padding-left: 16px; }
+  .hq-iv th:last-child, .hq-iv td:last-child { padding-right: 16px; }
+  .hq-iv tfoot tr.grand td { background: #fff; font-weight: 600; font-size: 14.5px; padding-top: 14px; padding-bottom: 14px; }
+  .hq-iv-h { font-weight: 500; font-size: 14px; color: #333; margin: 14px 0 8px; }
   .hq-tbl { width: 100%; table-layout: fixed; }   /* 매출 · 매입 표 컬럼 폭을 맞춤 */
   .hq-tbl th:nth-child(1) { width: 170px; } .hq-tbl th:nth-child(2) { width: 220px; } .hq-tbl th:nth-child(3) { width: 80px; }
   .hq-tbl th:nth-child(4), .hq-tbl th:nth-child(6) { width: 120px; } .hq-tbl th:nth-child(5) { width: 100px; } .hq-tbl th:nth-child(8) { width: 80px; }
@@ -819,17 +825,31 @@
       <b>매출 = 허브가 본사에 발행</b> (B2B · 본사계약 상점 수익 등) / <b>매입 = 본사가 허브에 발행</b> (로드샵 관리비 · 지사배달대행수수료 등).<br>
       <span class="muted">내역마다 본사가 준 상세 파일이 위 탭에 있어요. 행이나 「상세」를 누르면 그 탭으로 이동해요.</span></div></div>
 
-    <div class="card mb" data-spec="5">
-      <div class="card-h">매출 <span class="sub-t">허브 → 본사 발행 · 공급자 = 내 허브, 공급받는 자 = (주)바로고</span> <span id="hqSalesState"></span>
-        <div class="right"><button class="btn outline sm" data-dl="hqHometax"><span class="ms">download</span>홈택스 발행 양식</button>
-          <button class="btn primary sm" id="hqSalesDone"><span class="ms">task_alt</span>발행 완료로 표시</button></div></div>
+    <!-- 본사에 발행할 세금계산서 (실제로 끊을 모양 그대로). 이걸 보고 아래 매출 · 매입 내역을 확인 -->
+    <div class="mb" data-spec="5">
+      <div class="card">
+        <div class="card-h"><span class="ms">receipt_long</span>본사에 발행할 세금계산서 <span class="sub-t" id="hqIvSub"></span> <span id="hqSalesState"></span>
+          <div class="right"><button class="btn outline sm" data-dl="hqHometax"><span class="ms">download</span>홈택스 발행 양식</button>
+            <button class="btn primary sm" id="hqSalesDone"><span class="ms">task_alt</span>발행 완료로 표시</button></div></div>
+        <table class="tbl hq-iv">
+          <thead><tr><th>품목</th><th class="r">수량</th><th class="r">단가</th><th class="r">공급가액</th><th class="r">세액 (부가세 10%)</th></tr></thead>
+          <tbody id="hqIvBody"></tbody><tfoot id="hqIvFoot"></tfoot>
+        </table>
+      </div>
+      <div class="hq-iv-h">공급자 / 공급받는 자</div>
+      <div class="grid g2" id="hqIvParty"></div>
+      <div id="hqIvNote"></div>
+    </div>
+
+    <div class="card mb" data-spec="6">
+      <div class="card-h">매출 <span class="sub-t">허브 → 본사 발행 · 위 세금계산서의 근거 내역</span></div>
       <div style="overflow-x:auto"><table class="tbl hq-tbl">
         <thead><tr><th>분류</th><th>내역</th><th class="r">건수</th><th class="r">공급가액</th><th class="r">VAT</th><th class="r">합계</th><th>비고</th><th class="c">상세</th></tr></thead>
         <tbody id="hqSalesBody"></tbody><tfoot id="hqSalesFoot"></tfoot>
       </table></div>
     </div>
 
-    <div class="card" data-spec="6">
+    <div class="card" data-spec="7">
       <div class="card-h">매입 <span class="sub-t">본사 → 허브 발행 · 공급자 = (주)바로고, 공급받는 자 = 내 허브</span></div>
       <div style="overflow-x:auto"><table class="tbl hq-tbl">
         <thead><tr><th>분류</th><th>내역</th><th class="r">건수</th><th class="r">공급가액</th><th class="r">VAT</th><th class="r">합계</th><th>비고</th><th class="c">상세</th></tr></thead>
@@ -840,7 +860,7 @@
     </div>
 
     <!-- 본사 상세 파일 탭 (탭마다 같은 틀, 내용은 JS로 그림) -->
-    <div class="card hqf" id="hq-file" data-spec="7" style="display:none"><div id="hqFileBody"></div></div>
+    <div class="card hqf" id="hq-file" data-spec="8" style="display:none"><div id="hqFileBody"></div></div>
   </section>
 
   <!-- ───── 라이더 / 원천세 신고 (기존 라이더 > 정산 이동) ───── -->
@@ -1179,6 +1199,8 @@ const pick = a => a[Math.floor(rnd() * a.length)];
 
 const STORES = ['맛있는치킨 강남점', '버거플러스 역삼', '한솥도시락 논현', '카페온 선릉', '피자명가 삼성', '국밥한그릇 신사', '샐러드데이 청담', '떡볶이연구소 압구정'];
 const RIDERS = ['김라이더', '박배달', '이빠름', '최안전', '정신속', '한바퀴', '오토바', '윤질주'];
+// 내 허브 사업자 정보 (허브 관리 > 사업자 정보). 이메일은 비어 있음 → 원천세 신고 · 본사 세금계산서에서 「미등록」 안내
+const HUB_INFO = { name: '[H]M서울강남', corp: '(주)엠서울강남', bizno: '214-88-10234', addr: '서울 강남구 테헤란로 427', rep: '홍길동', biztype: '서비스', item: '배달대행', email: '' };
 const HUB_BAL = 22791675;   // 허브캐시 잔액 (= 캐시 내역 허브캐시 최신 잔여캐시) = 출금가능 + 세금 예치금 (부가세 VAT_KEEP + 원천세 WHT_KEEP)
 const NEXT_SETTLE = '10/2 06시부터';   // 오늘(10/1) 바꾼 정산 설정이 적용되는 시점 = 다음 정산일 시작
 let OPT = null;             // 저장된 운영 옵션 (정산 설정 > 운영 옵션에서 채움)
@@ -1987,6 +2009,9 @@ const HQ_LINES = {
   ],
 };
 [...HQ_LINES.sales, ...HQ_LINES.buy].forEach(l => { l.vat = Math.round(l.supply * 0.1); l.total = l.supply + l.vat; });
+// 세금계산서 품목 수량 (단가 = 공급가액 ÷ 수량): 배달대행료 = 수행 건수, 가맹관리비 = 본사계약 상점 수, 가맹 수수료 = 본사계약 상점 주문 수, 공유망 = 건수
+Object.entries({ b2bFee: HQ_ME.length, hqMgmt: HQ_MGMT.length, franchise: HQ_MINE.length, hqShare: HQ_SHARE.length })
+  .forEach(([k, q]) => { HQ_LINES.sales.find(l => l.key === k).ivQty = q; });
 HQ_LINES.sales.forEach(l => { l.side = 'sales'; }); HQ_LINES.buy.forEach(l => { l.side = 'buy'; });
 const hqSum = (ls, k) => ls.reduce((a, b) => a + b[k], 0);
 const hqLine = key => [...HQ_LINES.sales, ...HQ_LINES.buy].find(l => l.key === key);
@@ -2090,6 +2115,28 @@ function renderHq() {
     stat('매출 − 매입 (공급가액)', 'balance', won(hqSum(S, 'supply') - hqSum(B, 'supply')), '정산서 기준 본사와의 순정산');
   $('#hqSalesState').innerHTML = st(HQ_STATE.salesIssued, '발행 완료', '미발행');
   $('#hqSalesDone').disabled = !!HQ_STATE.salesIssued; $('#hqSalesDone').innerHTML = `<span class="ms">task_alt</span>${HQ_STATE.salesIssued ? '발행 완료됨' : '발행 완료로 표시'}`;
+  renderHqInvoice();
+}
+/* 본사에 발행할 세금계산서 (실제로 끊을 모양): 품목 = 매출 내역 중 금액 있는 것 (전자세금계산서 품목 최대 4줄)
+   매입은 본사가 따로 발행하므로 상계하지 않음 */
+const hqIvItems = () => HQ_LINES.sales.filter(l => l.supply > 0);
+function renderHqInvoice() {
+  const items = hqIvItems(), sup = hqSum(items, 'supply'), vat = hqSum(items, 'vat');
+  $('#hqIvSub').textContent = '2026년 9월분 · 작성일자 2026-09-30 (월 합계) · 영수 · 발행 기한 10/10';
+  $('#hqIvBody').innerHTML = items.map(l => `<tr><td>${l.name} (9월)</td><td class="r num">${l.ivQty.toLocaleString()}</td><td class="r num">${won(Math.round(l.supply / l.ivQty))}</td>
+      <td class="r num">${won(l.supply)}</td><td class="r num">${won(l.vat)}</td></tr>`).join('');
+  $('#hqIvFoot').innerHTML = `<tr><td>합계</td><td></td><td></td><td class="r num">${won(sup)}</td><td class="r num">${won(vat)}</td></tr>
+    <tr class="grand"><td colspan="4">세금계산서 합계금액 (공급가액 + 세액)</td><td class="r num">${won(sup + vat)}원</td></tr>`;
+  const party = (title, p) => `<div class="card"><div class="card-h">${title}</div><div class="card-b" style="padding:12px 16px">
+      <dl class="kv" style="grid-template-columns:84px 1fr;margin:0">
+        <dt>등록번호</dt><dd class="num">${p.bizno}</dd><dt>상호</dt><dd>${p.corp}</dd><dt>성명</dt><dd>${p.rep}</dd>
+        <dt>주소</dt><dd>${p.addr}</dd><dt>업태/종목</dt><dd>${p.biztype} / ${p.item}</dd>
+        <dt>이메일</dt><dd>${p.email || '<span class="miss">미등록</span>'}</dd></dl></div></div>`;
+  $('#hqIvParty').innerHTML = party('공급자, 내 허브', HUB_INFO) + party('공급받는 자, 본사', HQ_INFO);
+  const buy = HQ_LINES.buy, miss = !HUB_INFO.email;
+  $('#hqIvNote').innerHTML = `${miss ? `<div class="callout" style="border-color:#f3c4c4;background:#fff5f5;margin:10px 0 0"><span class="ms" style="color:var(--minus)">error</span>
+      <div>공급자(내 허브) <b>이메일</b>이 비어 있어요. 허브 관리 &gt; 사업자 정보에서 채운 뒤 발행해 주세요.</div></div>` : ''}
+    <div class="notice" style="height:auto;margin-top:8px"><span class="ms">info</span><span>품목은 아래 매출 내역 중 금액이 있는 ${items.length}줄이에요 (전자세금계산서 품목 최대 4줄). 매입 ${won(hqSum(buy, 'total'))}원은 본사가 따로 발행해서 상계하지 않아요.</span></div>`;
 }
 renderHq();
 $('#hqSalesDone').addEventListener('click', () => { HQ_STATE.salesIssued = '2026-10-01'; renderHq(); toast('매출 세금계산서(허브 → 본사)를 발행 완료로 표시했습니다.'); });
@@ -2442,7 +2489,6 @@ $('#whtDone').addEventListener('click', () => {
 /* ═════════ 엑셀 다운로드 ═════════
    시안은 브라우저에서 SheetJS로 화면 데이터를 실제 xlsx로 만든다. (실제 구현은 서버에서 조회 조건 전체 건으로 생성)
    SheetJS를 못 불러오면(오프라인) 같은 내용을 CSV로 내려받는다. */
-const HUB_INFO = { name: '[H]M서울강남', corp: '(주)엠서울강남', bizno: '214-88-10234', addr: '서울 강남구 테헤란로 427', rep: '홍길동' };
 const PERIOD_SEP = '정산일 2026-09-01 ~ 2026-09-30 (9/1 06:00 ~ 10/1 06:00)';
 let xlsxP = null;
 function loadXlsx() {
@@ -2784,15 +2830,18 @@ const DL = {
     const f = hqFile(hqTab); if (!f) return;
     saveXlsx(`본사정산서_${f.tab.replace(/[()\s]/g, '')}_202609`, [hqFileSheet(f)]);
   },
-  hqHometax() {   // 매출(허브 → 본사) 세금계산서 발행 양식: 내역별 1장 (시안 가정)
-    const ls = HQ_LINES.sales.filter(l => l.supply > 0);
+  hqHometax() {   // 매출(허브 → 본사) 세금계산서 발행 양식: 화면의 「본사에 발행할 세금계산서」 1장 = 1행, 품목 최대 4줄
+    const ls = hqIvItems().slice(0, 4), sup = hqSum(ls, 'supply'), vat = hqSum(ls, 'vat');
+    const itemHead = [1, 2, 3, 4].flatMap(n => [`품목${n} 일자`, `품목${n}`, `품목${n} 수량`, `품목${n} 단가`, `품목${n} 공급가액`, `품목${n} 세액`]);
+    const itemCells = [0, 1, 2, 3].flatMap(i => { const l = ls[i]; return l ? ['30', `${l.name} (9월)`, l.ivQty, Math.round(l.supply / l.ivQty), l.supply, l.vat] : ['', '', '', '', '', '']; });
     saveXlsx('홈택스_발행양식_본사_202609', [{
-      name: '일괄발행', title: '전자세금계산서 발행 양식 · 허브 → 본사 (2026-09 매출)',
-      meta: [['공급자 등록번호', HUB_INFO.bizno], ['공급자 상호', HUB_INFO.corp], ['공급자 성명', HUB_INFO.rep], ['작성일자', '2026-09-30 (월합계 · 말일자)']],
-      head: ['작성일자', '공급받는자 등록번호', '공급받는자 상호', '공급받는자 성명', '공급받는자 사업장주소', '공급받는자 업태', '공급받는자 종목', '공급받는자 이메일', '공급가액', '세액', '품목', '수량', '영수/청구'],
-      rows: ls.map(l => ['2026-09-30', HQ_INFO.bizno, HQ_INFO.corp, HQ_INFO.rep, HQ_INFO.addr, HQ_INFO.biztype, HQ_INFO.item, HQ_INFO.email, l.supply, l.vat, l.name, l.cnt || '', '영수']),
-      foot: [['합계', '', '', '', '', '', '', '', hqSum(ls, 'supply'), hqSum(ls, 'vat'), '', '', '']],
-      notes: ['※ 시안용 예시입니다. 실제 파일은 홈택스 「전자세금계산서 일괄발급」 양식을 따라 주세요.', '※ 매입(본사 → 허브)은 본사가 발행하므로 이 양식에 없습니다.'],
+      name: '일괄발행', title: '전자세금계산서 발행 양식 · 허브 → 본사 (2026-09 매출, 1장)',
+      meta: [['공급자 등록번호', HUB_INFO.bizno], ['공급자 상호', HUB_INFO.corp], ['공급자 성명', HUB_INFO.rep], ['공급자 이메일', HUB_INFO.email || '미등록 (발행 전 등록 필요)'], ['작성일자', '2026-09-30 (월합계 · 말일자)']],
+      head: ['작성일자', '공급받는자 등록번호', '공급받는자 상호', '공급받는자 성명', '공급받는자 사업장주소', '공급받는자 업태', '공급받는자 종목', '공급받는자 이메일', '공급가액 합계', '세액 합계', ...itemHead, '영수/청구'],
+      rows: [['2026-09-30', HQ_INFO.bizno, HQ_INFO.corp, HQ_INFO.rep, HQ_INFO.addr, HQ_INFO.biztype, HQ_INFO.item, HQ_INFO.email, sup, vat, ...itemCells, '영수']],
+      notes: ['※ 시안용 예시입니다. 실제 파일은 홈택스 「전자세금계산서 일괄발급」 양식의 열 순서 · 형식을 따라 주세요.',
+        `※ 세금계산서 합계금액 ${won(sup + vat)}원 (공급가액 ${won(sup)} + 세액 ${won(vat)})`,
+        '※ 매입(본사 → 허브)은 본사가 발행하므로 이 양식에 없고, 상계하지 않습니다.'],
     }]);
   },
   hubIvDetail() {   // 허브 상세 모달
@@ -3194,11 +3243,19 @@ const SPEC = {
         <ul><li>금액 · 건수는 본사 <b>확정 정산서</b> 값을 그대로 쓴다. 허컨에서 다시 계산하거나 수정하지 않음 (파일 탭도 읽기 전용)</li>
         <li>내 라이더가 <b>다른 허브의 본사계약 상점</b> 주문을 수행한 건 = 허브 / 세금계산서에서 제외 → B2B 매출 탭에 구분 「본사계약」 · 오더 지사 = 상대 허브로 들어온다 (건수가 일치해야 함)</li>
         <li>「본사계약 공유망 배달대행료」 = 내 본사계약 상점 주문 중 공유망(수행 지사 없음)이 수행한 건</li></ul>`],
-      ['5', '매출 표 · 발행', `<ul><li>컬럼: 분류(묶음) · 내역 · 건수 · 공급가액 · VAT · 합계 · 비고 · 상세 + 소계. 0원 내역은 흐리게</li>
-        <li>「발행 완료로 표시」 (발행일 저장), 「홈택스 발행 양식」 (공급자 = 내 허브, 공급받는 자 = 본사, 내역별 1장)</li></ul>`],
-      ['6', '매입 표', `<ul><li>매출 표와 같은 컬럼</li>
+      ['5', '본사에 발행할 세금계산서 (매출 위)', `<p>허브가 <b>실제로 끊을 세금계산서 모양</b> 그대로 보여준다. 이걸 먼저 보고, 아래 매출 · 매입 표로 근거를 확인하는 흐름.</p>
+        <table class="sp-tbl"><tr><th>영역</th><th>내용</th></tr>
+        <tr><td>머리</td><td>「본사에 발행할 세금계산서」 · 귀속월 · 작성일자(말일, 월 합계) · 영수 · 발행 기한 · 발행 상태(미발행 / 발행 완료 + 일자) · 「홈택스 발행 양식」 · 「발행 완료로 표시」</td></tr>
+        <tr><td>품목 표</td><td>품목 · 수량 · 단가 · 공급가액 · 세액(10%). 품목 = 매출 내역 중 <b>금액이 있는 줄</b> (전자세금계산서 품목 <b>최대 4줄</b>). 품목명 뒤에 「(9월)」<br>
+          수량: 배달대행료 = 수행 건수, 가맹관리비 = 본사계약 상점 수, 가맹 수수료 = 본사계약 상점 주문 수, 공유망 = 건수. 단가 = 공급가액 ÷ 수량</td></tr>
+        <tr><td>합계</td><td>공급가액 · 세액 합계 → 「세금계산서 합계금액 (공급가액 + 세액)」. 위쪽 지표 「매출 / 본사에 발행 필요」 금액과 같음</td></tr>
+        <tr><td>공급자 / 공급받는 자</td><td>공급자 = 내 허브 (허브 관리 사업자 정보), 공급받는 자 = 본사. 등록번호 · 상호 · 성명 · 주소 · 업태/종목 · 이메일. 빈 항목은 빨간 「미등록」 + 발행 전에 채우라는 안내</td></tr>
+        <tr><td>안내</td><td>매입은 본사가 따로 발행해서 <b>상계하지 않음</b></td></tr></table>`],
+      ['6', '매출 표', `<ul><li>위 세금계산서의 근거 내역. 컬럼: 분류(묶음) · 내역 · 건수 · 공급가액 · VAT · 합계 · 비고 · 상세 + 소계. 0원 내역은 흐리게</li>
+        <li>발행 버튼은 위 세금계산서 카드로 옮김</li></ul>`],
+      ['7', '매입 표', `<ul><li>매출 표와 같은 컬럼</li>
         <li>매입 세금계산서는 본사가 발행하므로 <b>버튼 · 상태 없음</b> (보기만). 안내 문구만 표시</li></ul>`],
-      ['7', '파일 탭 공통', `<ul><li>머리: 파일명 · 「정산서 반영 / 참고용」 · 본사 확정 자료(읽기 전용) · 「엑셀 다운로드」(그 파일 전체 행)</li>
+      ['8', '파일 탭 공통', `<ul><li>머리: 파일명 · 「정산서 반영 / 참고용」 · 본사 확정 자료(읽기 전용) · 「엑셀 다운로드」(그 파일 전체 행)</li>
         <li>안내: 무슨 자료인지 한 줄 + <b>정산서와 연결</b> (반영되는 정산서 내역 · 금액, 파일에서 계산한 값과 <b>일치 / 불일치</b> 표시, 「정산서에서 보기」). 불일치면 빨간 알약 → 본사 문의 대상</li>
         <li>표: 본사 파일 컬럼 순서 그대로 (화면에서는 코드성 컬럼 일부 생략, 엑셀은 전체), 합계 행은 <b>전체 행</b> 기준</li>
         <li>페이지당 20행 (기사원천세 30행), 페이지 이동 « 1 … 4 5 6 … 마지막 »</li></ul>`],
@@ -3439,7 +3496,7 @@ const QUESTIONS = [
   ['허브 / 세금계산서: 이 세액(허브 간 매출세액)도 세금 예치금(부가세 보관금)에 넣나?', '시안은 미포함 (상점 세금계산서 세액만 예치)'],
   ['허브 / 세금계산서: 반대 방향(다른 허브가 나에게 발행할 건)도 「받을 세금계산서」로 보여줄까?', '시안은 발행할 건만'],
   ['본사 / 세금계산서: 본사 정산서 데이터를 허컨이 어떻게 받나? (본사 시스템 연동 / 정산서 엑셀 업로드)', '본사 시스템 연동 (매월 자동)'],
-  ['본사 / 세금계산서: 매출(허브 → 본사) 세금계산서는 내역별로 1장씩인가, 월 1장(품목 여러 개)인가?', '내역별 1장'],
+  ['본사 / 세금계산서: 매출(허브 → 본사) 세금계산서는 월 1장(품목 여러 줄)인가, 내역별 1장씩인가? 품목이 4줄을 넘으면?', '시안은 월 1장 · 품목 4줄 (지금 매출 내역 중 금액 있는 줄 = 4줄)'],
   ['본사 / 세금계산서: 매출 세액도 세금 예치금(부가세 보관금)에 넣나? 매입 세액은 빼나(매입세액 공제)?', '시안은 미반영 (상점 세금계산서 세액만 예치)'],
   ['라이더 / 원천세 신고: 원천세 신고 금액을 허브 지급 기준(이행 상황)으로 할까, 본사 정산서 기준(기사원천세 신고참고용)으로 할까?', '시안은 허브 지급 기준으로 신고, 본사 기준은 「본사 정산서 기준」 탭에서 비교만'],
   ['본사 / 세금계산서: 기사원천세 자료의 B2B 수행분 소득세가 0원으로 온다. 이 소득은 누가 원천징수 · 신고하나? (본사 / 허브)', '확인 필요 · 시안은 본사 자료 그대로 0원'],
