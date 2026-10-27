@@ -324,6 +324,12 @@
   .modal-f { display: flex; justify-content: flex-end; gap: 6px; padding: 12px 18px; border-top: 1px solid #eee; }
 
   .opt.dim { opacity: .45; }
+  /* 옵션 줄마다 저장: 바꾼 줄만 「저장」 활성 */
+  .opt-act { display: flex; align-items: center; gap: 10px; flex: none; }
+  .opt .opt-dirty { font-size: 12.5px; color: var(--minus); white-space: nowrap; }
+  .opt .opt-dirty:empty { display: none; }
+  .btn.opt-save { min-width: 56px; justify-content: center; }
+  .btn.opt-save:disabled { background: #f3f3f3; border-color: #e3e3e3; color: #aaa; cursor: default; }
   .opt.dim .switch span { cursor: not-allowed; }
   .link-btn { background: none; border: 0; padding: 0; color: var(--blue-tab); cursor: pointer; text-decoration: underline; font-size: 13px; }
   .modal.sm { max-width: 480px; }
@@ -1200,13 +1206,10 @@
       <div class="callout"><span class="ms">info</span><div>세금 옵션(세금 자체신고 · 부가세 / 원천세 자동 보관)은 <button class="link-btn" data-goto="taxSetting">세금 &gt; 세금 설정</button>으로 옮겨졌어요.</div></div>
       <div class="card mb" data-spec="2">
         <div class="card-h">정산 표시 · 알림</div>
-        <div class="opt"><div class="txt"><b>허브캐시 / 라이더캐시 분리 표시</b><p>정산 요약과 리포트에서 라이더 몫을 허브 수익과 분리해서 보여줍니다.</p></div><label class="switch"><input type="checkbox" id="tgSplit" checked><span></span></label></div>
-        <div class="opt"><div class="txt"><b>매일 아침 정산 알림</b><p>전일(정산일) 순수익과 지금 출금가능금액을 허브모바일 푸시로 받아요. (정산일이 바뀌는 06시 직후 06:30)</p></div><label class="switch"><input type="checkbox" id="tgPush"><span></span></label></div>
-        <div class="opt"><div class="txt"><b>허브모바일 마이페이지 연결</b><p>허모 마이페이지의 '허컨 연결' 버튼으로 이 정산 화면을 모바일에서 바로 열 수 있어요.</p></div><label class="switch"><input type="checkbox" id="tgLink" checked><span></span></label></div>
+        <div class="opt"><div class="txt"><b>허브캐시 / 라이더캐시 분리 표시</b><p>정산 요약과 리포트에서 라이더 몫을 허브 수익과 분리해서 보여줍니다.</p></div><span class="opt-dirty"></span><label class="switch"><input type="checkbox" id="tgSplit" checked><span></span></label><div class="opt-act"><button class="btn sm opt-save" data-opt="split" disabled>저장</button></div></div>
+        <div class="opt"><div class="txt"><b>매일 아침 정산 알림</b><p>전일(정산일) 순수익과 지금 출금가능금액을 허브모바일 푸시로 받아요. (정산일이 바뀌는 06시 직후 06:30)</p></div><span class="opt-dirty"></span><label class="switch"><input type="checkbox" id="tgPush"><span></span></label><div class="opt-act"><button class="btn sm opt-save" data-opt="push" disabled>저장</button></div></div>
+        <div class="opt"><div class="txt"><b>허브모바일 마이페이지 연결</b><p>허모 마이페이지의 '허컨 연결' 버튼으로 이 정산 화면을 모바일에서 바로 열 수 있어요.</p></div><span class="opt-dirty"></span><label class="switch"><input type="checkbox" id="tgLink" checked><span></span></label><div class="opt-act"><button class="btn sm opt-save" data-opt="link" disabled>저장</button></div></div>
       </div>
-      <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px">
-        <span id="optDirty" style="color:var(--minus);font-size:13px"></span>
-        <button class="btn primary" id="btnOptSave">저장</button></div>
     </div>
 
     <div id="st-store" style="display:none">
@@ -1268,13 +1271,10 @@
     <div class="page-title">세금 설정 <span class="crumb">신규 · 정산 설정에서 이동</span></div>
     <div class="card mb" data-spec="1">
       <div class="card-h">세금 옵션</div>
-      <div class="opt"><div class="txt"><b>세금 자체신고</b><p>켜면 부가세·원천세를 허브가 직접 신고합니다. 세금만큼 허브캐시에 예치금이 걸려 출금가능금액이 줄어요.</p></div><label class="switch"><input type="checkbox" id="tgSelf" checked><span></span></label></div>
-      <div class="opt dep"><div class="txt"><b>부가세 자동 보관</b><p>주문마다 부가세만큼 예치금을 걸어 출금을 막습니다.</p></div><label class="switch"><input type="checkbox" id="tgVat" checked><span></span></label></div>
-      <div class="opt dep"><div class="txt"><b>원천세 자동 보관</b><p>라이더 배달료 · 허브 자동 지원금 지급 시 원천세(3.3%)만큼 예치금을 겁니다.</p></div><label class="switch"><input type="checkbox" id="tgWht" checked><span></span></label></div>
+      <div class="opt"><div class="txt"><b>세금 자체신고</b><p>켜면 부가세·원천세를 허브가 직접 신고합니다. 세금만큼 허브캐시에 예치금이 걸려 출금가능금액이 줄어요.</p></div><span class="opt-dirty"></span><label class="switch"><input type="checkbox" id="tgSelf" checked><span></span></label><div class="opt-act" data-spec="2"><button class="btn sm opt-save" data-opt="selfReport" disabled>저장</button></div></div>
+      <div class="opt dep"><div class="txt"><b>부가세 자동 보관</b><p>주문마다 부가세만큼 예치금을 걸어 출금을 막습니다.</p></div><span class="opt-dirty"></span><label class="switch"><input type="checkbox" id="tgVat" checked><span></span></label><div class="opt-act"><button class="btn sm opt-save" data-opt="autoVat" disabled>저장</button></div></div>
+      <div class="opt dep"><div class="txt"><b>원천세 자동 보관</b><p>라이더 배달료 · 허브 자동 지원금 지급 시 원천세(3.3%)만큼 예치금을 겁니다.</p></div><span class="opt-dirty"></span><label class="switch"><input type="checkbox" id="tgWht" checked><span></span></label><div class="opt-act"><button class="btn sm opt-save" data-opt="autoWht" disabled>저장</button></div></div>
     </div>
-    <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px" data-spec="2">
-      <span id="taxOptDirty" style="color:var(--minus);font-size:13px"></span>
-      <button class="btn primary" id="btnTaxOptSave">저장</button></div>
   </section>
 </main>
 
@@ -3479,7 +3479,7 @@ $('#bulkApply').addEventListener('click', () => {
 });
 
 /* ═════════ 운영 옵션 ═════════
-   토글만 바꾸면 반영 안 됨 → 「저장」을 눌러야 반영.
+   옵션 줄마다 저장: 토글을 바꾸면 그 줄의 「저장」만 활성 → 누른 옵션만 반영.
    정산에 영향 주는 옵션(자체신고 · 자동 보관)은 다음 정산일 06시부터, 표시 옵션(분리 표시 · 알림)은 저장 즉시 */
 const OPT_DEF = [
   ['selfReport', 'tgSelf', '세금 자체신고', 'settle'], ['autoVat', 'tgVat', '부가세 자동 보관', 'settle'], ['autoWht', 'tgWht', '원천세 자동 보관', 'settle'],
@@ -3495,30 +3495,32 @@ function applyOpt() {
   $('#pushChip').style.display = OPT.push ? '' : 'none';
   renderSummary(); renderHub();
 }
-// 세금 옵션(settle) = 세금 > 세금 설정, 표시 옵션(view) = 정산 > 정산 설정. 화면마다 자기 옵션만 저장
-const OPT_DIRTY = { settle: '#taxOptDirty', view: '#optDirty' };
+// 바꾼 줄만 「저장 안 됨」 + 「저장」 활성
 function markDirty() {
   const now = readOpt();
-  Object.entries(OPT_DIRTY).forEach(([kind, el]) => {
-    const n = OPT_DEF.filter(([k, , , kd]) => kd === kind && now[k] !== OPT[k]).length;
-    $(el).textContent = n ? `저장하지 않은 변경 ${n}개 · 「저장」을 눌러야 반영돼요` : '';
+  OPT_DEF.forEach(([k]) => {
+    const b = $(`.opt-save[data-opt="${k}"]`), d = now[k] !== OPT[k];
+    b.disabled = !d; b.classList.toggle('primary', d);
+    b.closest('.opt').querySelector('.opt-dirty').textContent = d ? '저장 안 됨' : '';
   });
 }
-$('#tgSelf').addEventListener('change', e => {   // 자체신고 OFF → 하위 자동 보관 옵션 비활성 (화면 즉시)
-  $$('.opt.dep').forEach(o => { o.classList.toggle('dim', !e.target.checked); $('input', o).disabled = !e.target.checked; });
-});
-OPT_DEF.forEach(([, id]) => $('#' + id).addEventListener('change', markDirty));
-$('#btnOptSave').addEventListener('click', () => saveOpt('view'));
-$('#btnTaxOptSave').addEventListener('click', () => saveOpt('settle'));
-function saveOpt(kind) {
-  const now = readOpt(), changed = OPT_DEF.filter(([k, , , kd]) => kd === kind && now[k] !== OPT[k]);
-  if (!changed.length) { toast('바뀐 설정이 없어요.'); return; }
-  changed.forEach(([k]) => { OPT[k] = now[k]; }); applyOpt(); markDirty();
-  const msg = changed.map(([k, , label, kind]) => `${label} ${now[k] ? 'ON' : 'OFF'}${kind === 'settle' ? ` (${NEXT_SETTLE})` : ''}`).join(' · ');
-  const push = changed.some(([k]) => k === 'push') && now.push ? ` 알림 예시: "[허브모바일 06:30] 어제 순수익 ${won(YESTERDAY.net)}원 · 출금가능 ${won(HUB_BAL - holdAmt())}원"` : '';
-  const link = changed.some(([k]) => k === 'link') ? ` 허모 마이페이지의 「허컨 연결」 버튼이 ${now.link ? '보여요' : '숨겨져요'}.` : '';
-  toast(`저장했어요 · ${msg}.${push}${link}`);
+// 자동 보관 옵션은 「저장된」 자체신고 값을 따름 (자체신고 OFF로 저장하면 비활성)
+function syncDep() {
+  $$('.opt.dep').forEach(o => { o.classList.toggle('dim', !OPT.selfReport); $('input', o).disabled = !OPT.selfReport; });
 }
+OPT_DEF.forEach(([, id]) => $('#' + id).addEventListener('change', markDirty));
+$$('.opt-save').forEach(b => b.addEventListener('click', () => saveOpt(b.dataset.opt)));
+function saveOpt(key) {
+  const [, , label, kind] = OPT_DEF.find(([k]) => k === key), v = $('#' + OPT_DEF.find(([k]) => k === key)[1]).checked;
+  if (v === OPT[key]) return;
+  OPT[key] = v;
+  if (key === 'selfReport' && !v) OPT_DEF.filter(([k]) => k === 'autoVat' || k === 'autoWht').forEach(([k, id]) => { $('#' + id).checked = OPT[k]; });   // 저장 안 한 자동 보관 변경은 되돌림
+  syncDep(); applyOpt(); markDirty();
+  const push = key === 'push' && v ? ` 알림 예시: "[허브모바일 06:30] 어제 순수익 ${won(YESTERDAY.net)}원 · 출금가능 ${won(HUB_BAL - holdAmt())}원"` : '';
+  const link = key === 'link' ? ` 허모 마이페이지의 「허컨 연결」 버튼이 ${v ? '보여요' : '숨겨져요'}.` : '';
+  toast(`저장했어요 · ${label} ${v ? 'ON' : 'OFF'}${kind === 'settle' ? ` (${NEXT_SETTLE})` : ''}.${push}${link}`);
+}
+syncDep();
 applyOpt();
 
 /* ═════════ 개발 명세 ═════════ */
@@ -3891,7 +3893,7 @@ const SPEC = {
         <tr><td>허브캐시 / 라이더캐시 분리 표시<br><code>display.splitRiderCash</code></td><td>ON</td><td>요약·리포트에서 라이더 몫을 허브 수익과 분리</td></tr>
         <tr><td>매일 아침 정산 알림<br><code>notify.dailyPush</code></td><td>OFF</td><td>06:30 허브모바일 푸시 (06시에 끝난 전일 정산일 순수익, 그 시점 출금가능금액)</td></tr>
         <tr><td>허브모바일 마이페이지 연결<br><code>link.hubMobile</code></td><td>ON</td><td>허모 마이페이지에 「허컨 연결」 버튼 노출 → 이 정산 화면을 모바일 웹으로 열기 (PPT 7p)</td></tr></table>
-        <ul><li>토글만 바꾸면 반영 안 됨. <b>「저장」을 눌러야 반영</b> (이 화면 옵션만 저장). 저장 전에는 버튼 옆에 「저장하지 않은 변경 n개」 표시</li>
+        <ul><li><b>옵션 줄마다 저장</b>: 토글을 바꾸면 그 줄에 「저장 안 됨」 + 「저장」 버튼 활성. 누른 옵션 하나만 저장 (다른 줄의 바뀐 값은 그대로 대기). 화면 단위 저장 버튼 없음</li>
           <li>표시 옵션은 <b>저장 즉시</b> 적용. 변경 이력 저장: 누가 · 언제 · 이전 값 → 바꾼 값</li></ul>
         <table class="sp-tbl"><tr><th>옵션</th><th>저장 후 화면 반영 (시안에서 동작)</th></tr>
           <tr><td>분리 표시 OFF</td><td>정산 요약에서 라이더캐시 카드를 숨기고 한 카드에 라이더 출금 가능 합계를 참고로 함께 표시. <b>출금 가능 금액은 그대로 허브장 몫만</b> (라이더 몫과 합치지 않음)</td></tr>
@@ -3919,10 +3921,11 @@ const SPEC = {
     ref: 'PPT 3p ③ on/off 옵션 중 세금 항목 (기존 「정산 설정 &gt; 운영 옵션」에서 이동)',
     items: [
       ['1', '세금 옵션', `<table class="sp-tbl"><tr><th>옵션 (키 제안)</th><th>기본</th><th>동작</th></tr>
-        <tr><td>세금 자체신고<br><code>tax.selfReport</code></td><td>OFF</td><td>OFF면 아래 두 옵션 비활성 + <b>세금 보관함 메뉴 숨김</b> (세금계산서 발행 · 원천세 신고 · 인증서 관리 · 세금 설정은 그대로 보임)</td></tr>
+        <tr><td>세금 자체신고<br><code>tax.selfReport</code></td><td>OFF</td><td>OFF로 저장하면 아래 두 옵션 비활성 + <b>세금 보관함 메뉴 숨김</b> (세금계산서 발행 · 원천세 신고 · 인증서 관리 · 세금 설정은 그대로 보임)</td></tr>
         <tr><td>부가세 자동 보관<br><code>tax.autoKeepVat</code></td><td>ON</td><td>주문마다 부가세만큼 예치금 설정</td></tr>
         <tr><td>원천세 자동 보관<br><code>tax.autoKeepWht</code></td><td>ON</td><td>라이더 배달료 · 허브 자동 지원금 지급 때 3.3%만큼 예치금 설정</td></tr></table>`],
-      ['2', '저장 · 적용', `<ul><li>토글만 바꾸면 반영 안 됨. <b>「저장」을 눌러야 반영</b> (이 화면 옵션만 저장). 저장 전에는 「저장하지 않은 변경 n개」</li>
+      ['2', '저장 · 적용', `<ul><li><b>옵션 줄마다 저장</b>: 토글을 바꾸면 그 줄에 「저장 안 됨」 + 「저장」 버튼 활성. 누른 옵션 하나만 저장 (다른 줄의 바뀐 값은 그대로 대기). 화면 단위 저장 버튼 없음</li>
+        <li>자동 보관 2개는 <b>저장된</b> 자체신고 값을 따름: 자체신고 OFF로 저장하면 비활성 (저장 안 한 자동 보관 변경은 되돌림), ON으로 저장하면 다시 활성</li>
         <li>세금 옵션은 <b>다음 정산일 시작(익일 06시)부터</b> 적용. 변경 이력 저장: 누가 · 언제 · 이전 값 → 바꾼 값</li></ul>
         <table class="sp-tbl"><tr><th>옵션</th><th>저장 후 화면 반영 (시안에서 동작)</th></tr>
           <tr><td>세금 자체신고 OFF</td><td>세금 보관함 메뉴 숨김 · 정산 요약 보관한 돈의 부가세/원천세 보관에 「본사 신고 전환」(10/2 06시부터) · 세금 예치금 줄은 「본사 납부 대기」(이미 걸린 예치금은 유지)</td></tr>
