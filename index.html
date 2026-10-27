@@ -900,18 +900,7 @@
         <div class="card" data-spec="4">
           <div class="card-h">허브 정보 <span class="sub-t">원천징수 의무자</span>
             <div class="right"><button class="btn outline sm" data-toast="허브 관리 > 사업자 정보에서 수정합니다. (시안)"><span class="ms">edit</span>정보 수정</button></div></div>
-          <div class="card-b">
-            <div class="callout" style="border-color:#f3c4c4;background:#fff5f5;margin-bottom:12px"><span class="ms" style="color:var(--minus)">error</span><div><b>이메일</b>이 비어 있어요. 신고 자료에 들어가는 정보라 먼저 채워 주세요.</div></div>
-            <dl class="kv" style="grid-template-columns:96px 1fr">
-              <dt>허브명</dt><dd>[H]M서울강남</dd>
-              <dt>상호명</dt><dd>(주)엠서울강남</dd>
-              <dt>사업자번호</dt><dd class="num">214-88-10234</dd>
-              <dt>사업장 주소</dt><dd>서울 강남구 테헤란로 427</dd>
-              <dt>대표자</dt><dd>홍길동</dd>
-              <dt>이메일</dt><dd><span class="miss">미등록</span></dd>
-              <dt>연락처</dt><dd class="num">010-1111-2222</dd>
-            </dl>
-          </div>
+          <div class="card-b" id="whtHubInfo"></div>
         </div>
         <div class="card" data-spec="5">
           <div class="card-h">이행 상황 <span class="sub-t">2026-09 귀속 · 사업소득</span></div>
@@ -1204,8 +1193,16 @@ const pick = a => a[Math.floor(rnd() * a.length)];
 
 const STORES = ['맛있는치킨 강남점', '버거플러스 역삼', '한솥도시락 논현', '카페온 선릉', '피자명가 삼성', '국밥한그릇 신사', '샐러드데이 청담', '떡볶이연구소 압구정'];
 const RIDERS = ['김라이더', '박배달', '이빠름', '최안전', '정신속', '한바퀴', '오토바', '윤질주'];
-// 내 허브 사업자 정보 (허브 관리 > 사업자 정보). 이메일은 비어 있음 → 원천세 신고 · 본사 세금계산서에서 「미등록」 안내
-const HUB_INFO = { name: '[H]M서울강남', corp: '(주)엠서울강남', bizno: '214-88-10234', addr: '서울 강남구 테헤란로 427', rep: '홍길동', biztype: '서비스', item: '배달대행', email: '' };
+// 내 허브 사업자 정보 (허브 관리 > 사업자 정보). 빈 값이 있으면 원천세 신고 · 세금계산서 화면에서 빨간 「미등록」 안내
+const HUB_INFO = { name: '[H]M서울강남', corp: '(주)엠서울강남', bizno: '214-88-10234', addr: '서울 강남구 테헤란로 427', rep: '홍길동', biztype: '서비스', item: '배달대행', email: 'gangnam@example.com' };
+// 라이더 / 원천세 신고 「허브 정보」 카드 (원천징수 의무자) — 빈 항목은 빨간 안내
+(() => { const H = HUB_INFO, v = x => x || '<span class="miss">미등록</span>';
+  const miss = [['사업자번호', H.bizno], ['사업장 주소', H.addr], ['대표자', H.rep], ['이메일', H.email]].filter(x => !x[1]).map(x => x[0]);
+  $('#whtHubInfo').innerHTML = `${miss.length ? `<div class="callout" style="border-color:#f3c4c4;background:#fff5f5;margin-bottom:12px"><span class="ms" style="color:var(--minus)">error</span><div><b>${miss.join(', ')}</b>이(가) 비어 있어요. 신고 자료에 들어가는 정보라 먼저 채워 주세요.</div></div>` : ''}
+    <dl class="kv" style="grid-template-columns:96px 1fr">
+      <dt>허브명</dt><dd>${H.name}</dd><dt>상호명</dt><dd>${H.corp}</dd><dt>사업자번호</dt><dd class="num">${v(H.bizno)}</dd>
+      <dt>사업장 주소</dt><dd>${v(H.addr)}</dd><dt>대표자</dt><dd>${v(H.rep)}</dd><dt>이메일</dt><dd>${v(H.email)}</dd><dt>연락처</dt><dd class="num">010-1111-2222</dd>
+    </dl>`; })();
 const HUB_BAL = 22791675;   // 허브캐시 잔액 (= 캐시 내역 허브캐시 최신 잔여캐시) = 출금가능 + 세금 예치금 (부가세 VAT_KEEP + 원천세 WHT_KEEP)
 const NEXT_SETTLE = '10/2 06시부터';   // 오늘(10/1) 바꾼 정산 설정이 적용되는 시점 = 다음 정산일 시작
 let OPT = null;             // 저장된 운영 옵션 (정산 설정 > 운영 옵션에서 채움)
