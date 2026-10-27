@@ -1134,7 +1134,7 @@
 
 <!-- 상점 세금계산서 상세 -->
 <div class="dim" id="ivDim">
-  <div class="modal" role="dialog" aria-modal="true" style="max-width:720px">
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:960px">
     <div class="modal-h"><span class="ms">receipt_long</span><span id="ivTitle">세금계산서 정산 상세</span><button class="x" data-close><span class="ms">close</span></button></div>
     <div class="modal-b" id="ivDetail"></div>
     <div class="modal-f"><button class="btn outline" data-close>닫기</button><button class="btn outline" data-dl="ivDetail"><span class="ms">download</span>내역 다운로드</button><button class="btn primary" id="ivDetailDone">발행 완료로 표시</button></div>
@@ -1753,21 +1753,25 @@ $('#ivBody').addEventListener('click', e => {
   const b = e.target.closest('[data-ivd]'); if (!b) return;
   const v = IV[+b.dataset.ivd], s = storeCfg[v.i], t = storeSettle(s), miss = ivMissing(v);
   ivCur = v;
-  $('#ivTitle').textContent = `${s.name} · 2026-09 세금계산서 정산`;
+  $('#ivTitle').textContent = `${s.name}에 발행할 세금계산서 · 2026-09`;
+  // 본사 · 허브 세금계산서와 같은 틀: 공급자 / 공급받는 자 → 품목 → 합계금액. 배달대행료는 주문마다 달라 단가 비움, 배달가맹비는 건당 고정
+  const unitOf = n => (UNIT.find(u => u[0] === n) || [])[2] === 'order' ? won(UNIT.find(u => u[0] === n)[1]) : '<span class="muted">-</span>';
+  const stPill = v.issued ? `<span class="pill in">발행 완료 ${v.issued}</span>` : miss.length ? '<span class="pill out">정보 누락</span>' : '<span class="pill gray">미발행</span>';
   $('#ivDetail').innerHTML = `
-    <dl class="biz">
-      <dt>상호</dt><dd>${s.name}</dd><dt>상점 코드</dt><dd class="num">${s.code}</dd>
-      <dt>대표자명</dt><dd>${v.rep}</dd><dt>사업자 등록번호</dt><dd class="num">${v.bizno || '<span class="miss">없음</span>'}</dd>
-      <dt>사업장 주소</dt><dd>${v.addr}</dd><dt>업태 / 종목</dt><dd>${v.biztype} / ${v.item}</dd>
-      <dt>이메일</dt><dd>${v.email || '<span class="miss">없음</span>'}</dd><dt>부가세 처리</dt><dd>${tag(s.vatSep)}${pendTag(s)} ${s.vatSep === '균등' ? `<span class="muted">${shareNote(t)}</span>` : '<span class="muted">상점 전체 건</span>'}</dd>
-    </dl>
-    ${miss.length ? `<div class="callout" style="border-color:#f3c4c4;background:#fff5f5"><span class="ms" style="color:var(--minus)">error</span><div><b>${miss.join(', ')}</b>이(가) 없어 발행할 수 없어요. 상점 관리에서 정보를 채워 주세요.</div></div>` : ''}
-    <div class="tbl-wrap"><table class="tbl">
-      <thead><tr><th>항목</th><th class="r">건수</th><th class="r">공급가액</th><th class="r">세액</th><th class="r">합계액</th></tr></thead>
-      <tbody>${t.items.map(it => `<tr><td>${it.n}</td><td class="r num">${it.cnt.toLocaleString()}</td><td class="r num">${won(it.supply)}</td><td class="r num">${won(it.vat)}</td><td class="r num">${won(it.supply + it.vat)}</td></tr>`).join('')}</tbody>
-      <tfoot><tr><td>합계</td><td></td><td class="r num">${won(t.supply)}</td><td class="r num">${won(t.vat)}</td><td class="r num">${won(t.total)}</td></tr></tfoot>
-    </table></div>
-    <div class="notice" style="height:auto;margin-top:8px"><span class="ms">info</span><span>집계 기간: 정산일 9/1 ~ 9/30 (9/1 06시 ~ 10/1 06시) 완료 건${t.shared ? `<br>균등: 다른 허브가 수행한 공유 배달 ${t.shared.toLocaleString()}건의 배달대행료는 발주 · 수주 허브가 주문별로 가져간 돈대로 나눠 본 허브가 가져간 몫만, 배달가맹비는 발주 허브(본 허브)가 100% 반영` : ''}<br>SMS 이용료는 세금계산서 · 부가세 집계에서 제외</span></div>`;
+    <div class="hiv-iv-sub">2026년 9월분 · 작성일자 2026-09-30 (월 합계) · 영수 · 발행 기한 10/10 ${stPill}</div>
+    <div class="card">
+      <div class="hq-iv-party">${ivParty('공급자', '내 허브', HUB_INFO)}${ivParty('공급받는 자', `상점 · ${s.code}`, { ...v, corp: s.name })}</div>
+      <table class="tbl hq-iv">
+        <thead><tr><th>품목</th><th class="r">수량</th><th class="r">단가</th><th class="r">공급가액</th><th class="r">세액 (부가세 10%)</th></tr></thead>
+        <tbody>${t.items.map(it => `<tr><td>${it.n} (9월)</td><td class="r num">${it.cnt.toLocaleString()}</td><td class="r num">${unitOf(it.n)}</td><td class="r num">${won(it.supply)}</td><td class="r num">${won(it.vat)}</td></tr>`).join('')}</tbody>
+        <tfoot><tr><td>합계</td><td></td><td></td><td class="r num">${won(t.supply)}</td><td class="r num">${won(t.vat)}</td></tr>
+          <tr class="grand"><td colspan="4">세금계산서 합계금액 (공급가액 + 세액)</td><td class="r num">${won(t.total)}원</td></tr></tfoot>
+      </table>
+    </div>
+    ${miss.length ? `<div class="callout" style="border-color:#f3c4c4;background:#fff5f5;margin:10px 0 0"><span class="ms" style="color:var(--minus)">error</span><div>공급받는 자 <b>${miss.join(', ')}</b> 정보가 없어 발행할 수 없어요. 상점 관리에서 정보를 채워 주세요.</div></div>` : ''}
+    <div class="hq-iv-h">부가세 처리 ${tag(s.vatSep)}${pendTag(s)} <span class="muted" style="font-weight:400;font-size:13px">${s.vatSep === '균등' ? shareNote(t) : '상점 전체 건'}</span></div>
+    <div class="notice" style="height:auto"><span class="ms">info</span><span>단가: 배달대행료는 주문마다 달라 비워 두고, 배달가맹비는 건당 고정이에요.${t.shared ? ` 균등: 다른 허브가 수행한 공유 배달 ${t.shared.toLocaleString()}건의 배달대행료는 주문별로 가져간 돈대로 나눠 본 허브 몫만, 배달가맹비는 본 허브(발주)가 100% 반영.` : ''}
+      SMS 이용료는 제외. 집계: 9/1 06시 ~ 10/1 06시 완료 건</span></div>`;
   $('#ivDetailDone').disabled = !!miss.length || !!v.issued;
   $('#ivDetailDone').textContent = v.issued ? `발행 완료 (${v.issued})` : '발행 완료로 표시';
   $('#ivDim').classList.add('show');
@@ -3181,10 +3185,12 @@ const SPEC = {
         <tr><td>합계(총액)</td><td>기존 「총액」</td></tr>
         <tr><td>발행 상태 (신규)</td><td>미발행 / 발행 완료(+발행일) / 정보 누락</td></tr></table>
         <p>맨 아래 합계 행 = 현재 목록 기준 「총 N 건」과 금액 합계.</p>`],
-      ['5', '상세 모달 (표의 「상세」)', `<ul><li>위: 공급받는 자 정보 (상호, 상점 코드, 대표자, 사업자번호, 주소, 업태/종목, 이메일, 부가세 처리)</li>
-        <li>아래: <b>항목별 표</b> 항목 · 건수 · 공급가액 · 세액 · 합계액 (바로머니 리포트 표와 같은 구성)</li>
-        <li>항목: <b>배달대행료, 배달가맹비</b> 2개. <b>SMS 이용료는 세금계산서 · 부가세 집계에서 제외</b></li>
-        <li>정보 누락이면 빨간 안내 + 「발행 완료로 표시」 비활성</li></ul>`],
+      ['5', '상세 모달 (표의 「상세」)', `<p><b>그 상점에 발행할 세금계산서 모양</b> (본사 · 허브 세금계산서와 같은 틀)</p>
+        <ul><li>제목 「{상점}에 발행할 세금계산서 · YYYY-MM」, 머리 = 귀속월 · 작성일자(말일, 월 합계) · 영수 · 발행 기한 · 상태(미발행 / 정보 누락 / 발행 완료 + 일자)</li>
+        <li>공급자(내 허브) / 공급받는 자(상점: 상호 · 상점 코드 · 사업자번호 · 대표자 · 주소 · 업태/종목 · 이메일)를 품목 표 위 좌우 두 칸. 빈 값은 빨간 「미등록」</li>
+        <li>품목 표: 품목 · 수량 · 단가 · 공급가액 · 세액(10%). 품목 = <b>배달대행료 (9월), 배달가맹비 (9월)</b> 2줄. 단가: 배달대행료는 주문마다 달라 「-」, 배달가맹비는 건당 고정값. 합계 + 세금계산서 합계금액</li>
+        <li><b>SMS 이용료는 세금계산서 · 부가세 집계에서 제외</b></li>
+        <li>아래: 부가세 처리(발주/균등, 균등이면 공유 건수) + 안내. 정보 누락이면 빨간 안내 + 「발행 완료로 표시」 비활성</li></ul>`],
     ],
   },
   hubInvoice: {
