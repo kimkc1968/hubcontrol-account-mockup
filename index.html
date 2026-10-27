@@ -347,6 +347,61 @@
   .hq-iv-party .kv { font-size: 13px; gap: 6px 10px; }
   .hq-iv-h { font-weight: 500; font-size: 14px; color: #333; margin: 16px 0 8px; }
   #hivDetail .hq-iv thead th { position: static; box-shadow: none; }
+  /* ── 팝빌 연동 (발행 · 인증서) ── */
+  .pb-fee { font-size: 12.5px; color: var(--text-3); }
+  #pbDim, #certDim { z-index: 60; }   /* 세금계산서 상세 팝업 위에 뜸 */
+  .cert-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: #555; cursor: pointer; white-space: nowrap; }
+  .cert-chip .ms { font-size: 16px; }
+  .cert-chip.ok .ms { color: #2e8b57; } .cert-chip.soon .ms { color: #c88a00; } .cert-chip.bad { color: var(--minus); } .cert-chip.bad .ms { color: var(--minus); }
+  .cert-chip:hover { text-decoration: underline; }
+  .pb-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; padding: 10px 16px; background: #f2f7ff; border-bottom: 1px solid #dbe6f7; font-size: 13px; color: #445; }
+  .pb-bar b { font-weight: 500; color: #222; }
+  .pb-bar .ms { font-size: 17px; color: var(--blue); }
+  .modal .pb-bar { border: 1px solid #dbe6f7; border-radius: 4px; margin-bottom: 10px; }
+  .pb-spin { display: inline-block; width: 14px; height: 14px; border: 2px solid #c9d6ee; border-top-color: var(--blue); border-radius: 50%; animation: pbspin .8s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes pbspin { to { transform: rotate(360deg); } }
+  .pb-sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 12px 0; }
+  .pb-sum > div { border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; }
+  .pb-sum span { display: block; font-size: 12px; color: var(--text-3); }
+  .pb-sum b { font-size: 16px; font-weight: 600; }
+  .certbar { display: flex; align-items: center; gap: 18px; background: #fff; border: 1px solid var(--border); border-left: 4px solid #2e8b57; border-radius: 4px; padding: 14px 18px; }
+  .certbar.soon { border-left-color: #e0a100; } .certbar.bad { border-left-color: var(--minus); }
+  .certbar .ctx { flex: 1; min-width: 0; }
+  .certbar .l1 { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; }
+  .certbar .l2 { font-size: 13px; color: #666; margin-top: 4px; }
+  .certbar .cexp { display: flex; flex-direction: column; align-items: flex-end; padding-left: 18px; border-left: 1px solid var(--line); font-size: 12px; color: var(--text-3); }
+  .certbar .cexp b { font-size: 15px; color: #222; font-weight: 500; }
+  .pb-demo { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 12.5px; color: #8a5a00; background: #fffaf0; border: 1px dashed #f0d9a8; border-radius: 4px; padding: 8px 12px; }
+  .pb-demo .ms { font-size: 17px; }
+  /* 공동인증서 등록 팝업 (팝빌 GetTaxCertURL 모양) */
+  #certDim .ctwrap { width: 1000px; max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); display: flex; flex-direction: column; overflow: hidden; background: #fff; border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,.3); }
+  #certDim .cthd { flex: none; display: flex; align-items: center; background: #2b3a57; color: #fff; padding: 12px 18px; }
+  #certDim .cthd b { font-size: 14px; font-weight: 600; }
+  #certDim .cthd .brand { margin-left: auto; font-size: 13px; font-weight: 800; letter-spacing: -.02em; }
+  #certDim .ctbd { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 16px; padding: 16px 18px; background: #eef1f6; align-items: start; }
+  #certDim .ctlp { background: linear-gradient(150deg, #2f6fe0, #2746b8); border-radius: 10px; padding: 18px; color: #fff; word-break: keep-all; }
+  #certDim .ctlp .hi { font-size: 17px; font-weight: 700; margin-bottom: 14px; }
+  #certDim .ctdrop { border: 1px dashed rgba(255,255,255,.5); border-radius: 8px; padding: 30px 14px; text-align: center; }
+  #certDim .ctdrop .pl { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,.22); font-size: 15px; font-weight: 700; margin-bottom: 9px; }
+  #certDim .ctdrop .ln { font-size: 12.5px; font-weight: 600; }
+  #certDim .okl { margin-top: 16px; font-size: 11px; text-align: center; opacity: .9; }
+  #certDim .okl b { display: block; font-size: 11.5px; margin-bottom: 6px; font-weight: 600; }
+  #certDim .okl i { font-style: normal; margin: 0 7px; }
+  #certDim .ctr { background: #fff; border-radius: 10px; padding: 16px; color: #1b2430; }
+  #certDim .ctr h4 { margin: 0 0 10px; font-size: 13px; font-weight: 700; }
+  #certDim .ctr .lead { background: #f2f5fa; border-radius: 7px; padding: 10px 12px; font-size: 11.5px; line-height: 1.75; color: #48566a; }
+  #certDim .ctway { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 14px 0 8px; font-size: 12px; font-weight: 600; }
+  #certDim .ctway .tg { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; background: #ffe3e3; color: #d6353b; }
+  #certDim .ctway .nt { font-size: 10.5px; color: #d6353b; } #certDim .ctway .nt.g { color: #6b7787; font-weight: 500; }
+  #certDim .ctway .ap { margin-left: auto; font-size: 11px; color: #2f6fe0; border: 1px solid #a9c4f0; border-radius: 6px; padding: 4px 10px; }
+  #certDim .ctcards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  #certDim .ctc { border: 1px solid #e2e7ef; border-radius: 8px; padding: 11px 13px; background: #fbfcfe; }
+  #certDim .ctc .t { font-size: 11.5px; font-weight: 700; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid #e2e7ef; }
+  #certDim .ctc .pr { display: flex; justify-content: space-between; padding: 3px 0; font-size: 11px; color: #6b7787; }
+  #certDim .ctc .pr b { font-size: 12.5px; color: #d6353b; }
+  #certDim .ctc .u { margin-top: 9px; padding-top: 8px; border-top: 1px solid #eef1f6; font-size: 10.5px; color: #6b7787; }
+  #certDim .ctft { flex: none; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 18px; border-top: 1px solid #eee; }
+  #certDim .ctft .n { flex: 1 1 320px; font-size: 11.5px; color: var(--text-3); line-height: 1.7; }
   .hiv-iv-sub { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-3); margin: 0 0 10px; }
   .hq-tbl { width: 100%; table-layout: fixed; }   /* 매출 · 매입 표 컬럼 폭을 맞춤 */
   .hq-tbl th:nth-child(1) { width: 170px; } .hq-tbl th:nth-child(2) { width: 220px; } .hq-tbl th:nth-child(3) { width: 80px; }
@@ -546,6 +601,7 @@
       <div class="sub" data-view="wht">라이더 / 원천세 신고</div>
       <div class="sub" data-view="tax">세금 보관함</div>
       <div class="sub" data-view="setting">정산 설정</div>
+      <div class="sub" data-view="cert">인증서 관리</div>
     </div>
   </div>
 
@@ -744,9 +800,9 @@
 
     <div data-spec="3" class="mb"><div class="card"><div class="dl-row" style="padding:10px 14px">
       <span id="ivSelInfo" class="lbl" style="min-width:auto">선택 0개</span>
-      <button class="btn outline sm" id="ivMarkDone"><span class="ms">task_alt</span>발행 완료로 표시</button>
-      <button class="btn outline sm" id="ivHometax" data-dl="hometax"><span class="ms">download</span>홈택스 일괄발행 양식</button>
-      <span class="notice" style="height:auto;margin-left:auto"><span class="ms">help</span>정보 누락 상점은 선택할 수 없어요. 상점 관리에서 사업자 정보를 채워 주세요.</span>
+      <button class="btn primary sm" id="ivMarkDone"><span class="ms">send</span>선택 발행</button>
+      <span class="pb-fee">팝빌 정발행 · 건당 200원 허브캐시 차감</span>
+      <span class="cert-chip" style="margin-left:auto"></span>
     </div></div></div>
 
     <div data-spec="4"><div class="tbl-wrap">
@@ -791,9 +847,9 @@
 
     <div data-spec="4" class="mb"><div class="card"><div class="dl-row" style="padding:10px 14px">
       <span id="hivSelInfo" class="lbl" style="min-width:auto">선택 0개</span>
-      <button class="btn outline sm" id="hivMarkDone"><span class="ms">task_alt</span>발행 완료로 표시</button>
-      <button class="btn outline sm" data-dl="hubHometax"><span class="ms">download</span>홈택스 일괄발행 양식</button>
-      <span class="notice" style="height:auto;margin-left:auto"><span class="ms">help</span>정보 누락 허브는 선택할 수 없어요. 상대 허브에 사업자 정보 등록을 요청해 주세요.</span>
+      <button class="btn primary sm" id="hivMarkDone"><span class="ms">send</span>선택 발행</button>
+      <span class="pb-fee">팝빌 정발행 · 건당 200원 허브캐시 차감</span>
+      <span class="cert-chip" style="margin-left:auto"></span>
     </div></div></div>
 
     <div data-spec="5"><div class="tbl-wrap">
@@ -835,8 +891,9 @@
     <div class="mb" data-spec="5">
       <div class="card">
         <div class="card-h"><span class="ms">receipt_long</span>본사에 발행할 세금계산서 <span class="sub-t" id="hqIvSub"></span> <span id="hqSalesState"></span>
-          <div class="right"><button class="btn outline sm" data-dl="hqHometax"><span class="ms">download</span>홈택스 발행 양식</button>
-            <button class="btn primary sm" id="hqSalesDone"><span class="ms">task_alt</span>발행 완료로 표시</button></div></div>
+          <div class="right"><span class="cert-chip"></span>
+            <button class="btn primary sm" id="hqSalesDone"><span class="ms">send</span>팝빌로 발행</button></div></div>
+        <div id="hqPbBar"></div>   <!-- 발행 후: 문서번호 · 국세청 승인번호 · 전송 상태 -->
         <div class="hq-iv-party" id="hqIvParty"></div>   <!-- 공급자 / 공급받는 자 (세금계산서처럼 품목 위) -->
         <table class="tbl hq-iv">
           <thead><tr><th>품목</th><th class="r">수량</th><th class="r">단가</th><th class="r">공급가액</th><th class="r">세액 (부가세 10%)</th></tr></thead>
@@ -1107,7 +1164,79 @@
       </div>
     </div>
   </section>
+
+  <!-- ───── 인증서 관리 (신규: 팝빌 전자세금계산서 발행 선행 조건) ───── -->
+  <section class="view" id="view-cert">
+    <div class="page-title">인증서 관리 <span class="crumb">신규 · 팝빌 전자세금계산서</span></div>
+
+    <div class="callout" data-spec="1"><span class="ms">info</span><div>
+      세금계산서는 <b>공급자(내 허브)의 공동인증서로 전자서명</b>해서 발행해요. 팝빌 인증서버에 인증서가 등록돼 있어야 「발행」을 누를 수 있어요.<br>
+      <span class="muted">상점 · 허브 · 본사 세금계산서 모두 이 인증서 하나로 발행돼요 (사업자번호 단위).</span></div></div>
+
+    <div class="certbar mb" id="certBar" data-spec="2"></div>
+
+    <div class="grid g2 mb">
+      <div class="card" data-spec="3">
+        <div class="card-h">팝빌 연동 <span class="sub-t">전자세금계산서 정발행</span></div>
+        <div class="card-b" id="pbInfo"></div>
+      </div>
+      <div class="card" data-spec="4">
+        <div class="card-h">이번 달 발행 <span class="sub-t">2026년 10월 · 발행 수수료는 허브캐시에서 차감</span></div>
+        <div class="card-b" id="pbMonth"></div>
+      </div>
+    </div>
+
+    <div class="card" data-spec="5">
+      <div class="card-h">발행 내역 <span class="sub-t">팝빌로 발행한 세금계산서 · 최신순</span></div>
+      <div style="overflow-x:auto"><table class="tbl">
+        <thead><tr><th>발행 일시</th><th>구분</th><th>공급받는 자</th><th>문서번호</th><th>국세청 승인번호</th><th class="r">합계금액</th><th class="c">상태</th><th class="r">수수료</th><th class="c">문서</th></tr></thead>
+        <tbody id="pbLogBody"></tbody>
+      </table></div>
+    </div>
+
+    <div class="pb-demo" data-spec="6"><span class="ms">science</span>시안 전용 · 인증서 상태 바꿔 보기
+      <div class="seg" id="certDemo"><button data-c="ok">정상</button><button data-c="soon">만료 임박</button><button data-c="expired">만료</button><button data-c="none">미등록</button></div>
+    </div>
+  </section>
 </main>
+
+<!-- 팝빌 발행 확인 (발행 · 선택 발행 공통) -->
+<div class="dim" id="pbDim">
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:720px">
+    <div class="modal-h"><span class="ms">send</span><span id="pbTitle">팝빌로 세금계산서 발행</span><button class="x" data-close><span class="ms">close</span></button></div>
+    <div class="modal-b" id="pbBody"></div>
+    <div class="modal-f" id="pbFoot"></div>
+  </div>
+</div>
+
+<!-- 공동인증서 등록 (팝빌 GetTaxCertURL 팝업 모양) -->
+<div class="dim" id="certDim">
+  <div class="ctwrap" role="dialog" aria-modal="true" aria-label="공동인증서 관리">
+    <div class="cthd"><b>공동인증서 관리</b><span class="brand">POPBiLL</span></div>
+    <div class="ctbd">
+      <div class="ctlp">
+        <div class="hi" id="certHi">님,</div>
+        <div class="ctdrop"><div class="pl">+</div><div class="ln">공동인증서를 등록하여 주시기 바랍니다.</div></div>
+        <div class="okl"><b>등록 가능한 공동인증서</b>전자세금용 공동인증서 <i>✓</i> · 사업자 범용 공동인증서 <i>✓</i></div>
+      </div>
+      <div class="ctr">
+        <h4>공동인증서 발급 가이드</h4>
+        <div class="lead">팝빌인증센터는 공동인증서를 비대면(온라인 즉시 발급) 및 대면(우체부 서류 수거) 방식으로 제공합니다.</div>
+        <div class="ctway">비대면 발급 <span class="tg">당일발급</span><span class="nt">※ 개인사업자만 발급 가능</span><span class="ap">신청하기</span></div>
+        <div class="ctcards">
+          <div class="ctc"><div class="t">전자세금용 인증서</div><div class="pr"><span>3년형</span><b>40,000원</b></div><div class="pr"><span>1년형</span><b>20,000원</b></div><div class="u">팝빌 · 홈택스만 사용 가능</div></div>
+          <div class="ctc"><div class="t">범용 인증서</div><div class="pr"><span>3년형</span><b>180,000원</b></div><div class="pr"><span>1년형</span><b>80,000원</b></div><div class="u">모든 업무에서 사용 가능</div></div>
+        </div>
+        <div class="ctway">대면 발급 <span class="nt g">2~5일 소요</span><span class="ap">신청하기</span></div>
+      </div>
+    </div>
+    <div class="ctft">
+      <span class="n">팝빌 <b>GetTaxCertURL</b> 팝업 (권장 1,000 × 630 · URL 30초 유효)<br>발급 비용은 <b>허브 부담</b> · 발행 용도만 필요하면 전자세금용 3년형을 권장해요</span>
+      <button class="btn outline" data-close>닫기</button>
+      <button class="btn primary" id="certOk">인증서 등록 완료</button>
+    </div>
+  </div>
+</div>
 
 <!-- 상점 일괄 설정 모달 -->
 <div class="dim" id="bulkDim">
@@ -1137,7 +1266,7 @@
   <div class="modal" role="dialog" aria-modal="true" style="max-width:960px">
     <div class="modal-h"><span class="ms">receipt_long</span><span id="ivTitle">세금계산서 정산 상세</span><button class="x" data-close><span class="ms">close</span></button></div>
     <div class="modal-b" id="ivDetail"></div>
-    <div class="modal-f"><button class="btn outline" data-close>닫기</button><button class="btn outline" data-dl="ivDetail"><span class="ms">download</span>내역 다운로드</button><button class="btn primary" id="ivDetailDone">발행 완료로 표시</button></div>
+    <div class="modal-f"><button class="btn outline" data-close>닫기</button><button class="btn outline" data-dl="ivDetail"><span class="ms">download</span>내역 다운로드</button><button class="btn primary" id="ivDetailDone">팝빌로 발행</button></div>
   </div>
 </div>
 
@@ -1146,7 +1275,7 @@
   <div class="modal" role="dialog" aria-modal="true" style="max-width:1080px">
     <div class="modal-h"><span class="ms">receipt_long</span><span id="hivTitle">허브 세금계산서 상세</span><button class="x" data-close><span class="ms">close</span></button></div>
     <div class="modal-b" id="hivDetail"></div>
-    <div class="modal-f"><button class="btn outline" data-close>닫기</button><button class="btn outline" data-dl="hubIvDetail"><span class="ms">download</span>내역 다운로드</button><button class="btn primary" id="hivDetailDone">발행 완료로 표시</button></div>
+    <div class="modal-f"><button class="btn outline" data-close>닫기</button><button class="btn outline" data-dl="hubIvDetail"><span class="ms">download</span>내역 다운로드</button><button class="btn primary" id="hivDetailDone">팝빌로 발행</button></div>
   </div>
 </div>
 
@@ -1203,7 +1332,11 @@ const HUB_INFO = { name: '[H]M서울강남', corp: '(주)엠서울강남', bizno
       <dt>허브명</dt><dd>${H.name}</dd><dt>상호명</dt><dd>${H.corp}</dd><dt>사업자번호</dt><dd class="num">${v(H.bizno)}</dd>
       <dt>사업장 주소</dt><dd>${v(H.addr)}</dd><dt>대표자</dt><dd>${v(H.rep)}</dd><dt>이메일</dt><dd>${v(H.email)}</dd><dt>연락처</dt><dd class="num">010-1111-2222</dd>
     </dl>`; })();
-const HUB_BAL = 22791675;   // 허브캐시 잔액 (= 캐시 내역 허브캐시 최신 잔여캐시) = 출금가능 + 세금 예치금 (부가세 VAT_KEEP + 원천세 WHT_KEEP)
+let HUB_BAL = 22791675;     // 허브캐시 잔액 (= 캐시 내역 허브캐시 최신 잔여캐시) = 출금가능 + 세금 예치금. 팝빌 발행 수수료가 빠지면 줄어듦
+/* 팝빌 전자세금계산서 연동 (상점 · 허브 · 본사 세금계산서 공통)
+   발행 = 팝빌 registIssue(1건) / BulkSubmit(여러 건) 정발행 → 국세청 승인번호 자동 할당 → 즉시전송(전송중 → 전송완료)
+   선행 조건 = 공급자(내 허브) 공동인증서가 팝빌 인증서버에 등록 · 유효. 발행 성공 1건당 수수료 200원을 허브캐시에서 차감 */
+const POPBILL = { fee: 200, today: '2026-10-01', cert: { reg: true, type: '전자세금용 공동인증서', exp: '2027-04-30' }, log: [], clock: 0 };
 const NEXT_SETTLE = '10/2 06시부터';   // 오늘(10/1) 바꾼 정산 설정이 적용되는 시점 = 다음 정산일 시작
 let OPT = null;             // 저장된 운영 옵션 (정산 설정 > 운영 옵션에서 채움)
 // 정산 요약 기준일: 시안 데이터 범위 7/1 ~ 오늘(10/1). 기본 = 어제(9/30)
@@ -1274,7 +1407,8 @@ const keepNote = o => !o.keep || !OPT ? '' : !OPT.selfReport ? ` <span class="pi
 // 오늘(10/1)은 정산일이 진행 중 → 지금(NOW_HM)까지 실시간으로 쌓인 금액 (매월 1일이라 월관리비 포함)
 const TODAY = { cnt: 168, live: true, rider: 604800,
   IN: [...feeIn(772240 - 604800, 168), { n: '건당관리비', v: 84000, c: '168건' }, { n: '상점 월관리비', v: 150000, c: '3개 상점 · 매월 1일' }],
-  OUT: [{ n: '허브 자동 지원금', v: SUP_TODAY, c: '라이더 지급 · 건별 자동' }, { n: '바로머니 이용료', v: 16800, c: '168건' }, { n: '프로그램 사용료', v: 30000, c: '일할' }],
+  OUT: [{ n: '허브 자동 지원금', v: SUP_TODAY, c: '라이더 지급 · 건별 자동' }, { n: '바로머니 이용료', v: 16800, c: '168건' }, { n: '프로그램 사용료', v: 30000, c: '일할' },
+    { n: '세금계산서 발행 수수료', v: 0, c: '팝빌 0건' }],   // 오늘 팝빌로 발행하면 건당 200원씩 늘어남 (0원이면 숨김)
   KEEP: [{ ...KEEP[0], v: 75264 }, { ...KEEP[1], v: whtOf(604800, SUP_TODAY) }] };
 // 그날 허브 자동 지원금 (라이더캐시 적립 · 원천세 대상). 일반 날 = 세금 보관 일별 데이터 (월 합계가 수익 내역 · 원천세 신고와 같게 배분)
 function supDay(k) {
@@ -1682,8 +1816,9 @@ const BIZ = [
 ];
 const IV = storeCfg.map((s, i) => ({ i, rep: BIZ[i][0], bizno: BIZ[i][1], addr: BIZ[i][2], biztype: '음식점업', item: BIZ[i][3], email: BIZ[i][4],
   issued: i === 0 || i === 4 ? '2026-10-01' : '' }));
+IV.forEach(v => { if (v.issued) pbAssign(v, ivDoc(v), '2026-10-01 12:3' + v.i); });   // 1일 12시 집계 뒤 발행   // 이미 팝빌로 발행된 상점 (전송완료)
 const ivMissing = v => [!v.bizno && '사업자 등록번호', !v.email && '이메일'].filter(Boolean);
-const ivState = v => ivMissing(v).length ? '정보 누락' : v.issued ? '발행 완료' : '미발행';
+const ivState = v => v.issued ? '발행 완료' : ivMissing(v).length ? '정보 누락' : '미발행';
 const ivSel = new Set();
 function ivFiltered() {
   const st = $('#ivStatus').value, kw = $('#ivKeyword').value.trim();
@@ -1702,10 +1837,10 @@ function renderInvoice() {
     stat('세액 합계', 'percent', won(sum('vat')), '= 상점캐시 「세금계산서용」 차감 합계') +
     stat('합계(총액)', 'functions', won(sum('total')), '공급가액 + 세액');
   $('#ivBody').innerHTML = rows.length ? rows.map(v => {
-    const s = storeCfg[v.i], t = storeSettle(s), state = ivState(v), miss = ivMissing(v);
-    const pill = { '발행 완료': `<span class="pill in">발행 완료</span><div class="muted" style="font-size:11.5px;margin-top:2px">${v.issued}</div>`, '미발행': '<span class="pill gray">미발행</span>', '정보 누락': '<span class="pill out">정보 누락</span>' }[state];
-    return `<tr class="${miss.length ? 'nosel' : 'clickable'} ${ivSel.has(v.i) ? 'sel' : ''}" data-row="${v.i}">
-      <td class="c"><input type="checkbox" data-iv="${v.i}" ${miss.length ? 'disabled' : ''} ${ivSel.has(v.i) ? 'checked' : ''}></td>
+    const s = storeCfg[v.i], t = storeSettle(s), state = ivState(v), miss = ivMissing(v), lock = miss.length || v.issued;
+    const pill = { '발행 완료': pbPill(v), '미발행': '<span class="pill gray">미발행</span>', '정보 누락': '<span class="pill out">정보 누락</span>' }[state];
+    return `<tr class="${lock ? 'nosel' : 'clickable'} ${ivSel.has(v.i) ? 'sel' : ''}" data-row="${v.i}" ${v.issued ? 'data-lockmsg="이미 팝빌로 발행한 상점이에요."' : ''}>
+      <td class="c"><input type="checkbox" data-iv="${v.i}" ${lock ? 'disabled' : ''} ${ivSel.has(v.i) ? 'checked' : ''}></td>
       <td><div class="two"><span>${s.name}</span><small class="num">${s.code}</small></div></td>
       <td><div class="two"><span>${v.rep}</span><small class="num">${v.bizno || '<span class="miss">사업자 등록번호 없음</span>'}</small></div></td>
       <td><div class="two"><span>${v.addr}</span><small>${v.biztype} · ${v.item}</small></div></td>
@@ -1719,8 +1854,9 @@ function renderInvoice() {
   const fsum = k => fs.reduce((a, b) => a + b[k], 0);
   $('#ivFoot').innerHTML = rows.length ? `<tr><td></td><td colspan="5">총 ${rows.length} 건</td><td class="r num">${fsum('cnt').toLocaleString()}</td>
     <td class="r num">${won(fsum('supply'))}</td><td class="r num">${won(fsum('vat'))}</td><td class="r num">${won(fsum('total'))}</td><td></td><td></td></tr>` : '';
-  $('#ivAll').checked = rows.length > 0 && rows.filter(v => !ivMissing(v).length).every(v => ivSel.has(v.i));
+  $('#ivAll').checked = rows.length > 0 && rows.filter(v => !ivMissing(v).length && !v.issued).every(v => ivSel.has(v.i));
   $('#ivSelInfo').textContent = `선택 ${ivSel.size}개`;
+  $('#ivMarkDone').innerHTML = `<span class="ms">send</span>선택 발행${ivSel.size ? ` (${ivSel.size}건)` : ''}`;
 }
 $('#ivSearch').addEventListener('click', renderInvoice);
 $('#ivStatus').addEventListener('change', renderInvoice);
@@ -1734,7 +1870,7 @@ function bindRowSelect(bodySel, sel, render, missMsg) {
   $(bodySel).addEventListener('click', e => {
     if (e.target.closest('button, input, a')) return;
     const tr = e.target.closest('tr[data-row]'); if (!tr) return;
-    if (tr.classList.contains('nosel')) { toast(missMsg); return; }
+    if (tr.classList.contains('nosel')) { toast(tr.dataset.lockmsg || missMsg); return; }
     const i = +tr.dataset.row;
     sel.has(i) ? sel.delete(i) : sel.add(i); render();
   });
@@ -1744,22 +1880,24 @@ $('#ivAll').addEventListener('change', e => {
   $$('#ivBody [data-iv]:not(:disabled)').forEach(c => e.target.checked ? ivSel.add(+c.dataset.iv) : ivSel.delete(+c.dataset.iv));
   renderInvoice();
 });
+// 선택 발행 → 팝빌 BulkSubmit (1건이면 registIssue). 발행되면 선택 해제
 $('#ivMarkDone').addEventListener('click', () => {
-  if (!ivSel.size) { toast('발행 완료로 표시할 상점을 선택해 주세요.'); return; }
-  ivSel.forEach(i => IV[i].issued = '2026-10-01'); toast(`${ivSel.size}개 상점을 발행 완료로 표시했습니다.`); ivSel.clear(); renderInvoice();
+  if (!ivSel.size) { toast('발행할 상점을 선택해 주세요.'); return; }
+  pbIssue([...ivSel].map(i => ivDoc(IV[i])), () => { ivSel.clear(); renderInvoice(); });
 });
 let ivCur = null;
-$('#ivBody').addEventListener('click', e => {
-  const b = e.target.closest('[data-ivd]'); if (!b) return;
-  const v = IV[+b.dataset.ivd], s = storeCfg[v.i], t = storeSettle(s), miss = ivMissing(v);
+$('#ivBody').addEventListener('click', e => { const b = e.target.closest('[data-ivd]'); if (b) openIvDetail(+b.dataset.ivd); });
+function openIvDetail(idx) {
+  const v = IV[idx], s = storeCfg[v.i], t = storeSettle(s), miss = ivMissing(v);
   ivCur = v;
   $('#ivTitle').textContent = `${s.name}에 발행할 세금계산서 · 2026-09`;
   // 본사 · 허브 세금계산서와 같은 틀: 공급자 / 공급받는 자 → 품목 → 합계금액. 배달대행료는 주문마다 달라 단가 비움, 배달가맹비는 건당 고정
   const unitOf = n => (UNIT.find(u => u[0] === n) || [])[2] === 'order' ? won(UNIT.find(u => u[0] === n)[1]) : '<span class="muted">-</span>';
-  const stPill = v.issued ? `<span class="pill in">발행 완료 ${v.issued}</span>` : miss.length ? '<span class="pill out">정보 누락</span>' : '<span class="pill gray">미발행</span>';
+  const stPill = v.issued ? pbPill(v, true) : miss.length ? '<span class="pill out">정보 누락</span>' : '<span class="pill gray">미발행</span>';
   $('#ivDetail').innerHTML = `
     <div class="hiv-iv-sub">2026년 9월분 · 작성일자 2026-09-30 (월 합계) · 영수 · 발행 기한 10/10 ${stPill}</div>
     <div class="card">
+      ${pbBar(v)}
       <div class="hq-iv-party">${ivParty('공급자', '내 허브', HUB_INFO)}${ivParty('공급받는 자', `상점 · ${s.code}`, { ...v, corp: s.name })}</div>
       <table class="tbl hq-iv">
         <thead><tr><th>품목</th><th class="r">수량</th><th class="r">단가</th><th class="r">공급가액</th><th class="r">세액 (부가세 10%)</th></tr></thead>
@@ -1772,13 +1910,14 @@ $('#ivBody').addEventListener('click', e => {
     <div class="hq-iv-h">부가세 처리 ${tag(s.vatSep)}${pendTag(s)} <span class="muted" style="font-weight:400;font-size:13px">${s.vatSep === '균등' ? shareNote(t) : '상점 전체 건'}</span></div>
     <div class="notice" style="height:auto"><span class="ms">info</span><span>단가: 배달대행료는 주문마다 달라 비워 두고, 배달가맹비는 건당 고정이에요.${t.shared ? ` 균등: 다른 허브가 수행한 공유 배달 ${t.shared.toLocaleString()}건의 배달대행료는 주문별로 가져간 돈대로 나눠 본 허브 몫만, 배달가맹비는 본 허브(발주)가 100% 반영.` : ''}
       SMS 이용료는 제외. 집계: 9/1 06시 ~ 10/1 06시 완료 건</span></div>`;
-  $('#ivDetailDone').disabled = !!miss.length || !!v.issued;
-  $('#ivDetailDone').textContent = v.issued ? `발행 완료 (${v.issued})` : '발행 완료로 표시';
+  pbButton($('#ivDetailDone'), v, miss);
   $('#ivDim').classList.add('show');
-});
+}
+// 팝업 버튼: 미발행 = 「팝빌로 발행」 (registIssue), 발행 후 = 「팝빌에서 보기」 (getPopUpURL)
 $('#ivDetailDone').addEventListener('click', () => {
-  if (!ivCur) return; ivCur.issued = '2026-10-01'; $('#ivDim').classList.remove('show'); renderInvoice();
-  toast(`${storeCfg[ivCur.i].name} 발행 완료로 표시했습니다.`);
+  if (!ivCur) return;
+  if (ivCur.issued) { pbView(ivCur); return; }
+  const v = ivCur; pbIssue([ivDoc(v)], () => { renderInvoice(); if ($('#ivDim').classList.contains('show')) openIvDetail(v.i); });
 });
 
 /* ═════════ 허브 / 세금계산서 (신규) ═════════
@@ -1812,11 +1951,12 @@ const HIV = [
     dueStores: rows.filter(r => r.due > 0).length, total: S('supply') + S('vat') };
 }).filter(h => h.rows.length);   // 본사계약 상점만 있던 허브는 목록에서 빠짐
 HIV.forEach((h, i) => { h.i = i; });
+HIV.forEach(h => { if (h.issued) pbAssign(h, hivDoc(h), '2026-10-01 12:41'); });   // 이미 팝빌로 발행된 허브 (전송완료)
 const HIV_HQ_OUT = HIV.flatMap(h => h.hqOut.map(s => ({ ...s, hub: h.name })));   // 제외된 본사계약 상점 (안내용)
 const vatSetTag = r => `<span class="pill ${r.vatSet === '균등' ? 'in' : 'out'}">${r.vatSet}</span>`;
 const vatRule = r => r.vatSet === '균등' ? '균등 (들어옴)' : '발주 (안 들어옴)';
 const hivMissing = h => [!h.bizno && '사업자 등록번호', !h.email && '이메일'].filter(Boolean);
-const hivState = h => hivMissing(h).length ? '정보 누락' : h.issued ? '발행 완료' : '미발행';
+const hivState = h => h.issued ? '발행 완료' : hivMissing(h).length ? '정보 누락' : '미발행';
 const hivSel = new Set();
 function hivFiltered() {
   const st = $('#hivStatus').value, kw = $('#hivKeyword').value.trim();
@@ -1834,10 +1974,10 @@ function renderHubInvoice() {
     stat('받아야 할 부가세', 'error', won(sum('due')), `<b>상대 허브 「발주」 상점 ${dueStoreCnt}곳</b> · 허브 ${dueHubs.length}곳에서 안 들어옴`, '원',
       sum('due') ? 'border-color:#f0b4b4;background:#fff5f5;color:var(--minus)' : '');
   // ★ 부가세가 안 들어온 허브 경고 (상대 허브가 상점을 「발주」로 설정)
-  const pill = h => ({ '발행 완료': `<span class="pill in">발행 완료</span><div class="muted" style="font-size:11.5px;margin-top:2px">${h.issued}</div>`,
-    '미발행': '<span class="pill gray">미발행</span>', '정보 누락': '<span class="pill out">정보 누락</span>' })[hivState(h)];
-  $('#hivBody').innerHTML = rows.length ? rows.map(h => `<tr class="${h.due > 0 ? 'warn' : ''} ${hivMissing(h).length ? 'nosel' : 'clickable'} ${hivSel.has(h.i) ? 'sel' : ''}" data-row="${h.i}">
-      <td class="c"><input type="checkbox" data-hiv="${h.i}" ${hivMissing(h).length ? 'disabled' : ''} ${hivSel.has(h.i) ? 'checked' : ''}></td>
+  const pill = h => ({ '발행 완료': pbPill(h), '미발행': '<span class="pill gray">미발행</span>', '정보 누락': '<span class="pill out">정보 누락</span>' })[hivState(h)];
+  const lock = h => hivMissing(h).length || h.issued;   // 정보 누락 · 이미 발행 = 선택 불가
+  $('#hivBody').innerHTML = rows.length ? rows.map(h => `<tr class="${h.due > 0 ? 'warn' : ''} ${lock(h) ? 'nosel' : 'clickable'} ${hivSel.has(h.i) ? 'sel' : ''}" data-row="${h.i}" ${h.issued ? 'data-lockmsg="이미 팝빌로 발행한 허브예요."' : ''}>
+      <td class="c"><input type="checkbox" data-hiv="${h.i}" ${lock(h) ? 'disabled' : ''} ${hivSel.has(h.i) ? 'checked' : ''}></td>
       <td><div class="two"><span>${h.name}${h.due > 0 ? ' <span class="pill out">부가세 받아야 함</span>' : ''}</span><small class="num">${h.code}</small></div></td>
       <td><div class="two"><span>${h.corp} · ${h.rep}</span><small class="num">${h.bizno || '<span class="miss">사업자 등록번호 없음</span>'} · ${h.email || '<span class="miss">이메일 없음</span>'}</small></div></td>
       <td class="r num">${h.rows.length}</td><td class="r num">${h.cnt.toLocaleString()}</td>
@@ -1849,8 +1989,9 @@ function renderHubInvoice() {
   const fs = k => rows.reduce((a, b) => a + b[k], 0);
   $('#hivFoot').innerHTML = rows.length ? `<tr><td></td><td colspan="2">총 ${rows.length}개 허브</td><td class="r num">${rows.reduce((a, b) => a + b.rows.length, 0)}</td><td class="r num">${fs('cnt').toLocaleString()}</td>
     <td class="r num">${won(fs('supply'))}</td><td class="r num">${won(fs('vat'))}</td><td class="r num">${won(fs('recv'))}</td><td class="r num" style="color:var(--minus)">${won(fs('due'))}</td><td></td><td></td></tr>` : '';
-  $('#hivAll').checked = rows.some(h => !hivMissing(h).length) && rows.filter(h => !hivMissing(h).length).every(h => hivSel.has(h.i));
+  $('#hivAll').checked = rows.some(h => !lock(h)) && rows.filter(h => !lock(h)).every(h => hivSel.has(h.i));
   $('#hivSelInfo').textContent = `선택 ${hivSel.size}개`;
+  $('#hivMarkDone').innerHTML = `<span class="ms">send</span>선택 발행${hivSel.size ? ` (${hivSel.size}건)` : ''}`;
 }
 renderHubInvoice();
 $('#hivSearch').addEventListener('click', renderHubInvoice);
@@ -1866,22 +2007,23 @@ $('#hivAll').addEventListener('change', e => {
   renderHubInvoice();
 });
 $('#hivMarkDone').addEventListener('click', () => {
-  if (!hivSel.size) { toast('발행 완료로 표시할 허브를 선택해 주세요.'); return; }
-  hivSel.forEach(i => { HIV[i].issued = '2026-10-01'; }); toast(`${hivSel.size}개 허브를 발행 완료로 표시했습니다.`); hivSel.clear(); renderHubInvoice();
+  if (!hivSel.size) { toast('발행할 허브를 선택해 주세요.'); return; }
+  pbIssue([...hivSel].map(i => hivDoc(HIV[i])), () => { hivSel.clear(); renderHubInvoice(); });
 });
 let hivCur = null;
-$('#hivBody').addEventListener('click', e => {
-  const b = e.target.closest('[data-hivd]'); if (!b) return;
-  const h = HIV[+b.dataset.hivd], miss = hivMissing(h);
+$('#hivBody').addEventListener('click', e => { const b = e.target.closest('[data-hivd]'); if (b) openHivDetail(+b.dataset.hivd); });
+function openHivDetail(idx) {
+  const h = HIV[idx], miss = hivMissing(h);
   hivCur = h;
   $('#hivTitle').textContent = `${h.name}에 발행할 세금계산서 · 2026-09`;
   // 품목 = 상점별 1줄 (전자세금계산서 최대 4줄, 넘으면 1줄로 합침). 배달료가 주문마다 달라 단가는 비워 둠
   const items = h.rows.length <= 4 ? h.rows.map(r => ({ name: `배달대행 · ${r.n} (9월)`, qty: r.cnt, supply: r.supply, vat: r.vat }))
     : [{ name: `배달대행 · 공유 배달 ${h.rows.length}개 상점 (9월)`, qty: h.cnt, supply: h.supply, vat: h.vat }];
-  const st = h.issued ? `<span class="pill in">발행 완료 ${h.issued}</span>` : miss.length ? '<span class="pill out">정보 누락</span>' : '<span class="pill gray">미발행</span>';
+  const st = h.issued ? pbPill(h, true) : miss.length ? '<span class="pill out">정보 누락</span>' : '<span class="pill gray">미발행</span>';
   $('#hivDetail').innerHTML = `
     <div class="hiv-iv-sub">2026년 9월분 · 작성일자 2026-09-30 (월 합계) · 영수 · 발행 기한 10/10 ${st}</div>
     <div class="card">
+      ${pbBar(h)}
       <div class="hq-iv-party">${ivParty('공급자', '내 허브', HUB_INFO)}${ivParty('공급받는 자', `발주 허브 · ${h.name}`, h)}</div>
       <table class="tbl hq-iv">
         <thead><tr><th>품목</th><th class="r">수량</th><th class="r">단가</th><th class="r">공급가액</th><th class="r">세액 (부가세 10%)</th></tr></thead>
@@ -1901,13 +2043,151 @@ $('#hivBody').addEventListener('click', e => {
     </table></div>
     <div class="notice" style="height:auto;margin-top:8px"><span class="ms">info</span><span>단가는 주문마다 배달료가 달라 비워 둬요. 「발주」 상점은 배달료에 부가세가 안 들어와 따로 받아야 해요.
       ${h.hqOut.length ? `본사계약 상점 ${h.hqOut.map(s => `${s.n}(${s.cnt.toLocaleString()}건)`).join(', ')}은 본사에 발행해서 제외했어요.` : ''} 집계: 9/1 06시 ~ 10/1 06시 완료 건</span></div>`;
-  $('#hivDetailDone').disabled = !!miss.length || !!h.issued;
-  $('#hivDetailDone').textContent = h.issued ? `발행 완료 (${h.issued})` : '발행 완료로 표시';
+  pbButton($('#hivDetailDone'), h, miss);
   $('#hivDim').classList.add('show');
-});
+}
 $('#hivDetailDone').addEventListener('click', () => {
-  if (!hivCur) return; hivCur.issued = '2026-10-01'; $('#hivDim').classList.remove('show'); renderHubInvoice();
-  toast(`${hivCur.name} 발행 완료로 표시했습니다.`);
+  if (!hivCur) return;
+  if (hivCur.issued) { pbView(hivCur); return; }
+  const h = hivCur; pbIssue([hivDoc(h)], () => { renderHubInvoice(); if ($('#hivDim').classList.contains('show')) openHivDetail(h.i); });
+});
+
+/* ═════════ 팝빌 전자세금계산서 발행 (상점 · 허브 · 본사 공통) ═════════
+   흐름: 「팝빌로 발행」/「선택 발행」 → 확인 팝업(건수 · 합계 · 수수료) → registIssue(1건) / BulkSubmit(여러 건)
+        → 국세청 승인번호 자동 할당 · 전송중 → 전송완료. 성공한 건만 건당 200원을 허브캐시에서 차감
+   차단: 공동인증서 미등록 · 만료 / 공급받는 자 정보 누락 / 출금 가능 금액 < 수수료 */
+// 국세청 승인번호 (팝빌이 자동 할당하는 24자리). 시안은 문서번호에서 만든 고정값
+function ntsOf(mgt, date) {
+  const h = [...mgt].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 99999989, 17);
+  return `${date.replace(/-/g, '')}-41000${String(h % 1000).padStart(3, '0')}-${String(10000000 + h % 89999999).slice(-8)}`;
+}
+// 발행 문서 (문서번호 = 팝빌 MgtKey: 영문 · 숫자 · '-' 24자 이내, 사업자별 중복 불가)
+function ivDoc(v) { const s = storeCfg[v.i], t = storeSettle(s); return { kind: '상점', ref: v, name: s.name, supply: t.supply, vat: t.vat, mgt: `ST-202609-${s.code}` }; }
+function hivDoc(h) { return { kind: '허브', ref: h, name: h.corp, supply: h.supply, vat: h.vat, mgt: `HB-202609-${h.code.replace(/-/g, '')}` }; }
+function hqDoc() { const ls = hqIvItems(); return { kind: '본사', ref: HQ_STATE, name: HQ_INFO.corp, supply: hqSum(ls, 'supply'), vat: hqSum(ls, 'vat'), mgt: 'HQ-202609-B1024' }; }
+function pbAssign(ref, d, time, state = '전송완료') {
+  Object.assign(ref, { issued: time.slice(0, 10), mgt: d.mgt, nts: ntsOf(d.mgt, time.slice(0, 10)), pbState: state });
+  POPBILL.log.unshift({ time, kind: d.kind, name: d.name, mgt: d.mgt, ref, total: d.supply + d.vat, fee: POPBILL.fee });
+}
+function pbPill(r, inline) {
+  const sub = `${r.issued} · <span style="color:${r.pbState === '전송완료' ? 'inherit' : '#c88a00'}">${r.pbState}</span>`;
+  return `<span class="pill in" title="국세청 승인번호 ${r.nts}">발행 완료</span>${inline ? ` <span class="muted" style="font-size:12px">${sub}</span>` : `<div class="muted" style="font-size:11.5px;margin-top:2px">${sub}</div>`}`;
+}
+function pbBar(r) {
+  if (!r.issued) return '';
+  return `<div class="pb-bar"><span class="ms">verified</span><span>문서번호 <b class="num">${r.mgt}</b></span><span>국세청 승인번호 <b class="num">${r.nts}</b></span>
+    <span>문서 상태 <b>${r.pbState === '전송중' ? '<span class="pb-spin"></span>' : ''}${r.pbState}</b></span><span class="muted">팝빌 정발행 · ${r.issued}</span></div>`;
+}
+function pbButton(btn, r, miss, sm) {
+  btn.disabled = !r.issued && miss.length > 0;
+  btn.innerHTML = r.issued ? '<span class="ms">open_in_new</span>팝빌에서 보기' : '<span class="ms">send</span>팝빌로 발행';
+}
+function pbView(r) { toast(`팝빌 원본 보기 · 실연동은 getPopUpURL(${r.mgt}) 새 창 (URL 30초 유효) · 승인번호 ${r.nts}`); }
+function certDays() { return Math.round((new Date(POPBILL.cert.exp) - new Date(POPBILL.today)) / 864e5); }
+function certState() { if (!POPBILL.cert.reg) return 'none'; const d = certDays(); return d < 0 ? 'expired' : d <= 30 ? 'soon' : 'ok'; }
+function certCanIssue() { return ['ok', 'soon'].includes(certState()); }
+
+let pbPending = null;
+function pbIssue(docs, rerender) {
+  pbPending = { docs, rerender };
+  const n = docs.length, need = n * POPBILL.fee, avail = HUB_BAL - holdAmt(), cs = certState(), sum = k => docs.reduce((a, d) => a + d[k], 0);
+  const blocked = !certCanIssue() ? { msg: cs === 'none' ? '공동인증서가 팝빌에 등록되어 있지 않아요.' : '공동인증서가 만료됐어요.', sub: '세금계산서는 공급자(내 허브) 공동인증서로 전자서명해서 발행해요. 인증서를 등록 · 갱신한 뒤 다시 발행해 주세요.', cert: true }
+    : avail < need ? { msg: `출금 가능 금액이 부족해요 (발행 수수료 ${won(need)}원).`, sub: '발행 수수료는 허브캐시에서 차감돼요.' } : null;
+  $('#pbTitle').textContent = n > 1 ? `팝빌로 세금계산서 ${n}건 발행` : '팝빌로 세금계산서 발행';
+  $('#pbBody').innerHTML = `
+    ${blocked ? `<div class="callout" style="border-color:#f3c4c4;background:#fff5f5"><span class="ms" style="color:var(--minus)">error</span><div><b>${blocked.msg}</b><br>${blocked.sub}</div></div>` : ''}
+    <div class="pb-sum"><div><span>발행 건수</span><b>${n}건</b></div><div><span>세금계산서 합계금액</span><b class="num">${won(sum('supply') + sum('vat'))}원</b></div>
+      <div><span>발행 수수료 · 허브캐시 차감</span><b class="num" style="color:var(--minus)">${won(need)}원</b></div></div>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>구분</th><th>공급받는 자</th><th>문서번호</th><th class="r">공급가액</th><th class="r">세액</th><th class="r">합계금액</th></tr></thead>
+      <tbody>${docs.map(d => `<tr><td>${d.kind}</td><td>${d.name}</td><td class="num">${d.mgt}</td><td class="r num">${won(d.supply)}</td><td class="r num">${won(d.vat)}</td><td class="r num">${won(d.supply + d.vat)}</td></tr>`).join('')}</tbody>
+    </table></div>
+    <div class="notice" style="height:auto;margin-top:10px"><span class="ms">info</span><span>정발행 · 작성일자 2026-09-30 · 영수. 발행하면 바로 국세청에 전송돼요 (즉시전송). 발행한 뒤 취소는 수정세금계산서로 해야 해요.<br>
+      팝빌 ${n > 1 ? '<b>BulkSubmit</b> (한 번에 최대 100건)' : '<b>registIssue</b>'} · 수수료 건당 ${won(POPBILL.fee)}원은 발행에 성공한 건만 허브캐시에서 빠져요.</span></div>`;
+  $('#pbFoot').innerHTML = blocked
+    ? `<button class="btn outline" data-pb="close">닫기</button>${blocked.cert ? '<button class="btn primary" data-pb="cert"><span class="ms">verified_user</span>인증서 관리로 이동</button>' : ''}`
+    : `<button class="btn outline" data-pb="close">취소</button><button class="btn primary" data-pb="go"><span class="ms">send</span>${n}건 발행</button>`;
+  $('#pbDim').classList.add('show');
+}
+$('#pbFoot').addEventListener('click', e => {
+  const b = e.target.closest('[data-pb]'); if (!b) return;
+  if (b.dataset.pb === 'close') $('#pbDim').classList.remove('show');
+  else if (b.dataset.pb === 'cert') { $$('.dim').forEach(d => d.classList.remove('show')); go('cert'); }
+  else if (b.dataset.pb === 'go') pbRun();
+});
+function pbRun() {
+  const { docs, rerender } = pbPending, n = docs.length;
+  $$('#pbFoot button').forEach(b => { b.disabled = true; });
+  $('#pbBody').insertAdjacentHTML('afterbegin', `<div class="callout"><span class="pb-spin"></span><div>팝빌 <b>${n > 1 ? 'BulkSubmit' : 'registIssue'}</b> 호출 중… 응답이 올 때까지 <b>발행중</b>으로 두고, 같은 문서번호로 중복 발행을 막아요.</div></div>`);
+  setTimeout(() => {
+    POPBILL.clock += 1;
+    const t = `2026-10-01 14:${String(POPBILL.clock).padStart(2, '0')}`;
+    docs.forEach(d => { pbAssign(d.ref, d, t, '전송중'); if (d.kind === '본사') HQ_STATE.salesIssued = d.ref.issued; });
+    pbCharge(docs, t);
+    $('#pbDim').classList.remove('show');
+    rerender(); pbRefresh();
+    toast(`${n}건 발행 완료 · 국세청 승인번호 할당 · 허브캐시에서 수수료 ${won(n * POPBILL.fee)}원 차감`);
+    setTimeout(() => { docs.forEach(d => { d.ref.pbState = '전송완료'; }); rerender(); pbRefresh(); toast(`국세청 전송완료 · ${n}건`); }, 2600);
+  }, 1300);
+}
+// 수수료 차감: 허브캐시 잔액 ↓ (출금가능 ↓), 캐시 내역 허브캐시에 건마다 차감 한 줄, 오늘 정산 「나간 돈」에 반영
+function pbCharge(docs, t) {
+  const fee = POPBILL.fee, n = docs.length;
+  HUB_BAL -= fee * n;
+  docs.forEach((d, k) => DATA.hub.unshift({ time: `${t}:${String(10 + k).padStart(2, '0')}`, dir: 'out', kind: '차감', reason: '세금계산서 발행 수수료', amt: -fee, bal: 0,
+    store: '', rider: '', order: '', memo: `팝빌 · ${d.mgt}` }));
+  for (let j = 0; j < n; j++) DATA.hub[j].bal = HUB_BAL + fee * j;   // 맨 위 = 지금 잔액
+  DATA.hub.forEach((r, i) => { r.no = DATA.hub.length - i; });
+  const it = TODAY.OUT.find(o => o.n === '세금계산서 발행 수수료');
+  POPBILL.todayCnt = (POPBILL.todayCnt || 0) + n; it.v = POPBILL.todayCnt * fee; it.c = `팝빌 ${POPBILL.todayCnt}건`;
+}
+function pbRefresh() { renderHub(); setSumDate(sumDate); renderCash(); renderCert(); renderCertChips(); }
+
+/* 인증서 관리 화면 + 각 세금계산서 화면의 인증서 상태 표시 */
+function renderCertChips() {
+  const st = certState(), d = certDays(), c = POPBILL.cert;
+  const [cls, ic, txt] = { ok: ['ok', 'verified_user', `공동인증서 정상 · ~${c.exp}`], soon: ['soon', 'schedule', `공동인증서 만료 D-${d} · 갱신 필요`],
+    expired: ['bad', 'gpp_bad', '공동인증서 만료 · 발행 불가'], none: ['bad', 'gpp_bad', '공동인증서 미등록 · 발행 불가'] }[st];
+  $$('.cert-chip').forEach(el => { el.className = 'cert-chip ' + cls; el.innerHTML = `<span class="ms">${ic}</span>${txt}`; el.title = '인증서 관리로 이동'; });
+}
+document.addEventListener('click', e => { if (e.target.closest('.cert-chip')) go('cert'); });
+function renderCert() {
+  const c = POPBILL.cert, st = certState(), d = certDays();
+  const [lb, pc, desc] = { ok: ['정상', 'in', '팝빌 인증서버에 등록돼 있어요. 세금계산서를 발행할 수 있어요.'], soon: ['만료 임박', 'keep', `만료 ${d}일 전이에요. 발행은 되지만 만료 전에 갱신해 주세요.`],
+    expired: ['만료', 'out', '인증서가 만료돼 세금계산서를 발행할 수 없어요. 갱신한 뒤 발행해 주세요.'], none: ['미등록', 'out', '세금계산서를 발행하려면 공급자(내 허브) 공동인증서를 팝빌 인증서버에 먼저 등록해야 해요.'] }[st];
+  $('#certBar').className = 'certbar mb ' + (st === 'ok' ? '' : st === 'soon' ? 'soon' : 'bad');
+  $('#certBar').innerHTML = `<div class="ctx"><div class="l1"><span class="ms">verified_user</span>${c.reg ? c.type : '공동인증서 미등록'} <span class="pill ${pc}">${lb}</span></div><div class="l2">${desc}</div></div>
+    ${c.reg ? `<div class="cexp"><span>만료일</span><b class="num">${c.exp}</b><span>${d >= 0 ? `D-${d}` : `${-d}일 지남`}</span></div>` : ''}
+    <button class="btn ${st === 'ok' ? 'outline' : 'primary'}" data-cert="open"><span class="ms">${c.reg ? 'autorenew' : 'add'}</span>${c.reg ? '인증서 갱신' : '인증서 등록'}</button>`;
+  $('#pbInfo').innerHTML = `<dl class="kv" style="grid-template-columns:96px 1fr">
+    <dt>연동 사업자</dt><dd>${HUB_INFO.corp} · <span class="num">${HUB_INFO.bizno}</span> <span class="muted">(팝빌 연동회원 CorpNum)</span></dd>
+    <dt>발행 방식</dt><dd>정발행 · 국세청 즉시전송</dd>
+    <dt>발행 API</dt><dd>1건 <code>registIssue</code> · 여러 건 <code>BulkSubmit</code> (최대 100건)</dd>
+    <dt>발행 수수료</dt><dd><b>건당 ${won(POPBILL.fee)}원</b> · 허브캐시에서 차감 (발행에 성공한 건만)</dd>
+    <dt>문서 보기</dt><dd><code>getPopUpURL</code> · PDF <code>getPDFURL</code> (URL 30초 유효)</dd></dl>`;
+  const mon = POPBILL.log.filter(l => l.time.startsWith('2026-10')), by = k => mon.filter(l => l.kind === k).length;
+  $('#pbMonth').innerHTML = `<div class="cash-rows" style="border-top:0;padding-top:0;grid-template-columns:repeat(3,minmax(0,1fr))">
+      <div><span>발행 건수</span><b class="num">${mon.length}건</b></div><div><span>발행 수수료</span><b class="num minus">-${won(mon.reduce((a, l) => a + l.fee, 0))}원</b></div>
+      <div><span>세금계산서 합계</span><b class="num">${won(mon.reduce((a, l) => a + l.total, 0))}원</b></div></div>
+    <div class="muted" style="font-size:12.5px;margin-top:10px">상점 ${by('상점')}건 · 허브 ${by('허브')}건 · 본사 ${by('본사')}건 · 수수료는 캐시 내역(허브캐시)에 「세금계산서 발행 수수료」로 남아요</div>`;
+  $('#pbLogBody').innerHTML = POPBILL.log.length ? POPBILL.log.map((l, i) => `<tr><td class="num">${l.time}</td><td>${l.kind}</td><td>${l.name}</td><td class="num">${l.mgt}</td><td class="num">${l.ref.nts}</td>
+      <td class="r num">${won(l.total)}</td><td class="c"><span class="pill ${l.ref.pbState === '전송완료' ? 'in' : 'keep'}">${l.ref.pbState}</span></td><td class="r num minus">-${won(l.fee)}</td>
+      <td class="c"><button class="btn outline sm" data-pbv="${i}">팝빌 보기</button></td></tr>`).join('')
+    : '<tr><td class="empty" colspan="9">아직 발행한 세금계산서가 없어요.</td></tr>';
+  $$('#certDemo button').forEach(b => b.classList.toggle('on', b.dataset.c === st));
+}
+$('#view-cert').addEventListener('click', e => {
+  if (e.target.closest('[data-cert="open"]')) { $('#certHi').textContent = `${HUB_INFO.corp} 님,`; $('#certDim').classList.add('show'); }
+  const v = e.target.closest('[data-pbv]'); if (v) pbView(POPBILL.log[+v.dataset.pbv].ref);
+  const dm = e.target.closest('#certDemo button');   // 시안 전용: 인증서 상태 바꿔 보기
+  if (dm) { POPBILL.cert = { ok: { reg: true, type: '전자세금용 공동인증서', exp: '2027-04-30' }, soon: { reg: true, type: '전자세금용 공동인증서', exp: '2026-10-20' },
+      expired: { reg: true, type: '전자세금용 공동인증서', exp: '2026-09-20' }, none: { reg: false } }[dm.dataset.c]; renderCert(); renderCertChips(); }
+});
+// 인증서 등록 팝업 (실연동: GetTaxCertURL 결과를 1,000 × 630 팝업으로 연다 → 등록 후 CheckCertValidation으로 확인)
+$('#certOk').addEventListener('click', () => {
+  POPBILL.cert = { reg: true, type: '전자세금용 공동인증서', exp: '2029-10-01' };
+  $('#certDim').classList.remove('show'); renderCert(); renderCertChips();
+  toast(`공동인증서를 팝빌 인증서버에 등록했어요 · 전자세금용 · 만료 ${POPBILL.cert.exp}`);
 });
 
 /* ═════════ 라이더 기본 데이터 (라이더 / 원천세 신고 · 본사 정산서 기사원천세 공통) ═════════ */
@@ -2121,8 +2401,9 @@ function renderHq() {
     stat(`매출 / 본사에 발행 ${HQ_STATE.salesIssued ? '완료' : '필요'}`, 'north_east', won(hqSum(S, 'total')), `공급가액 ${won(hqSum(S, 'supply'))} · VAT ${won(hqSum(S, 'vat'))}${HQ_STATE.salesIssued ? ` · ${HQ_STATE.salesIssued} 발행` : ''}`) +
     stat('매입 / 본사에서 허브로 발행', 'south_west', won(hqSum(B, 'total')), `공급가액 ${won(hqSum(B, 'supply'))} · VAT ${won(hqSum(B, 'vat'))}`) +
     stat('매출 − 매입 (공급가액)', 'balance', won(hqSum(S, 'supply') - hqSum(B, 'supply')), '정산서 기준 본사와의 순정산');
-  $('#hqSalesState').innerHTML = st(HQ_STATE.salesIssued, '발행 완료', '미발행');
-  $('#hqSalesDone').disabled = !!HQ_STATE.salesIssued; $('#hqSalesDone').innerHTML = `<span class="ms">task_alt</span>${HQ_STATE.salesIssued ? '발행 완료됨' : '발행 완료로 표시'}`;
+  $('#hqSalesState').innerHTML = HQ_STATE.issued ? pbPill(HQ_STATE, true) : '<span class="pill gray">미발행</span>';
+  pbButton($('#hqSalesDone'), HQ_STATE, [], true);
+  $('#hqPbBar').innerHTML = pbBar(HQ_STATE);
   renderHqInvoice();
 }
 /* 본사에 발행할 세금계산서 (실제로 끊을 모양): 품목 = 매출 내역 중 금액 있는 것 (전자세금계산서 품목 최대 4줄)
@@ -2151,7 +2432,8 @@ function renderHqInvoice() {
     <div class="notice" style="height:auto;margin-top:8px"><span class="ms">info</span><span>품목은 아래 매출 내역 중 금액이 있는 ${items.length}줄이에요 (전자세금계산서 품목 최대 4줄). 매입 ${won(hqSum(buy, 'total'))}원은 본사가 따로 발행해서 상계하지 않아요.</span></div>`;
 }
 renderHq();
-$('#hqSalesDone').addEventListener('click', () => { HQ_STATE.salesIssued = '2026-10-01'; renderHq(); toast('매출 세금계산서(허브 → 본사)를 발행 완료로 표시했습니다.'); });
+// 본사에 발행할 세금계산서: 「팝빌로 발행」 (registIssue) → 발행 후 「팝빌에서 보기」
+$('#hqSalesDone').addEventListener('click', () => { if (HQ_STATE.issued) pbView(HQ_STATE); else pbIssue([hqDoc()], renderHq); });
 
 /* 하위 탭: 정산서 + 본사 상세 파일 */
 let hqTab = 'stmt';
@@ -3192,7 +3474,8 @@ const SPEC = {
         <tr><td>세액 합계</td><td>공급가액 × 10%. <b>상점캐시 「세금계산서용」 차감 합계와 같아야 함</b></td></tr>
         <tr><td>합계(총액)</td><td>공급가액 + 세액 (= 기존 화면의 「총액」)</td></tr></table>`],
       ['3', '선택 작업', `<ul><li><b>행 아무 곳이나 누르면 체크박스 선택 / 해제</b> (선택된 행은 파란 배경). 「상세」 버튼과 체크박스는 각자 동작</li>
-        <li>체크한 상점에 「발행 완료로 표시」(발행일 = 오늘 저장), 「홈택스 일괄발행 양식」 xlsx 다운로드</li>
+        <li>체크한 상점을 「선택 발행 (n건)」 → <b>팝빌 BulkSubmit 정발행</b> (공통 규칙 「팝빌 발행」 참고). 이미 발행한 상점 · 정보 누락 상점은 선택 불가</li>
+        <li>바 오른쪽에 공동인증서 상태 (누르면 인증서 관리). 「건당 200원 허브캐시 차감」 안내 고정</li>
         <li><b>정보 누락 상점은 체크 불가</b> (사업자 등록번호 또는 이메일 없음)</li>
         <li>헤더 체크박스 = 현재 목록에서 선택 가능한 상점 전체 선택</li></ul>`],
       ['4', '정산 표', `<p>기존 컬럼은 <b>모두 유지</b>하고, 두 줄로 묶어 폭을 줄였다.</p>
@@ -3212,7 +3495,8 @@ const SPEC = {
         <li>공급자(내 허브) / 공급받는 자(상점: 상호 · 상점 코드 · 사업자번호 · 대표자 · 주소 · 업태/종목 · 이메일)를 품목 표 위 좌우 두 칸. 빈 값은 빨간 「미등록」</li>
         <li>품목 표: 품목 · 수량 · 단가 · 공급가액 · 세액(10%). 품목 = <b>배달대행료 (9월), 배달가맹비 (9월)</b> 2줄. 단가: 배달대행료는 주문마다 달라 「-」, 배달가맹비는 건당 고정값. 합계 + 세금계산서 합계금액</li>
         <li><b>SMS 이용료는 세금계산서 · 부가세 집계에서 제외</b></li>
-        <li>아래: 부가세 처리(발주/균등, 균등이면 공유 건수) + 안내. 정보 누락이면 빨간 안내 + 「발행 완료로 표시」 비활성</li>
+        <li>아래: 부가세 처리(발주/균등, 균등이면 공유 건수) + 안내. 정보 누락이면 빨간 안내 + 「팝빌로 발행」 비활성</li>
+        <li>버튼: 미발행 = 「팝빌로 발행」 (registIssue), 발행 후 = 「팝빌에서 보기」 (getPopUpURL). 발행 후에는 표 위에 문서번호 · 국세청 승인번호 · 문서 상태(전송중 → 전송완료) 줄</li>
         <li>「내역 다운로드」 = <b>화면과 같은 세금계산서 모양 엑셀</b> (시트 「세금계산서」: 작성일자 · 영수 · 발행 기한 · 상태 → 공급자 | 공급받는 자 → 품목 · 수량 · 단가 · 공급가액 · 세액 → 합계 → 세금계산서 합계금액 → 안내). 파일명 「세금계산서_{상점}_YYYYMM」</li></ul>`],
     ],
   },
@@ -3237,7 +3521,7 @@ const SPEC = {
         <tr><td>받은 부가세</td><td>상대 허브 「균등」 상점분 세액 합 (배달료와 함께 들어온 부가세). 보조 문구 없음</td></tr>
         <tr><td>받아야 할 부가세</td><td>상대 허브 「발주」 상점분 세액 합 (안 들어온 부가세). <b>0보다 크면 카드를 빨갛게</b>, 보조 = 「발주」 상점 수 · 허브 수</td></tr></table>`],
       ['4', '선택 작업', `<ul><li><b>행 아무 곳이나 누르면 체크박스 선택 / 해제</b> (선택된 행은 파란 배경). 「상세」 버튼과 체크박스는 각자 동작</li>
-        <li>체크한 허브에 「발행 완료로 표시」, 「홈택스 일괄발행 양식」 다운로드 (공급자 = 내 허브)</li>
+        <li>체크한 허브를 「선택 발행 (n건)」 → <b>팝빌 BulkSubmit 정발행</b> (공급자 = 내 허브). 이미 발행한 허브는 선택 불가. 바 오른쪽에 공동인증서 상태</li>
         <li><b>정보 누락 허브(사업자 등록번호 · 이메일 없음)는 체크 불가</b> → 상대 허브에 등록 요청</li></ul>`],
       ['5', '허브별 표 · 상세 · ★ 부가세 미수령 표시', `<table class="sp-tbl"><tr><th>상대 허브의 상점 부가세 설정</th><th>부가세</th></tr>
           <tr><td>「균등」</td><td>배달료와 함께 들어옴 → 받은 부가세 = 세액</td></tr>
@@ -3253,7 +3537,7 @@ const SPEC = {
           <tr><td>공급자 / 공급받는 자</td><td>품목 표 위 좌우 두 칸. 공급자 = 내 허브, 공급받는 자 = 발주 허브 (허브 관리 사업자 정보). 빈 값은 빨간 「미등록」 + 안내</td></tr>
           <tr><td>품목 표</td><td><b>상점별 1줄</b>: 「배달대행 · {상점} (9월)」 · 수량(수행 건수) · 단가 「-」(배달료가 주문마다 달라 비움) · 공급가액(내 몫) · 세액. 상점이 4곳 넘으면 1줄로 합침 (전자세금계산서 품목 최대 4줄). 합계 + 세금계산서 합계금액</td></tr>
           <tr><td>부가세 수령</td><td>세금계산서 아래. 제목에 받아야 할 부가세 합계(없으면 「모두 받음」). 상점별 상대 허브 설정(발주/균등) · 배달대행료 · 세액 · 받은 부가세 · 받아야 할 부가세, 「발주」 줄 빨간 배경</td></tr></table>
-          버튼: 「내역 다운로드」, 「발행 완료로 표시」(공급받는 자 정보 누락이면 비활성)</li>
+          버튼: 「내역 다운로드」, 「팝빌로 발행」(공급받는 자 정보 누락이면 비활성) → 발행 후 「팝빌에서 보기」. 발행 후 표 위에 문서번호 · 국세청 승인번호 · 문서 상태 줄</li>
         <li>상대 허브의 사업자 정보는 허브 관리의 사업자 정보를 그대로 쓴다</li>
         <li>공급자 · 공급받는 자에는 <b>실제 사업자명(상호)만</b> 표시한다. 허브명(예: [H]M서울서초)은 괄호로 붙이지 않음</li></ul>`],
     ],
@@ -3266,7 +3550,7 @@ const SPEC = {
       ['1', '조회 조건 (맨 위)', `<ul><li>정산월 (기본 전월). 지사코드 · 정산기간 · 발행 기한 D-day 표시</li>
         <li>「정산서 엑셀 (전체)」 = 첫 시트 정산서 양식 그대로 + 상세 파일마다 시트 1개 (탭 순서와 같음)</li></ul>`],
       ['2', '상단 지표 (모든 탭 공통)', `<table class="sp-tbl"><tr><th>지표</th><th>정의</th></tr>
-        <tr><td>매출 / 본사에 발행 필요</td><td>매출 합계(공급가액 + VAT). 보조 = 공급가액 · VAT. 「발행 완료로 표시」 후에는 제목이 「매출 / 본사에 발행 완료」, 보조에 발행일</td></tr>
+        <tr><td>매출 / 본사에 발행 필요</td><td>매출 합계(공급가액 + VAT). 보조 = 공급가액 · VAT. 팝빌로 발행하면 제목이 「매출 / 본사에 발행 완료」, 보조에 발행일</td></tr>
         <tr><td>매입 / 본사에서 허브로 발행</td><td>매입 합계. 보조 = 공급가액 · VAT (허브 쪽 상태 없음)</td></tr>
         <tr><td>매출 − 매입</td><td>공급가액 기준 순정산 (정산서의 「매출 − 매입」)</td></tr></table>`],
       ['3', '하위 탭 = 본사 파일', `<ul><li>첫 탭 <b>정산서</b>, 그 뒤로 본사가 준 상세 파일마다 탭 1개. 「참고」 표시 탭은 정산서 금액에 안 들어가는 자료</li>
@@ -3288,7 +3572,7 @@ const SPEC = {
         <li>「본사계약 공유망 배달대행료」 = 내 본사계약 상점 주문 중 공유망(수행 지사 없음)이 수행한 건</li></ul>`],
       ['5', '본사에 발행할 세금계산서 (매출 위)', `<p>허브가 <b>실제로 끊을 세금계산서 모양</b> 그대로 보여준다. 이걸 먼저 보고, 아래 매출 · 매입 표로 근거를 확인하는 흐름.</p>
         <table class="sp-tbl"><tr><th>영역</th><th>내용</th></tr>
-        <tr><td>머리</td><td>「본사에 발행할 세금계산서」 · 귀속월 · 작성일자(말일, 월 합계) · 영수 · 발행 기한 · 발행 상태(미발행 / 발행 완료 + 일자) · 「홈택스 발행 양식」 · 「발행 완료로 표시」</td></tr>
+        <tr><td>머리</td><td>「본사에 발행할 세금계산서」 · 귀속월 · 작성일자(말일, 월 합계) · 영수 · 발행 기한 · 발행 상태(미발행 / 발행 완료 + 일자 · 전송중/전송완료) · 공동인증서 상태 · 「팝빌로 발행」 → 발행 후 「팝빌에서 보기」. 발행 후 카드 맨 위에 문서번호 · 국세청 승인번호 · 문서 상태 줄</td></tr>
         <tr><td>품목 표</td><td>품목 · 수량 · 단가 · 공급가액 · 세액(10%). 품목 = 매출 내역 중 <b>금액이 있는 줄</b> (전자세금계산서 품목 <b>최대 4줄</b>). 품목명 뒤에 「(9월)」<br>
           수량: 배달대행료 = 수행 건수, 가맹관리비 = 본사계약 상점 수, 가맹 수수료 = 본사계약 상점 주문 수, 공유망 = 건수. 단가 = 공급가액 ÷ 수량</td></tr>
         <tr><td>합계</td><td>공급가액 · 세액 합계 → 「세금계산서 합계금액 (공급가액 + 세액)」. 위쪽 지표 「매출 / 본사에 발행 필요」 금액과 같음</td></tr>
@@ -3451,10 +3735,36 @@ const SPEC = {
         <li>기존 항목(납입일 등)은 그대로 둔다</li></ul>`],
     ],
   },
+  cert: {
+    title: '인증서 관리', url: '/settlement/certificate (신규)',
+    goal: '팝빌로 세금계산서를 <b>정발행</b>하기 위한 선행 조건인 <b>공급자(내 허브) 공동인증서</b>를 등록 · 갱신하고, 팝빌 연동 정보와 발행 내역 · 수수료를 한곳에서 본다.',
+    ref: '팝빌 전자세금계산서 API (GetTaxCertURL · CheckCertValidation · registIssue · BulkSubmit · getPopUpURL · getPDFURL), 옥토퍼스 딜리버리 마스터 콘솔 팝빌 연동 화면',
+    items: [
+      ['1', '안내', `<ul><li>세금계산서 발행 = 공급자 인증서로 전자서명. 팝빌 <code>registIssue</code>의 사전조건이 「공급자 인증서가 팝빌 인증서버에 등록」이라 미등록 · 만료면 호출 자체가 실패</li>
+        <li><b>허브 1곳 = 인증서 1개</b> (사업자번호 단위). 상점 · 허브 · 본사 세금계산서 모두 이 인증서로 발행</li></ul>`],
+      ['2', '공동인증서 상태', `<table class="sp-tbl"><tr><th>상태</th><th>판단</th><th>발행</th><th>표시</th></tr>
+        <tr><td>정상</td><td><code>CheckCertValidation</code> 성공, 만료 D-31 이상</td><td>가능</td><td>초록 줄 · 「인증서 갱신」</td></tr>
+        <tr><td>만료 임박</td><td>만료일 D-30 이내</td><td>가능</td><td>노랑 줄 · 갱신 안내</td></tr>
+        <tr><td>만료</td><td>만료일 지남</td><td><b>차단</b></td><td>빨간 줄 · 「인증서 갱신」</td></tr>
+        <tr><td>미등록</td><td>등록 이력 없음 / 검증 실패</td><td><b>차단</b></td><td>빨간 줄 · 「인증서 등록」</td></tr></table>
+        <ul><li>각 세금계산서 화면(상점 · 허브 · 본사)에도 같은 상태를 작게 표시 (누르면 이 화면)</li>
+        <li>「인증서 등록 / 갱신」 = 팝빌 <code>GetTaxCertURL</code> 결과 URL을 팝업(권장 1,000 × 630, URL 30초 유효)으로 연다. 시안은 팝빌 화면 모양을 흉내 낸 팝업</li>
+        <li>등록 가능한 인증서: 전자세금용 · 사업자 범용 (개인용 · 은행거래용 불가). 발급 비용은 허브 부담, 발행만 하면 전자세금용 3년형 권장</li></ul>`],
+      ['3', '팝빌 연동', `<ul><li>연동 사업자 = 내 허브 (팝빌 연동회원 <code>CorpNum</code> = 허브 사업자번호, 하이픈 제외)</li>
+        <li>발행 방식: 정발행 · 국세청 <b>즉시전송</b>. 1건 <code>registIssue</code>, 여러 건 <code>BulkSubmit</code> (최대 100건)</li>
+        <li><b>발행 수수료 건당 200원 · 허브캐시에서 차감</b> (발행 성공 건만)</li>
+        <li>팝빌 호출 키(링크아이디 · 비밀키)는 서버에만 둔다. 프론트에서 직접 호출 금지</li></ul>`],
+      ['4', '이번 달 발행', `<p>이번 달 팝빌로 발행한 건수 · 수수료 합계 · 세금계산서 합계금액, 구분별(상점 / 허브 / 본사) 건수</p>`],
+      ['5', '발행 내역', `<ul><li>컬럼: 발행 일시 · 구분 · 공급받는 자 · 문서번호(MgtKey) · 국세청 승인번호 · 합계금액 · 상태(전송중 / 전송완료 / 전송실패) · 수수료 · 「팝빌 보기」</li>
+        <li>문서 보기 = 팝빌 <code>getPopUpURL</code> 새 창, PDF = <code>getPDFURL</code> (URL 30초 유효). 우리가 PDF를 만들지 않음</li></ul>`],
+      ['6', '시안 전용', `<p>「인증서 상태 바꿔 보기」는 시안 확인용. 실제 화면에는 없음 (정상 / 만료 임박 / 만료 / 미등록일 때 각 세금계산서 화면의 발행 차단 동작 확인)</p>`],
+    ],
+  },
 };
 const MENU_SPEC = ['M', '정산 메뉴 (사이드바)', `<ul>
   <li>사이드바 1depth 「정산」 신설. 위치 = 「허브」 아래, 「정책관리」 위. 오픈 초기에는 NEW 배지</li>
-  <li>하위 메뉴 9개: 정산 요약 · 캐시 내역 · 수익 내역(기존 이름 「수익처리 내역」) ·상점 / 세금계산서 · <b>허브 / 세금계산서(신규)</b> · <b>본사 / 세금계산서(신규)</b> · 라이더 / 원천세 신고 · 세금 보관함 · 정산 설정</li>
+  <li>하위 메뉴 10개: 정산 요약 · 캐시 내역 · 수익 내역(기존 이름 「수익처리 내역」) ·상점 / 세금계산서 · <b>허브 / 세금계산서(신규)</b> · <b>본사 / 세금계산서(신규)</b> · 라이더 / 원천세 신고 · 세금 보관함 · 정산 설정 · <b>인증서 관리(신규)</b></li>
+  <li><b>「인증서 관리」(신규)</b>: 팝빌 세금계산서 발행용 공동인증서 등록 · 갱신 + 팝빌 연동 정보 · 발행 내역. 위치는 확인 필요 (시안 = 정산 맨 아래)</li>
   <li><b>「본사 / 세금계산서」(신규)</b>: 본사 정산서 기준. 매출 = 허브 → 본사 발행, 매입 = 본사 → 허브 발행. 하위 탭 = 정산서 + 본사 상세 파일 8개. 위치 = 허브 / 세금계산서 아래</li>
   <li><b>기존 메뉴 이동</b> (기존 메뉴·URL로 들어오면 새 화면으로 리다이렉트, 시안에서는 이동 안내 표시)
     <ul><li>「상점 &gt; 정산」(/store-adjustment) → 「정산 &gt; 상점 / 세금계산서」</li>
@@ -3471,7 +3781,18 @@ const COMMON = `
     <tr><td>본사 / 세금계산서</td><td><code>/settlement/hq-invoice</code> (신규)</td></tr>
     <tr><td>라이더 / 원천세 신고</td><td><code>/settlement/rider-withholding</code> (기존 <code>/worker-adjustment/withhold-tax-report</code> 리다이렉트)</td></tr>
     <tr><td>세금 보관함</td><td><code>/settlement/tax</code></td></tr>
-    <tr><td>정산 설정</td><td><code>/settlement/settings</code></td></tr></table>
+    <tr><td>정산 설정</td><td><code>/settlement/settings</code></td></tr>
+    <tr><td>인증서 관리</td><td><code>/settlement/certificate</code> (신규)</td></tr></table>
+  <div class="sp-h2">팝빌 세금계산서 발행 (상점 · 허브 · 본사 공통)</div>
+  <ul><li><b>수기 기능(「발행 완료로 표시」 · 홈택스 양식) 대신 팝빌 API 정발행</b>. 버튼: 단건 「팝빌로 발행」, 목록 「선택 발행 (n건)」</li>
+    <li>누르면 확인 팝업: 건수 · 세금계산서 합계금액 · <b>발행 수수료(건당 200원, 허브캐시 차감)</b> · 문서별 공급받는 자 · 문서번호 · 금액. 「n건 발행」을 눌러야 호출</li>
+    <li>호출: 1건 <code>registIssue</code>, 여러 건 <code>BulkSubmit</code>. 응답 전까지 <b>발행중</b>, 같은 문서번호(MgtKey)로 중복 발행 차단</li>
+    <li>성공: 국세청 승인번호(<code>ntsConfirmNum</code>) 팝빌이 자동 할당 → 문서 상태 <b>전송중</b> → 국세청 결과(웹훅) 오면 <b>전송완료</b> / 전송실패</li>
+    <li><b>수수료 차감</b>: 성공 건마다 허브캐시 −200원 → 캐시 내역(허브캐시)에 「세금계산서 발행 수수료」 차감 한 줄 (메모 = 팝빌 · 문서번호), 정산 요약 그날 「나간 돈」에 「세금계산서 발행 수수료」, 출금가능금액도 그만큼 줄어듦</li>
+    <li>차단 (확인 팝업에서 빨간 안내, 「n건 발행」 버튼 없음): <b>공동인증서 미등록 · 만료</b>(「인증서 관리로 이동」) &gt; 출금 가능 금액 &lt; 수수료. 공급받는 자 정보 누락 · 이미 발행한 건은 처음부터 선택 · 발행 불가</li>
+    <li>발행 후: 목록 「발행 완료」 + 발행일 · 전송 상태, 상세에는 문서번호 · 국세청 승인번호 · 문서 상태 줄, 버튼은 「팝빌에서 보기」(<code>getPopUpURL</code>)</li>
+    <li>문서번호 규칙(시안): 상점 <code>ST-YYYYMM-상점코드</code> · 허브 <code>HB-YYYYMM-허브코드</code> · 본사 <code>HQ-YYYYMM-지사코드</code> (영문 · 숫자 · '-' 24자 이내, 사업자별 중복 불가)</li>
+    <li>작성일자 = 귀속월 말일(월 합계), 영수. 발행 후 취소는 수정세금계산서로만</li></ul>
   <div class="sp-h2">용어 (UI 문구 고정)</div>
   <table class="sp-tbl"><tr><th>용어</th><th>뜻</th></tr>
     <tr><td>허브캐시</td><td>허브가 배달·관리비로 번 돈. 라이더 몫 제외</td></tr>
@@ -3532,7 +3853,11 @@ const QUESTIONS = [
   ['홈택스 일괄발행 · 간이지급명세서 파일을 홈택스 공식 엑셀 양식 그대로 만들 수 있나? (양식 변경 시 대응 포함)', '시안은 주요 열만 담은 예시 양식'],
   ['라이더 원천세: 지방소득세(위택스) 신고 자료도 별도 양식이 필요한가?', '이행상황신고서 자료에 함께 포함'],
   ['상점 / 세금계산서: 월 집계 시점(현재 매달 1일 12시)도 06시 기준으로 맞추나?', '기존 1일 12시 유지'],
-  ['상점 / 세금계산서: 발행 상태를 허컨에서 관리하나, 데이터만 내려받나? (홈택스 연동 여부)', '발행 상태 수동 체크 + 홈택스 양식 다운로드'],
+  ['세금계산서 발행: 팝빌 연동회원 체계 (허브마다 팝빌 연동회원 가입 vs 본사 파트너 계정 아래 허브 연동회원)', '허브별 연동회원 (CorpNum = 허브 사업자번호)으로 가정'],
+  ['세금계산서 발행: 수수료 200원 차감 시점 · 실패 처리 (발행 실패 · 국세청 전송실패 시 환불? 재발행 수수료?)', '발행 성공 건만 차감, 전송실패는 재전송(추가 수수료 없음)으로 가정'],
+  ['세금계산서 발행: 국세청 전송실패(웹훅) 때 허컨 표시 · 알림은?', '시안은 전송중 → 전송완료만'],
+  ['인증서 관리 메뉴 위치: 정산 하위 / 허브 관리 하위 / 별도 1depth 카테고리', '시안은 정산 하위 맨 아래 「인증서 관리」'],
+  ['홈택스 일괄발행 양식 다운로드를 팝빌 장애 대비용으로 남길까?', '시안은 화면에서 뺌 (수기 발행 기능 제거)'],
   ['허브 / 세금계산서: 공급가액 기준이 「내 허브가 가져간 배달대행료 몫」이 맞나? 가맹비 · 관리비 등 다른 항목도 넣나?', '배달대행료 내 몫만'],
   ['허브 / 세금계산서: 받아야 할 부가세(상대 허브 「발주」 상점분)는 어떻게 받나? (바로머니 정산에서 자동 정산 / 발주 허브에 청구 후 이체)', '표시만, 받는 방법 미정'],
   ['허브 / 세금계산서: 「발주」 상점분 세금계산서 세액은 10% 정상 기재 후 따로 받나, 세액 0으로 발행하나?', '세금계산서에는 10% 정상 기재 (과세 용역), 안 들어온 부가세는 따로 받기'],
@@ -3600,6 +3925,18 @@ $('#specBody').addEventListener('click', e => { const h = e.target.closest('.sp-
 
 setSumDate(SUM_YDAY);   // 정산 요약 기준일 첫 그리기 (이번 달 누적이 taxDays를 쓰므로 여기서)
 
+// 오늘(10/1) 이미 팝빌로 발행한 건: 수수료는 이미 허브캐시에서 빠진 상태 (HUB_BAL = 차감 뒤 잔액) → 캐시 내역 · 오늘 나간 돈에도 남김
+(() => {
+  const fee = POPBILL.fee, pre = POPBILL.log.filter(l => l.time.startsWith(POPBILL.today)).reverse();   // 오래된 것부터
+  DATA.hub.forEach(r => { r.bal += fee * pre.length; });
+  pre.forEach(l => DATA.hub.unshift({ time: `${l.time}:00`, dir: 'out', kind: '차감', reason: '세금계산서 발행 수수료', amt: -fee, bal: 0, store: '', rider: '', order: '', memo: `팝빌 · ${l.mgt}` }));
+  for (let j = 0; j < pre.length; j++) DATA.hub[j].bal = HUB_BAL + fee * j;
+  DATA.hub.forEach((r, i) => { r.no = DATA.hub.length - i; });
+  const it = TODAY.OUT.find(o => o.n === '세금계산서 발행 수수료');
+  POPBILL.todayCnt = pre.length; it.v = pre.length * fee; it.c = `팝빌 ${pre.length}건`;
+  renderCash();
+})();
+renderCert(); renderCertChips();   // 인증서 관리 화면 + 세금계산서 화면들의 인증서 상태
 /* #summary · #cash-rider · #profit · #tax · #setting-store 로 바로 열기, &spec 붙이면 명세 패널도 열림 */
 const [route, flag] = location.hash.slice(1).split('&');
 const [hv, hs] = route.split('-');
