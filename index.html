@@ -358,6 +358,7 @@
   .tip::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%); white-space: nowrap;
     background: #333; color: #fff; font-size: 12px; line-height: 1.4; padding: 5px 9px; border-radius: 4px; opacity: 0; pointer-events: none; transition: opacity .12s; z-index: 20; }
   .tip:hover::after, .tip:focus::after { opacity: 1; }
+  .tip.tip-r::after { left: auto; right: -4px; transform: none; }   /* 화면 오른쪽 끝 아이콘: 왼쪽으로 펼침 */
   #pbDim, #certDim, #txDim { z-index: 60; }   /* 세금계산서 상세 팝업 위에 뜸 */
   /* 세금계산서 보기 (팝빌 「세금계산서 보기」 모양) */
   #txDim .txwrap { width: 1080px; max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,.3); }
@@ -950,7 +951,8 @@
       <div class="card">
         <div class="card-h"><span class="ms">receipt_long</span>본사에 발행할 세금계산서 <span class="sub-t" id="hqIvSub"></span> <span id="hqSalesState"></span>
           <div class="right"><span class="cert-chip"></span>
-            <button class="btn primary sm" id="hqSalesDone"><span class="ms">send</span>팝빌로 발행</button></div></div>
+            <button class="btn primary pb-issue" id="hqSalesDone"><span class="ms">send</span>세금계산서 발행하기</button>
+            <span class="tip tip-r" id="hqFeeTip" tabindex="0" data-tip="팝빌 정발행 · 건당 200원 허브캐시 차감 (발행에 성공한 건만)"><span class="ms">help</span></span></div></div>
         <div id="hqPbBar"></div>   <!-- 발행 후: 문서번호 · 국세청 승인번호 · 전송 상태 -->
         <div class="hq-iv-party" id="hqIvParty"></div>   <!-- 공급자 / 공급받는 자 (세금계산서처럼 품목 위) -->
         <table class="tbl hq-iv">
@@ -2174,7 +2176,8 @@ function pbRerenderAll() {
 }
 function pbButton(btn, r, miss, sm) {
   btn.disabled = !r.issued && miss.length > 0;
-  btn.innerHTML = r.issued ? '<span class="ms">receipt_long</span>세금계산서 보기' : '<span class="ms">send</span>팝빌로 발행';
+  // sm = 본사 카드 버튼 → 「세금계산서 발행하기」 (목록 버튼과 같은 이름), 상세 팝업은 「팝빌로 발행」
+  btn.innerHTML = r.issued ? '<span class="ms">receipt_long</span>세금계산서 보기' : `<span class="ms">send</span>${sm ? '세금계산서 발행하기' : '팝빌로 발행'}`;
 }
 /* 세금계산서 보기 = 팝빌 「세금계산서 보기」 화면 모양 (실연동: getPopUpURL 새 창, URL 30초 유효)
    발행된 문서의 공급자 · 공급받는 자 · 품목을 국세청 전자세금계산서 양식 그대로 그린다 */
@@ -2560,6 +2563,7 @@ function renderHq() {
     stat('매출 − 매입 (공급가액)', 'balance', won(hqSum(S, 'supply') - hqSum(B, 'supply')), '정산서 기준 본사와의 순정산');
   $('#hqSalesState').innerHTML = HQ_STATE.issued ? pbPill(HQ_STATE, true) : '<span class="pill gray">미발행</span>';
   pbButton($('#hqSalesDone'), HQ_STATE, [], true);
+  $('#hqFeeTip').style.display = HQ_STATE.issued ? 'none' : '';   // 발행 뒤에는 수수료 툴팁 숨김
   $('#hqPbBar').innerHTML = pbBar(HQ_STATE);
   renderHqInvoice();
 }
@@ -3729,7 +3733,7 @@ const SPEC = {
         <li>「본사계약 공유망 배달대행료」 = 내 본사계약 상점 주문 중 공유망(수행 지사 없음)이 수행한 건</li></ul>`],
       ['5', '본사에 발행할 세금계산서 (매출 위)', `<p>허브가 <b>실제로 끊을 세금계산서 모양</b> 그대로 보여준다. 이걸 먼저 보고, 아래 매출 · 매입 표로 근거를 확인하는 흐름.</p>
         <table class="sp-tbl"><tr><th>영역</th><th>내용</th></tr>
-        <tr><td>머리</td><td>「본사에 발행할 세금계산서」 · 귀속월 · 작성일자(말일, 월 합계) · 영수 · 발행 기한 · 발행 상태(미발행 / 발행 완료 + 일자 · 전송중/전송완료) · 공동인증서 상태 · 「팝빌로 발행」 → 발행 후 「세금계산서 보기」. 발행 후 카드 맨 위에 문서번호 · 국세청 승인번호 · 문서 상태 줄</td></tr>
+        <tr><td>머리</td><td>「본사에 발행할 세금계산서」 · 귀속월 · 작성일자(말일, 월 합계) · 영수 · 발행 기한 · 발행 상태(미발행 / 발행 완료 + 일자 · 전송중/전송완료) · 공동인증서 상태 · 「세금계산서 발행하기」(큰 버튼) + ? 툴팁(팝빌 정발행 · 건당 200원 허브캐시 차감) → 발행 후 「세금계산서 보기」. 발행 후 카드 맨 위에 문서번호 · 국세청 승인번호 · 문서 상태 줄</td></tr>
         <tr><td>품목 표</td><td>품목 · 수량 · 단가 · 공급가액 · 세액(10%). 품목 = 매출 내역 중 <b>금액이 있는 줄</b> (전자세금계산서 품목 <b>최대 4줄</b>). 품목명 뒤에 「(9월)」<br>
           수량: 배달대행료 = 수행 건수, 가맹관리비 = 본사계약 상점 수, 가맹 수수료 = 본사계약 상점 주문 수, 공유망 = 건수. 단가 = 공급가액 ÷ 수량</td></tr>
         <tr><td>합계</td><td>공급가액 · 세액 합계 → 「세금계산서 합계금액 (공급가액 + 세액)」. 위쪽 지표 「매출 / 본사에 발행 필요」 금액과 같음</td></tr>
