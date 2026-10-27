@@ -349,6 +349,8 @@
   #hivDetail .hq-iv thead th { position: static; box-shadow: none; }
   /* ── 팝빌 연동 (발행 · 인증서) ── */
   .pb-fee { font-size: 12.5px; color: var(--text-3); }
+  .btn.pb-issue { height: 42px; padding: 0 22px; font-size: 15px; font-weight: 500; }   /* 세금계산서 발행하기 (목록 선택 발행) */
+  .btn.pb-issue .ms { font-size: 20px; }
   /* 툴팁: 아이콘에 마우스를 올리거나 포커스하면 data-tip 문구 */
   .tip { position: relative; display: inline-flex; vertical-align: -3px; color: #999; cursor: help; outline: none; }
   .tip .ms { font-size: 16px; }
@@ -856,7 +858,7 @@
 
     <div data-spec="3" class="mb"><div class="card"><div class="dl-row" style="padding:10px 14px">
       <span id="ivSelInfo" class="lbl" style="min-width:auto">선택 0개</span>
-      <button class="btn primary sm" id="ivMarkDone"><span class="ms">send</span>선택 발행</button>
+      <button class="btn primary pb-issue" id="ivMarkDone"><span class="ms">send</span>세금계산서 발행하기</button>
       <span class="tip" tabindex="0" data-tip="팝빌 정발행 · 건당 200원 허브캐시 차감 (발행에 성공한 건만)"><span class="ms">help</span></span>
       <span class="cert-chip" style="margin-left:auto"></span>
     </div></div></div>
@@ -903,7 +905,7 @@
 
     <div data-spec="4" class="mb"><div class="card"><div class="dl-row" style="padding:10px 14px">
       <span id="hivSelInfo" class="lbl" style="min-width:auto">선택 0개</span>
-      <button class="btn primary sm" id="hivMarkDone"><span class="ms">send</span>선택 발행</button>
+      <button class="btn primary pb-issue" id="hivMarkDone"><span class="ms">send</span>세금계산서 발행하기</button>
       <span class="tip" tabindex="0" data-tip="팝빌 정발행 · 건당 200원 허브캐시 차감 (발행에 성공한 건만)"><span class="ms">help</span></span>
       <span class="cert-chip" style="margin-left:auto"></span>
     </div></div></div>
@@ -1925,7 +1927,7 @@ function renderInvoice() {
     <td class="r num">${won(fsum('supply'))}</td><td class="r num">${won(fsum('vat'))}</td><td class="r num">${won(fsum('total'))}</td><td></td><td></td></tr>` : '';
   $('#ivAll').checked = rows.length > 0 && rows.filter(v => !ivMissing(v).length && !v.issued).every(v => ivSel.has(v.i));
   $('#ivSelInfo').textContent = `선택 ${ivSel.size}개`;
-  $('#ivMarkDone').innerHTML = `<span class="ms">send</span>선택 발행${ivSel.size ? ` (${ivSel.size}건)` : ''}`;
+  $('#ivMarkDone').innerHTML = `<span class="ms">send</span>세금계산서 발행하기${ivSel.size ? ` (${ivSel.size}건)` : ''}`;
 }
 $('#ivSearch').addEventListener('click', renderInvoice);
 $('#ivStatus').addEventListener('change', renderInvoice);
@@ -2060,7 +2062,7 @@ function renderHubInvoice() {
     <td class="r num">${won(fs('supply'))}</td><td class="r num">${won(fs('vat'))}</td><td class="r num">${won(fs('recv'))}</td><td class="r num" style="color:var(--minus)">${won(fs('due'))}</td><td></td><td></td></tr>` : '';
   $('#hivAll').checked = rows.some(h => !lock(h)) && rows.filter(h => !lock(h)).every(h => hivSel.has(h.i));
   $('#hivSelInfo').textContent = `선택 ${hivSel.size}개`;
-  $('#hivMarkDone').innerHTML = `<span class="ms">send</span>선택 발행${hivSel.size ? ` (${hivSel.size}건)` : ''}`;
+  $('#hivMarkDone').innerHTML = `<span class="ms">send</span>세금계산서 발행하기${hivSel.size ? ` (${hivSel.size}건)` : ''}`;
 }
 renderHubInvoice();
 $('#hivSearch').addEventListener('click', renderHubInvoice);
@@ -2122,7 +2124,7 @@ $('#hivDetailDone').addEventListener('click', () => {
 });
 
 /* ═════════ 팝빌 전자세금계산서 발행 (상점 · 허브 · 본사 공통) ═════════
-   흐름: 「팝빌로 발행」/「선택 발행」 → 확인 팝업(건수 · 합계 · 수수료) → registIssue(1건) / BulkSubmit(여러 건)
+   흐름: 「팝빌로 발행」/「세금계산서 발행하기」 → 확인 팝업(건수 · 합계 · 수수료) → registIssue(1건) / BulkSubmit(여러 건)
         → 국세청 승인번호 자동 할당 · 전송중 → 전송완료. 성공한 건만 건당 200원을 허브캐시에서 차감
    차단: 공동인증서 미등록 · 만료 / 공급받는 자 정보 누락 / 출금 가능 금액 < 수수료 */
 // 국세청 승인번호 (팝빌이 자동 할당하는 24자리). 시안은 문서번호에서 만든 고정값
@@ -3629,8 +3631,8 @@ const SPEC = {
         <tr><td>세액 합계</td><td>공급가액 × 10%. <b>상점캐시 「세금계산서용」 차감 합계와 같아야 함</b></td></tr>
         <tr><td>합계(총액)</td><td>공급가액 + 세액 (= 기존 화면의 「총액」)</td></tr></table>`],
       ['3', '선택 작업', `<ul><li><b>행 아무 곳이나 누르면 체크박스 선택 / 해제</b> (선택된 행은 파란 배경). 「상세」 버튼과 체크박스는 각자 동작</li>
-        <li>체크한 상점을 「선택 발행 (n건)」 → <b>팝빌 BulkSubmit 정발행</b> (공통 규칙 「팝빌 발행」 참고). 이미 발행한 상점 · 정보 누락 상점은 선택 불가</li>
-        <li>바 오른쪽에 공동인증서 상태 (누르면 인증서 관리). 「선택 발행」 옆 ? 툴팁 = 「팝빌 정발행 · 건당 200원 허브캐시 차감 (발행에 성공한 건만)」</li>
+        <li>체크한 상점을 「세금계산서 발행하기 (n건)」 → <b>팝빌 BulkSubmit 정발행</b> (공통 규칙 「팝빌 발행」 참고). 이미 발행한 상점 · 정보 누락 상점은 선택 불가</li>
+        <li>바 오른쪽에 공동인증서 상태 (누르면 인증서 관리). 「세금계산서 발행하기」 옆 ? 툴팁 = 「팝빌 정발행 · 건당 200원 허브캐시 차감 (발행에 성공한 건만)」</li>
         <li><b>정보 누락 상점은 체크 불가</b> (사업자 등록번호 또는 이메일 없음)</li>
         <li>헤더 체크박스 = 현재 목록에서 선택 가능한 상점 전체 선택</li></ul>`],
       ['4', '정산 표', `<p>기존 컬럼은 <b>모두 유지</b>하고, 두 줄로 묶어 폭을 줄였다.</p>
@@ -3676,7 +3678,7 @@ const SPEC = {
         <tr><td>받은 부가세</td><td>상대 허브 「균등」 상점분 세액 합 (배달료와 함께 들어온 부가세). 보조 문구 없음</td></tr>
         <tr><td>받아야 할 부가세</td><td>상대 허브 「발주」 상점분 세액 합 (안 들어온 부가세). <b>0보다 크면 카드를 빨갛게</b>, 보조 = 「발주」 상점 수 · 허브 수</td></tr></table>`],
       ['4', '선택 작업', `<ul><li><b>행 아무 곳이나 누르면 체크박스 선택 / 해제</b> (선택된 행은 파란 배경). 「상세」 버튼과 체크박스는 각자 동작</li>
-        <li>체크한 허브를 「선택 발행 (n건)」 → <b>팝빌 BulkSubmit 정발행</b> (공급자 = 내 허브). 이미 발행한 허브는 선택 불가. 바 오른쪽에 공동인증서 상태</li>
+        <li>체크한 허브를 「세금계산서 발행하기 (n건)」 → <b>팝빌 BulkSubmit 정발행</b> (공급자 = 내 허브). 이미 발행한 허브는 선택 불가. 바 오른쪽에 공동인증서 상태</li>
         <li><b>정보 누락 허브(사업자 등록번호 · 이메일 없음)는 체크 불가</b> → 상대 허브에 등록 요청</li></ul>`],
       ['5', '허브별 표 · 상세 · ★ 부가세 미수령 표시', `<table class="sp-tbl"><tr><th>상대 허브의 상점 부가세 설정</th><th>부가세</th></tr>
           <tr><td>「균등」</td><td>배달료와 함께 들어옴 → 받은 부가세 = 세액</td></tr>
@@ -3942,7 +3944,7 @@ const COMMON = `
     <tr><td>정산 설정</td><td><code>/settlement/settings</code></td></tr>
     <tr><td>인증서 관리</td><td><code>/settlement/certificate</code> (신규)</td></tr></table>
   <div class="sp-h2">팝빌 세금계산서 발행 (상점 · 허브 · 본사 공통)</div>
-  <ul><li><b>수기 기능(「발행 완료로 표시」 · 홈택스 양식) 대신 팝빌 API 정발행</b>. 버튼: 단건 「팝빌로 발행」, 목록 「선택 발행 (n건)」</li>
+  <ul><li><b>수기 기능(「발행 완료로 표시」 · 홈택스 양식) 대신 팝빌 API 정발행</b>. 버튼: 단건 「팝빌로 발행」, 목록 「세금계산서 발행하기 (n건)」</li>
     <li>누르면 확인 팝업: 건수 · 세금계산서 합계금액 · <b>발행 수수료(건당 200원, 허브캐시 차감)</b> · 문서별 공급받는 자 · 문서번호 · 금액. 「n건 발행」을 눌러야 호출</li>
     <li>호출: 1건 <code>registIssue</code>, 여러 건 <code>BulkSubmit</code>. 응답 전까지 <b>발행중</b>, 같은 문서번호(MgtKey)로 중복 발행 차단</li>
     <li>성공: 국세청 승인번호(<code>ntsConfirmNum</code>) 팝빌이 자동 할당 → 문서 상태 <b>전송중</b> → 국세청 결과(웹훅) 오면 <b>전송완료</b> / <b>전송실패</b></li>
