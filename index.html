@@ -2643,6 +2643,28 @@ function taxLog(kind) {
       : [`※ 9월 전체(09-01 ~ 09-30)의 원천세 보관액 합계 = 세금 보관함 원천세 보관금 ${won(WHT_KEEP)}원 = 라이더 / 원천세 신고 실 원천징수액`],
   }]);
 }
+/* 세금계산서 모양 엑셀 시트: 화면 세금계산서와 같은 순서 (머리 → 공급자 | 공급받는 자 → 품목 → 합계 → 합계금액 → 안내)
+   items = [품목, 수량, 단가, 공급가액, 세액] */
+function invoiceSheet({ title, state, supplier, buyer, items, supply, vat, notes = [] }) {
+  const [sw, sp] = supplier, [bw, bp] = buyer, v = x => x || '미등록';
+  const party = [['등록번호', 'bizno'], ['상호', 'corp'], ['성명', 'rep'], ['주소', 'addr'], ['업태/종목', null], ['이메일', 'email']]
+    .map(([lb, k]) => [lb, k ? v(sp[k]) : `${sp.biztype} / ${sp.item}`, '', lb, k ? v(bp[k]) : `${bp.biztype} / ${bp.item}`]);
+  return { name: '세금계산서', aoa: [
+    [title],
+    ['작성일자', '2026-09-30 (월 합계)', '', '발행 기한', '2026-10-10'],
+    ['영수/청구', '영수', '', '발행 상태', state],
+    [],
+    [`공급자 (${sw})`, '', '', `공급받는 자 (${bw})`, ''],
+    ...party,
+    [],
+    ['품목', '수량', '단가', '공급가액', '세액 (부가세 10%)'],
+    ...items,
+    ['합계', '', '', supply, vat],
+    ['세금계산서 합계금액 (공급가액 + 세액)', '', '', '', supply + vat],
+    [],
+    ...notes.map(n => [`※ ${n}`]),
+  ] };
+}
 // 본사 상세 파일 탭 → 엑셀 시트 (머리글은 줄바꿈 없이, 합계 행 포함)
 const hqFileSheet = f => { const n = f.head.length, t = hqTot(f);
   return { name: f.tab, title: `${f.file} (2026-09)`,
@@ -2717,18 +2739,18 @@ const DL = {
         '※ 정보 누락 상점(사업자 등록번호·이메일 없음)은 선택할 수 없어 이 파일에 들어가지 않습니다.'],
     }]);
   },
-  ivDetail() {   // 상점 상세 모달
+  ivDetail() {   // 상점 상세 모달 → 화면과 같은 세금계산서 모양 (공급자 · 공급받는 자 → 품목 → 합계금액)
     if (!ivCur) return;
-    const v = ivCur, s = storeCfg[v.i], t = storeSettle(s);
-    saveXlsx(`세금계산서정산_${s.name}_202609`, [{
-      name: '정산 내역', title: `${s.name} · 2026-09 세금계산서 정산`,
-      meta: [['상호', s.name], ['상점 코드', s.code], ['대표자명', v.rep], ['사업자 등록번호', v.bizno || '없음'], ['사업장 주소', v.addr], ['업태 / 종목', `${v.biztype} / ${v.item}`],
-        ['이메일', v.email || '없음'], ['부가세 처리', s.vatSep === '균등' ? `균등 (${shareNote(t)})` : '발주 (상점 전체 건)'], ['집계 기간', PERIOD_SEP + ' 완료 건'],
-        ['발행 상태', ivState(v) + (v.issued ? ` (${v.issued})` : '')]],
-      head: ['항목', '건수', '공급가액', '세액', '합계액'],
-      rows: t.items.map(it => [it.n, it.cnt, it.supply, it.vat, it.supply + it.vat]),
-      foot: [['합계', '', t.supply, t.vat, t.total]],
-    }]);
+    const v = ivCur, s = storeCfg[v.i], t = storeSettle(s), unit = n => { const u = UNIT.find(x => x[0] === n); return u && u[2] === 'order' ? u[1] : '-'; };
+    saveXlsx(`세금계산서_${s.name}_202609`, [invoiceSheet({
+      title: `${s.name}에 발행할 세금계산서 · 2026-09`,
+      state: ivState(v) + (v.issued ? ` (${v.issued})` : ''),
+      supplier: ['내 허브', HUB_INFO], buyer: [`상점 · ${s.code}`, { ...v, corp: s.name }],
+      items: t.items.map(it => [`${it.n} (9월)`, it.cnt, unit(it.n), it.supply, it.vat]),
+      supply: t.supply, vat: t.vat,
+      notes: [`부가세 처리: ${s.vatSep === '균등' ? `균등 (${shareNote(t)})` : '발주 (상점 전체 건)'}`,
+        '단가: 배달대행료는 주문마다 달라 비움(-), 배달가맹비는 건당 고정', 'SMS 이용료는 세금계산서 · 부가세 집계에서 제외', `집계 기간: ${PERIOD_SEP} 완료 건`],
+    })]);
   },
   whtReport() {   // 원천징수이행상황신고서 자료
     const T = k => WRIDERS.reduce((a, b) => a + b[k], 0), it = T('it'), lt = T('lt');
@@ -3190,7 +3212,8 @@ const SPEC = {
         <li>공급자(내 허브) / 공급받는 자(상점: 상호 · 상점 코드 · 사업자번호 · 대표자 · 주소 · 업태/종목 · 이메일)를 품목 표 위 좌우 두 칸. 빈 값은 빨간 「미등록」</li>
         <li>품목 표: 품목 · 수량 · 단가 · 공급가액 · 세액(10%). 품목 = <b>배달대행료 (9월), 배달가맹비 (9월)</b> 2줄. 단가: 배달대행료는 주문마다 달라 「-」, 배달가맹비는 건당 고정값. 합계 + 세금계산서 합계금액</li>
         <li><b>SMS 이용료는 세금계산서 · 부가세 집계에서 제외</b></li>
-        <li>아래: 부가세 처리(발주/균등, 균등이면 공유 건수) + 안내. 정보 누락이면 빨간 안내 + 「발행 완료로 표시」 비활성</li></ul>`],
+        <li>아래: 부가세 처리(발주/균등, 균등이면 공유 건수) + 안내. 정보 누락이면 빨간 안내 + 「발행 완료로 표시」 비활성</li>
+        <li>「내역 다운로드」 = <b>화면과 같은 세금계산서 모양 엑셀</b> (시트 「세금계산서」: 작성일자 · 영수 · 발행 기한 · 상태 → 공급자 | 공급받는 자 → 품목 · 수량 · 단가 · 공급가액 · 세액 → 합계 → 세금계산서 합계금액 → 안내). 파일명 「세금계산서_{상점}_YYYYMM」</li></ul>`],
     ],
   },
   hubInvoice: {
