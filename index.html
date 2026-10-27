@@ -345,6 +345,9 @@
   .hq-iv-party .pt { font-weight: 500; font-size: 14px; margin-bottom: 10px; }
   .hq-iv-party .pt .muted { font-weight: 400; font-size: 12.5px; color: var(--text-3); margin-left: 4px; }
   .hq-iv-party .kv { font-size: 13px; gap: 6px 10px; }
+  .hq-iv-h { font-weight: 500; font-size: 14px; color: #333; margin: 16px 0 8px; }
+  #hivDetail .hq-iv thead th { position: static; box-shadow: none; }
+  .hiv-iv-sub { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-3); margin: 0 0 10px; }
   .hq-tbl { width: 100%; table-layout: fixed; }   /* 매출 · 매입 표 컬럼 폭을 맞춤 */
   .hq-tbl th:nth-child(1) { width: 170px; } .hq-tbl th:nth-child(2) { width: 220px; } .hq-tbl th:nth-child(3) { width: 80px; }
   .hq-tbl th:nth-child(4), .hq-tbl th:nth-child(6) { width: 120px; } .hq-tbl th:nth-child(5) { width: 100px; } .hq-tbl th:nth-child(8) { width: 80px; }
@@ -1870,27 +1873,33 @@ $('#hivBody').addEventListener('click', e => {
   const b = e.target.closest('[data-hivd]'); if (!b) return;
   const h = HIV[+b.dataset.hivd], miss = hivMissing(h);
   hivCur = h;
-  $('#hivTitle').textContent = `${h.name} · 2026-09 허브 세금계산서`;
+  $('#hivTitle').textContent = `${h.name}에 발행할 세금계산서 · 2026-09`;
+  // 품목 = 상점별 1줄 (전자세금계산서 최대 4줄, 넘으면 1줄로 합침). 배달료가 주문마다 달라 단가는 비워 둠
+  const items = h.rows.length <= 4 ? h.rows.map(r => ({ name: `배달대행 · ${r.n} (9월)`, qty: r.cnt, supply: r.supply, vat: r.vat }))
+    : [{ name: `배달대행 · 공유 배달 ${h.rows.length}개 상점 (9월)`, qty: h.cnt, supply: h.supply, vat: h.vat }];
+  const st = h.issued ? `<span class="pill in">발행 완료 ${h.issued}</span>` : miss.length ? '<span class="pill out">정보 누락</span>' : '<span class="pill gray">미발행</span>';
   $('#hivDetail').innerHTML = `
-    <dl class="biz">
-      <dt>공급받는 자</dt><dd>${h.corp}</dd><dt>허브 코드</dt><dd class="num">${h.code}</dd>
-      <dt>대표자명</dt><dd>${h.rep}</dd><dt>사업자 등록번호</dt><dd class="num">${h.bizno || '<span class="miss">없음</span>'}</dd>
-      <dt>사업장 주소</dt><dd>${h.addr}</dd><dt>업태 / 종목</dt><dd>${h.biztype} / ${h.item}</dd>
-      <dt>이메일</dt><dd>${h.email || '<span class="miss">없음</span>'}</dd><dt>발행 상태</dt><dd>${hivState(h)}${h.issued ? ` (${h.issued})` : ''}</dd>
-    </dl>
-    ${miss.length ? `<div class="callout" style="border-color:#f3c4c4;background:#fff5f5"><span class="ms" style="color:var(--minus)">error</span><div><b>${miss.join(', ')}</b>이(가) 없어 발행할 수 없어요. 상대 허브에 사업자 정보 등록을 요청해 주세요.</div></div>` : ''}
-    ${h.due > 0 ? `<div class="callout" style="border-color:#f0b4b4;background:#fff5f5"><span class="ms" style="color:var(--minus)">error</span><div>
-      <b style="color:var(--minus)">부가세 ${won(h.due)}원을 받아야 해요.</b> ${h.name}이(가) 아래 빨간 줄 상점을 부가세 「발주」로 설정해, 배달료에 부가세가 들어오지 않았어요.</div></div>` : ''}
-    ${h.hqOut.length ? `<div class="notice" style="height:auto;margin-bottom:8px"><span class="ms">info</span><span>본사계약 상점 ${h.hqOut.map(s => `${s.n}(${s.cnt.toLocaleString()}건)`).join(', ')}은 본사에 세금계산서를 발행하므로 아래 표에서 제외했어요.</span></div>` : ''}
+    <div class="hiv-iv-sub">2026년 9월분 · 작성일자 2026-09-30 (월 합계) · 영수 · 발행 기한 10/10 ${st}</div>
+    <div class="card">
+      <div class="hq-iv-party">${ivParty('공급자', '내 허브', HUB_INFO)}${ivParty('공급받는 자', `발주 허브 · ${h.name}`, h)}</div>
+      <table class="tbl hq-iv">
+        <thead><tr><th>품목</th><th class="r">수량</th><th class="r">단가</th><th class="r">공급가액</th><th class="r">세액 (부가세 10%)</th></tr></thead>
+        <tbody>${items.map(it => `<tr><td>${it.name}</td><td class="r num">${it.qty.toLocaleString()}</td><td class="r muted">-</td><td class="r num">${won(it.supply)}</td><td class="r num">${won(it.vat)}</td></tr>`).join('')}</tbody>
+        <tfoot><tr><td>합계</td><td class="r num">${h.cnt.toLocaleString()}</td><td></td><td class="r num">${won(h.supply)}</td><td class="r num">${won(h.vat)}</td></tr>
+          <tr class="grand"><td colspan="4">세금계산서 합계금액 (공급가액 + 세액)</td><td class="r num">${won(h.supply + h.vat)}원</td></tr></tfoot>
+      </table>
+    </div>
+    ${miss.length ? `<div class="callout" style="border-color:#f3c4c4;background:#fff5f5;margin:10px 0 0"><span class="ms" style="color:var(--minus)">error</span><div>공급받는 자 <b>${miss.join(', ')}</b> 정보가 없어 발행할 수 없어요. 상대 허브에 사업자 정보 등록을 요청해 주세요.</div></div>` : ''}
+    ${!HUB_INFO.email ? `<div class="callout" style="border-color:#f3c4c4;background:#fff5f5;margin:10px 0 0"><span class="ms" style="color:var(--minus)">error</span><div>공급자(내 허브) <b>이메일</b>이 비어 있어요. 허브 관리 &gt; 사업자 정보에서 채운 뒤 발행해 주세요.</div></div>` : ''}
+    <div class="hq-iv-h">부가세 수령 ${h.due > 0 ? `<span style="color:var(--minus)">· 받아야 할 부가세 ${won(h.due)}원</span>` : '<span class="muted">· 모두 받음</span>'}</div>
     <div class="tbl-wrap"><table class="tbl">
-      <thead><tr><th>상점 (${h.name} 소속)</th><th class="c">상대 허브 설정</th><th class="r">수행 건수</th><th class="r">배달대행료</th><th class="r">공급가액 (내 몫)</th><th class="r">세액 (10%)</th><th class="r">받은 부가세</th><th class="r" style="color:var(--minus)">받아야 할 부가세</th></tr></thead>
-      <tbody>${h.rows.map(r => `<tr class="${r.due > 0 ? 'warn' : ''}"><td>${r.n}</td><td class="c">${vatSetTag(r)}</td><td class="r num">${r.cnt.toLocaleString()}</td><td class="r num muted">${won(r.fee)}</td>
-        <td class="r num">${won(r.supply)}</td><td class="r num">${won(r.vat)}</td><td class="r num">${won(r.recv)}</td>
+      <thead><tr><th>상점 (${h.name} 소속)</th><th class="c">상대 허브 설정</th><th class="r">배달대행료</th><th class="r">세액 (10%)</th><th class="r">받은 부가세</th><th class="r" style="color:var(--minus)">받아야 할 부가세</th></tr></thead>
+      <tbody>${h.rows.map(r => `<tr class="${r.due > 0 ? 'warn' : ''}"><td>${r.n}</td><td class="c">${vatSetTag(r)}</td><td class="r num muted">${won(r.fee)}</td><td class="r num">${won(r.vat)}</td><td class="r num">${won(r.recv)}</td>
         <td class="r num">${r.due > 0 ? `<b style="color:var(--minus)">${won(r.due)}</b>` : '<span class="muted">0</span>'}</td></tr>`).join('')}</tbody>
-      <tfoot><tr><td>합계</td><td></td><td class="r num">${h.cnt.toLocaleString()}</td><td class="r num">${won(h.rows.reduce((a, b) => a + b.fee, 0))}</td><td class="r num">${won(h.supply)}</td><td class="r num">${won(h.vat)}</td><td class="r num">${won(h.recv)}</td><td class="r num" style="color:var(--minus)">${won(h.due)}</td></tr></tfoot>
+      <tfoot><tr><td>합계</td><td></td><td class="r num">${won(h.rows.reduce((a, b) => a + b.fee, 0))}</td><td class="r num">${won(h.vat)}</td><td class="r num">${won(h.recv)}</td><td class="r num" style="color:var(--minus)">${won(h.due)}</td></tr></tfoot>
     </table></div>
-    <div class="notice" style="height:auto;margin-top:8px"><span class="ms">info</span><span>공급자 = 내 허브 사업자(${HUB_INFO.corp}) → 공급받는 자 = 발주 허브 사업자(${h.corp}). 품목: 배달대행 (공유 배달 수행)<br>
-      부가세 수령: 상대 허브 설정 「균등」 = 배달료와 함께 들어옴 / 「발주」 = 안 들어옴 → 받은 부가세 0, 따로 받아야 함. 본사계약 상점은 본사에 발행(제외)<br>집계 기간: 정산일 9/1 ~ 9/30 (9/1 06시 ~ 10/1 06시) 완료 건</span></div>`;
+    <div class="notice" style="height:auto;margin-top:8px"><span class="ms">info</span><span>단가는 주문마다 배달료가 달라 비워 둬요. 「발주」 상점은 배달료에 부가세가 안 들어와 따로 받아야 해요.
+      ${h.hqOut.length ? `본사계약 상점 ${h.hqOut.map(s => `${s.n}(${s.cnt.toLocaleString()}건)`).join(', ')}은 본사에 발행해서 제외했어요.` : ''} 집계: 9/1 06시 ~ 10/1 06시 완료 건</span></div>`;
   $('#hivDetailDone').disabled = !!miss.length || !!h.issued;
   $('#hivDetailDone').textContent = h.issued ? `발행 완료 (${h.issued})` : '발행 완료로 표시';
   $('#hivDim').classList.add('show');
@@ -2118,6 +2127,15 @@ function renderHq() {
 /* 본사에 발행할 세금계산서 (실제로 끊을 모양): 품목 = 매출 내역 중 금액 있는 것 (전자세금계산서 품목 최대 4줄)
    매입은 본사가 따로 발행하므로 상계하지 않음 */
 const hqIvItems = () => HQ_LINES.sales.filter(l => l.supply > 0);
+// 세금계산서 공급자 / 공급받는 자 칸 (본사 / 세금계산서 · 허브 / 세금계산서 상세 공통). 빈 값은 빨간 「미등록」
+function ivParty(title, who, p) {
+  const v = x => x || '<span class="miss">미등록</span>';
+  return `<div><div class="pt">${title} <span class="muted">${who}</span></div>
+    <dl class="kv" style="grid-template-columns:76px 1fr;margin:0">
+      <dt>등록번호</dt><dd class="num">${v(p.bizno)}</dd><dt>상호</dt><dd>${v(p.corp)}</dd><dt>성명</dt><dd>${v(p.rep)}</dd>
+      <dt>주소</dt><dd>${v(p.addr)}</dd><dt>업태/종목</dt><dd>${p.biztype} / ${p.item}</dd>
+      <dt>이메일</dt><dd>${v(p.email)}</dd></dl></div>`;
+}
 function renderHqInvoice() {
   const items = hqIvItems(), sup = hqSum(items, 'supply'), vat = hqSum(items, 'vat');
   $('#hqIvSub').textContent = '2026년 9월분 · 작성일자 2026-09-30 (월 합계) · 영수 · 발행 기한 10/10';
@@ -2125,12 +2143,7 @@ function renderHqInvoice() {
       <td class="r num">${won(l.supply)}</td><td class="r num">${won(l.vat)}</td></tr>`).join('');
   $('#hqIvFoot').innerHTML = `<tr><td>합계</td><td></td><td></td><td class="r num">${won(sup)}</td><td class="r num">${won(vat)}</td></tr>
     <tr class="grand"><td colspan="4">세금계산서 합계금액 (공급가액 + 세액)</td><td class="r num">${won(sup + vat)}원</td></tr>`;
-  const party = (title, who, p) => `<div><div class="pt">${title} <span class="muted">${who}</span></div>
-      <dl class="kv" style="grid-template-columns:76px 1fr;margin:0">
-        <dt>등록번호</dt><dd class="num">${p.bizno}</dd><dt>상호</dt><dd>${p.corp}</dd><dt>성명</dt><dd>${p.rep}</dd>
-        <dt>주소</dt><dd>${p.addr}</dd><dt>업태/종목</dt><dd>${p.biztype} / ${p.item}</dd>
-        <dt>이메일</dt><dd>${p.email || '<span class="miss">미등록</span>'}</dd></dl></div>`;
-  $('#hqIvParty').innerHTML = party('공급자', '내 허브', HUB_INFO) + party('공급받는 자', '본사', HQ_INFO);
+  $('#hqIvParty').innerHTML = ivParty('공급자', '내 허브', HUB_INFO) + ivParty('공급받는 자', '본사', HQ_INFO);
   const buy = HQ_LINES.buy, miss = !HUB_INFO.email;
   $('#hqIvNote').innerHTML = `${miss ? `<div class="callout" style="border-color:#f3c4c4;background:#fff5f5;margin:10px 0 0"><span class="ms" style="color:var(--minus)">error</span>
       <div>공급자(내 허브) <b>이메일</b>이 비어 있어요. 허브 관리 &gt; 사업자 정보에서 채운 뒤 발행해 주세요.</div></div>` : ''}
@@ -3208,7 +3221,13 @@ const SPEC = {
         <li>해당 허브 행은 빨간 배경 + 「부가세 받아야 함」 배지, 상세 모달의 해당 상점 줄도 빨간 배경</li>
         <li>판단 기준 = <b>그 공유 배달 시점에 상대 허브에 적용된 상점 부가세 설정</b> (정산 설정의 「그 달에 적용된 값」)</li></ul>
         <ul><li>컬럼: 발주 허브 / 허브 코드, 상호 · 대표자 / 사업자번호 · 이메일, 상점 수, 수행 건수, 공급가액, 세액(10%), <b>받은 부가세, 받아야 할 부가세</b>, 발행 상태, 상세. <b>받아야 할 부가세는 가로 스크롤 없이 보이게</b> (주소 · 업태는 상세 · 엑셀에)</li>
-        <li>「상세」 모달: 공급받는 자 사업자 정보 + <b>상점별</b> 상대 허브 설정(발주/균등) · 수행 건수 · 배달대행료 · 공급가액(내 몫) · 세액 · 받은 부가세 · 받아야 할 부가세. 「내역 다운로드」, 「발행 완료로 표시」</li>
+        <li>「상세」 모달 = <b>그 허브에 발행할 세금계산서 모양</b> (본사 / 세금계산서의 「본사에 발행할 세금계산서」와 같은 틀)
+          <table class="sp-tbl"><tr><th>영역</th><th>내용</th></tr>
+          <tr><td>제목 · 머리</td><td>「{발주 허브}에 발행할 세금계산서 · YYYY-MM」, 귀속월 · 작성일자(말일, 월 합계) · 영수 · 발행 기한 · 상태(미발행 / 정보 누락 / 발행 완료 + 일자)</td></tr>
+          <tr><td>공급자 / 공급받는 자</td><td>품목 표 위 좌우 두 칸. 공급자 = 내 허브, 공급받는 자 = 발주 허브 (허브 관리 사업자 정보). 빈 값은 빨간 「미등록」 + 안내</td></tr>
+          <tr><td>품목 표</td><td><b>상점별 1줄</b>: 「배달대행 · {상점} (9월)」 · 수량(수행 건수) · 단가 「-」(배달료가 주문마다 달라 비움) · 공급가액(내 몫) · 세액. 상점이 4곳 넘으면 1줄로 합침 (전자세금계산서 품목 최대 4줄). 합계 + 세금계산서 합계금액</td></tr>
+          <tr><td>부가세 수령</td><td>세금계산서 아래. 제목에 받아야 할 부가세 합계(없으면 「모두 받음」). 상점별 상대 허브 설정(발주/균등) · 배달대행료 · 세액 · 받은 부가세 · 받아야 할 부가세, 「발주」 줄 빨간 배경</td></tr></table>
+          버튼: 「내역 다운로드」, 「발행 완료로 표시」(공급받는 자 정보 누락이면 비활성)</li>
         <li>상대 허브의 사업자 정보는 허브 관리의 사업자 정보를 그대로 쓴다</li>
         <li>공급자 · 공급받는 자에는 <b>실제 사업자명(상호)만</b> 표시한다. 허브명(예: [H]M서울서초)은 괄호로 붙이지 않음</li></ul>`],
     ],
