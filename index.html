@@ -852,7 +852,7 @@
     </div>
 
     <div class="card" data-spec="7">
-      <div class="card-h">매입 <span class="sub-t">본사 → 허브 발행 · 공급자 = (주)바로고, 공급받는 자 = 내 허브</span></div>
+      <div class="card-h">매입 <span class="sub-t">본사 → 허브 발행 · 공급자 = 주식회사 바로고, 공급받는 자 = 내 허브</span></div>
       <div style="overflow-x:auto"><table class="tbl hq-tbl">
         <thead><tr><th>분류</th><th>내역</th><th class="r">건수</th><th class="r">공급가액</th><th class="r">VAT</th><th class="r">합계</th><th>비고</th><th class="c">상세</th></tr></thead>
         <tbody id="hqBuyBody"></tbody><tfoot id="hqBuyFoot"></tfoot>
@@ -1938,7 +1938,7 @@ shareBy(WHT_SUP_TOTAL / 10, WRIDERS.map(r => r.cnt)).forEach((s, i) => { const r
      매출 = 허브 → 본사 발행 (B2B · 본사계약 로드샵 수익, 본사계약 공유망)
      매입 = 본사 → 허브 발행 (로드샵 관리비 · 지사배달대행수수료, 일반 공유망)
    상세 파일마다 하위 탭 하나. 컬럼은 본사 파일 구조를 따르고 금액 · 상점 · 기사는 전부 더미 */
-const HQ_INFO = { corp: '(주)바로고', bizno: '211-88-00000', rep: '대표이사', addr: '서울 (본사 사업장 주소)', biztype: '서비스', item: '배달대행 플랫폼', email: 'tax@example.com' };
+const HQ_INFO = { corp: '주식회사 바로고', bizno: '119-86-87135', rep: '이태권', addr: '서울특별시 강남구 언주로134길 32', biztype: '정보통신업', item: '소프트웨어', email: 'finance@barogo.com' };   // 본사 사업자 정보 (공급받는 자)
 const HQ_STATE = { salesIssued: '' };   // 매입은 본사가 발행하므로 허브 쪽 상태 없음
 const d2 = n => String(n).padStart(2, '0');
 const memo = f => { let v; return () => v || (v = f()); };
