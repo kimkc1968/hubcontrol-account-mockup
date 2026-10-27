@@ -409,8 +409,12 @@
   .pb-sum > div { border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; }
   .pb-sum span { display: block; font-size: 12px; color: var(--text-3); }
   .pb-sum b { font-size: 16px; font-weight: 600; }
-  .certbar { display: flex; align-items: center; gap: 18px; background: #fff; border: 1px solid var(--border); border-left: 4px solid #2e8b57; border-radius: 4px; padding: 14px 18px; }
-  .certbar.soon { border-left-color: #e0a100; } .certbar.bad { border-left-color: var(--minus); }
+  .certbar { display: flex; align-items: center; gap: 18px; background: #fff; border: 1px solid var(--border); border-radius: 4px; padding: 14px 18px; }
+  .cert-big { flex: none; display: inline-flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; padding: 7px 16px; border-radius: 20px; border: 1px solid; white-space: nowrap; }
+  .cert-big .ms { font-size: 19px; }
+  .cert-big.ok { color: #1b7f3b; background: #eef8f1; border-color: #bfe3cb; }
+  .cert-big.soon { color: #a86b00; background: #fff8e8; border-color: #f0d9a8; }
+  .cert-big.bad { color: var(--minus); background: #fff5f5; border-color: #f3c4c4; }
   .certbar .ctx { flex: 1; min-width: 0; }
   .certbar .l1 { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; }
   .certbar .l2 { font-size: 13px; color: #666; margin-top: 4px; }
@@ -2296,8 +2300,10 @@ function renderCert() {
   const c = POPBILL.cert, st = certState(), d = certDays();
   const [lb, pc, desc] = { ok: ['정상', 'in', '팝빌 인증서버에 등록돼 있어요. 세금계산서를 발행할 수 있어요.'], soon: ['만료 임박', 'keep', `만료 ${d}일 전이에요. 발행은 되지만 만료 전에 갱신해 주세요.`],
     expired: ['만료', 'out', '인증서가 만료돼 세금계산서를 발행할 수 없어요. 갱신한 뒤 발행해 주세요.'], none: ['미등록', 'out', '세금계산서를 발행하려면 공급자(내 허브) 공동인증서를 팝빌 인증서버에 먼저 등록해야 해요.'] }[st];
-  $('#certBar').className = 'certbar mb ' + (st === 'ok' ? '' : st === 'soon' ? 'soon' : 'bad');
-  $('#certBar').innerHTML = `<div class="ctx"><div class="l1"><span class="ms">verified_user</span>${c.reg ? c.type : '공동인증서 미등록'} <span class="pill ${pc}">${lb}</span></div><div class="l2">${desc}</div></div>
+  const bc = st === 'ok' ? 'ok' : st === 'soon' ? 'soon' : 'bad', bi = { ok: 'check_circle', soon: 'schedule', expired: 'error', none: 'error' }[st];
+  $('#certBar').className = 'certbar mb';
+  $('#certBar').innerHTML = `<div class="ctx"><div class="l1"><span class="ms">verified_user</span>${c.reg ? c.type : '공동인증서 미등록'}</div><div class="l2">${desc}</div></div>
+    <span class="cert-big ${bc}"><span class="ms">${bi}</span>${lb}</span>
     ${c.reg ? `<div class="cexp"><span>만료일</span><b class="num">${c.exp}</b><span>${d >= 0 ? `D-${d}` : `${-d}일 지남`}</span></div>` : ''}
     <button class="btn ${st === 'ok' ? 'outline' : 'primary'}" data-cert="open"><span class="ms">${c.reg ? 'autorenew' : 'add'}</span>${c.reg ? '인증서 갱신' : '인증서 등록'}</button>`;
   $('#pbInfo').innerHTML = `<dl class="kv" style="grid-template-columns:96px 1fr">
@@ -3887,11 +3893,12 @@ const SPEC = {
       ['1', '안내', `<ul><li>세금계산서 발행 = 공급자 인증서로 전자서명. 팝빌 <code>registIssue</code>의 사전조건이 「공급자 인증서가 팝빌 인증서버에 등록」이라 미등록 · 만료면 호출 자체가 실패</li>
         <li><b>허브 1곳 = 인증서 1개</b> (사업자번호 단위). 상점 · 허브 · 본사 세금계산서 모두 이 인증서로 발행</li></ul>`],
       ['2', '공동인증서 상태', `<table class="sp-tbl"><tr><th>상태</th><th>판단</th><th>발행</th><th>표시</th></tr>
-        <tr><td>정상</td><td><code>CheckCertValidation</code> 성공, 만료 D-31 이상</td><td>가능</td><td>초록 줄 · 「인증서 갱신」</td></tr>
-        <tr><td>만료 임박</td><td>만료일 D-30 이내</td><td>가능</td><td>노랑 줄 · 갱신 안내</td></tr>
-        <tr><td>만료</td><td>만료일 지남</td><td><b>차단</b></td><td>빨간 줄 · 「인증서 갱신」</td></tr>
-        <tr><td>미등록</td><td>등록 이력 없음 / 검증 실패</td><td><b>차단</b></td><td>빨간 줄 · 「인증서 등록」</td></tr></table>
-        <ul><li>각 세금계산서 화면(상점 · 허브 · 본사)에도 같은 상태를 작게 표시 (누르면 이 화면)</li>
+        <tr><td>정상</td><td><code>CheckCertValidation</code> 성공, 만료 D-31 이상</td><td>가능</td><td>초록 「정상」 배지 · 「인증서 갱신」</td></tr>
+        <tr><td>만료 임박</td><td>만료일 D-30 이내</td><td>가능</td><td>노랑 「만료 임박」 배지 · 갱신 안내</td></tr>
+        <tr><td>만료</td><td>만료일 지남</td><td><b>차단</b></td><td>빨간 「만료」 배지 · 「인증서 갱신」</td></tr>
+        <tr><td>미등록</td><td>등록 이력 없음 / 검증 실패</td><td><b>차단</b></td><td>빨간 「미등록」 배지 · 「인증서 등록」</td></tr></table>
+        <ul><li>상태 배지는 <b>만료일 바로 왼쪽에 크게</b> (인증서 줄 왼쪽 색 표시는 없음)</li>
+        <li>각 세금계산서 화면(상점 · 허브 · 본사)에도 같은 상태를 작게 표시 (누르면 이 화면)</li>
         <li>「인증서 등록 / 갱신」 = 팝빌 <code>GetTaxCertURL</code> 결과 URL을 팝업(권장 1,000 × 630, URL 30초 유효)으로 연다. 시안은 팝빌 화면 모양을 흉내 낸 팝업</li>
         <li>등록 가능한 인증서: 전자세금용 · 사업자 범용 (개인용 · 은행거래용 불가). 발급 비용은 허브 부담, 발행만 하면 전자세금용 3년형 권장</li></ul>`],
       ['3', '팝빌 연동', `<ul><li>연동 사업자 = 내 허브 (팝빌 연동회원 <code>CorpNum</code> = 허브 사업자번호, 하이픈 제외)</li>
